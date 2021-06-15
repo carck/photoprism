@@ -29,7 +29,7 @@ fi
 
 if [[ $1 == "debug" ]]; then
   echo "Building development binary..."
-	go build -ldflags "-X main.version=${PHOTOPRISM_DATE}-${PHOTOPRISM_VERSION}-${PHOTOPRISM_OS}-${PHOTOPRISM_ARCH}-DEBUG" -o $2 cmd/photoprism/photoprism.go
+	go build -tags NOTENSORFLOW -ldflags "-X main.version=${PHOTOPRISM_DATE}-${PHOTOPRISM_VERSION}-${PHOTOPRISM_OS}-${PHOTOPRISM_ARCH}-DEBUG" -o $2 cmd/photoprism/photoprism.go
 	du -h $2
 	echo "Done."
 elif [[ $1 == "race" ]]; then
@@ -44,7 +44,7 @@ elif [[ $1 == "static" ]]; then
 	echo "Done."
 else
   echo "Building production binary..."
-	go build -ldflags "-s -w -X main.version=${PHOTOPRISM_DATE}-${PHOTOPRISM_VERSION}-${PHOTOPRISM_OS}-${PHOTOPRISM_ARCH}" -o $2 cmd/photoprism/photoprism.go
+	go build -tags NOTENSORFLOW -ldflags "-s -w -X main.version=${PHOTOPRISM_DATE}-${PHOTOPRISM_VERSION}-${PHOTOPRISM_OS}-${PHOTOPRISM_ARCH}" -o $2 cmd/photoprism/photoprism.go
 	du -h $2
 	echo "Done."
 fi

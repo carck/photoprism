@@ -1,5 +1,3 @@
-// +build !NOTENSORFLOW
-
 package classify
 
 import (
@@ -13,27 +11,33 @@ import (
 	"path"
 	"path/filepath"
 	"runtime/debug"
+	"sync"
 	"sort"
 	"strings"
 
 	"github.com/disintegration/imaging"
 	"github.com/photoprism/photoprism/pkg/txt"
-	tf "github.com/tensorflow/tensorflow/tensorflow/go"
+	"github.com/mattn/go-tflite"
+	"github.com/mattn/go-tflite/delegates/xnnpack"
 )
 
 // TensorFlow is a wrapper for tensorflow low-level API.
 type TensorFlow struct {
-	model      *tf.SavedModel
+	mu sync.Mutex
+	interpreter *tflite.Interpreter
 	modelsPath string
 	disabled   bool
 	modelName  string
-	modelTags  []string
+	modelFile  string
 	labels     []string
+	inBytes    []byte
+	inFloats   []float32
+	outFloats  []float32
 }
 
 // New returns new TensorFlow instance with Nasnet model.
 func New(modelsPath string, disabled bool) *TensorFlow {
-	return &TensorFlow{modelsPath: modelsPath, disabled: disabled, modelName: "nasnet", modelTags: []string{"photoprism"}}
+	return &TensorFlow{modelsPath: modelsPath, disabled: disabled, modelName: "nasnet", modelFile: "nasnet_mobile.tflite"}
 }
 
 // Init initialises tensorflow models if not disabled
@@ -47,6 +51,9 @@ func (t *TensorFlow) Init() (err error) {
 
 // File returns matching labels for a jpeg media file.
 func (t *TensorFlow) File(filename string) (result Labels, err error) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
 	if t.disabled {
 		return result, nil
 	}
@@ -77,33 +84,33 @@ func (t *TensorFlow) Labels(img []byte) (result Labels, err error) {
 	}
 
 	// Create tensor from image.
-	tensor, err := t.createTensor(img, "jpeg")
+	err = t.createTensor(img, "jpeg")
 
 	if err != nil {
 		return nil, err
 	}
 
 	// Run inference.
-	output, err := t.model.Session.Run(
-		map[tf.Output]*tf.Tensor{
-			t.model.Graph.Operation("input_1").Output(0): tensor,
-		},
-		[]tf.Output{
-			t.model.Graph.Operation("predictions/Softmax").Output(0),
-		},
-		nil)
-
-	if err != nil {
+	status := t.interpreter.Invoke()
+	if status != tflite.OK {
 		return result, fmt.Errorf("classify: %s (run inference)", err.Error())
 	}
 
-	if len(output) < 1 {
-		return result, fmt.Errorf("classify: inference failed, no output")
+	output := t.interpreter.GetOutputTensor(0)
+
+	var scores []float32
+	if output.Type() == tflite.Float32 {
+		scores = output.Float32s()
+	} else if output.Type() == tflite.UInt8 {
+		output_size := output.Dim(output.NumDims() - 1)
+		scores := t.outFloats
+		outBytes := output.UInt8s()
+		for i := 0; i < output_size; i++ {
+			scores[i] = float32(float64(outBytes[i]) /255.0)
+		}
 	}
-
 	// Return best labels
-	result = t.bestLabels(output[0].Value().([][]float32)[0])
-
+        result = t.bestLabels(scores)
 	if len(result) > 0 {
 		log.Tracef("classify: image classified as %+v", result)
 	}
@@ -141,7 +148,7 @@ func (t *TensorFlow) loadLabels(path string) error {
 
 // ModelLoaded tests if the TensorFlow model is loaded.
 func (t *TensorFlow) ModelLoaded() bool {
-	return t.model != nil
+	return t.interpreter != nil
 }
 
 func (t *TensorFlow) loadModel() error {
@@ -153,14 +160,54 @@ func (t *TensorFlow) loadModel() error {
 
 	log.Infof("classify: loading %s", txt.Quote(filepath.Base(modelPath)))
 
-	// Load model
-	model, err := tf.LoadSavedModel(modelPath, t.modelTags, nil)
-
-	if err != nil {
-		return err
+	model := tflite.NewModelFromFile(path.Join(modelPath, t.modelFile))
+	if model == nil {
+		return fmt.Errorf("classify: load model failed, stack: %s", debug.Stack())
 	}
 
-	t.model = model
+	options := tflite.NewInterpreterOptions()
+	options.AddDelegate(xnnpack.New(xnnpack.DelegateOptions{NumThreads: 2}))
+	options.SetNumThread(4)
+	options.SetErrorReporter(func(msg string, user_data interface{}) {
+		fmt.Println(msg)
+	}, nil)
+
+	interpreter := tflite.NewInterpreter(model, options)
+	if interpreter == nil {
+		defer options.Delete()
+		defer model.Delete()	
+		return fmt.Errorf("classify: create interceptor failed, stack: %s", debug.Stack())
+	}
+
+	status := interpreter.AllocateTensors()
+	if status != tflite.OK {
+		defer interpreter.Delete()
+		defer options.Delete()
+                defer model.Delete()
+		return fmt.Errorf("classify: create tensor failed, stack: %s", debug.Stack())
+	}
+
+	input := interpreter.GetInputTensor(0)
+	h := input.Dim(1)
+	w := input.Dim(2)
+	c := input.Dim(3)
+	inType := input.Type()
+
+	if inType == tflite.UInt8 {
+	    t.inBytes = make([]byte, h*w*c) 
+	} else if inType == tflite.Float32 {
+	    t.inFloats = make([]float32, h*w*c)
+	} else {
+	    return fmt.Errorf("is not wanted type")
+	}
+
+	output := interpreter.GetOutputTensor(0)
+	if output.Type() == tflite.UInt8 {
+	    output_size := output.Dim(output.NumDims() - 1)
+	    t.outFloats = make([]float32, output_size)
+	}
+
+	t.interpreter = interpreter 
 
 	return t.loadLabels(modelPath)
 }
@@ -213,21 +260,21 @@ func (t *TensorFlow) bestLabels(probabilities []float32) Labels {
 }
 
 // createTensor converts bytes jpeg image in a tensor object required as tensorflow model input
-func (t *TensorFlow) createTensor(image []byte, imageFormat string) (*tf.Tensor, error) {
+func (t *TensorFlow) createTensor(image []byte, imageFormat string) error {
 	img, err := imaging.Decode(bytes.NewReader(image), imaging.AutoOrientation(true))
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	width, height := 224, 224
 
 	img = imaging.Fill(img, width, height, imaging.Center, imaging.Lanczos)
 
-	return imageToTensor(img, width, height)
+	return t.imageToTensor(img, width, height)
 }
 
-func imageToTensor(img image.Image, imageHeight, imageWidth int) (tfTensor *tf.Tensor, err error) {
+func (t *TensorFlow) imageToTensor(img image.Image, imageHeight, imageWidth int) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("classify: %s (panic)\nstack: %s", r, debug.Stack())
@@ -235,27 +282,45 @@ func imageToTensor(img image.Image, imageHeight, imageWidth int) (tfTensor *tf.T
 	}()
 
 	if imageHeight <= 0 || imageWidth <= 0 {
-		return tfTensor, fmt.Errorf("classify: image width and height must be > 0")
+		return fmt.Errorf("classify: image width and height must be > 0")
 	}
 
-	var tfImage [1][][][3]float32
+	input := t.interpreter.GetInputTensor(0)
+	wanted_height := input.Dim(1)
+	wanted_width := input.Dim(2)
+	wanted_type := input.Type()
 
-	for j := 0; j < imageHeight; j++ {
-		tfImage[0] = append(tfImage[0], make([][3]float32, imageWidth))
-	}
-
-	for i := 0; i < imageWidth; i++ {
-		for j := 0; j < imageHeight; j++ {
-			r, g, b, _ := img.At(i, j).RGBA()
-			tfImage[0][j][i][0] = convertValue(r)
-			tfImage[0][j][i][1] = convertValue(g)
-			tfImage[0][j][i][2] = convertValue(b)
+	if wanted_type == tflite.UInt8 {
+		bb := t.inBytes
+		for y := 0; y < wanted_height; y++ {
+			for x := 0; x < wanted_width; x++ {
+				col := img.At(x, y)
+				r, g, b, _ := col.RGBA()
+				bb[(y*wanted_width+x)*3+0] = byte(float64(r) / 255.0)
+				bb[(y*wanted_width+x)*3+1] = byte(float64(g) / 255.0)
+				bb[(y*wanted_width+x)*3+2] = byte(float64(b) / 255.0)
+			}
 		}
+		input.CopyFromBuffer(bb)
+	} else if wanted_type == tflite.Float32 {
+		ff := t.inFloats
+		for y := 0; y < wanted_height; y++ {
+			for x := 0; x < wanted_width; x++ {
+				r, g, b, _ := img.At(x, y).RGBA()
+				ff[(y*wanted_width+x)*3+0] = float32(r) / 65535.0
+				ff[(y*wanted_width+x)*3+1] = float32(g) / 65535.0
+				ff[(y*wanted_width+x)*3+2] = float32(b) / 65535.0
+			}
+		}
+		copy(input.Float32s(), ff)
+	} else {
+		return fmt.Errorf("is not wanted type")
 	}
 
-	return tf.NewTensor(tfImage)
+	return nil
 }
 
 func convertValue(value uint32) float32 {
 	return (float32(value>>8) - float32(127.5)) / float32(127.5)
 }
+
