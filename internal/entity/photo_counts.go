@@ -3,6 +3,7 @@ package entity
 import (
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -14,6 +15,21 @@ type LabelPhotoCount struct {
 }
 
 type LabelPhotoCounts []LabelPhotoCount
+var autoCount = false
+var countMutex = sync.Mutex{}
+
+func ResetCount() {
+	countMutex.Lock()
+	defer countMutex.Unlock()
+
+	autoCount = false
+}
+
+func MustCount() bool {
+	countMutex.Lock()
+	defer countMutex.Unlock()
+	return autoCount
+}
 
 // LabelCounts returns the number of photos for each label ID.
 func LabelCounts() LabelPhotoCounts {
@@ -146,6 +162,14 @@ func UpdateLabelPhotoCounts() (err error) {
 
 // UpdatePhotoCounts updates precalculated photo and file counts.
 func UpdatePhotoCounts() (err error) {
+        countMutex.Lock()
+        defer countMutex.Unlock()
+
+        autoCount = true
+        return nil
+}
+
+func DoUpdatePhotoCounts() (err error) {
 	if err = UpdatePlacesPhotoCounts(); err != nil {
 		if strings.Contains(err.Error(), "Error 1054") {
 			log.Errorf("counts: failed updating places, potentially incompatible database version")

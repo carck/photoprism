@@ -71,7 +71,7 @@ func BatchPhotosArchive(router *gin.RouterGroup) {
 		// Update album, subject, and label preview thumbs.
 		logError("photos", query.UpdatePreviews())
 
-		UpdateClientConfig()
+		// UpdateClientConfig()
 
 		event.EntitiesArchived("photos", f.Photos)
 

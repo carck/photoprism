@@ -52,26 +52,26 @@ func Photos(f form.PhotoSearch) (results PhotoResults, count int, err error) {
 	// Set sort order.
 	switch f.Order {
 	case entity.SortOrderEdited:
-		s = s.Where("edited_at IS NOT NULL").Order("edited_at DESC, photos.photo_uid, files.file_primary DESC")
+		s = s.Where("edited_at IS NOT NULL").Order("edited_at DESC, photos.photo_uid")
 	case entity.SortOrderRelevance:
 		if f.Label != "" {
-			s = s.Order("photo_quality DESC, photos_labels.uncertainty ASC, taken_at DESC, files.file_primary DESC")
+			s = s.Order("photo_quality DESC, photos_labels.uncertainty ASC, taken_at DESC")
 		} else {
-			s = s.Order("photo_quality DESC, taken_at DESC, files.file_primary DESC")
+			s = s.Order("photo_quality DESC, taken_at DESC")
 		}
 	case entity.SortOrderNewest:
-		s = s.Order("taken_at DESC, photos.photo_uid, files.file_primary DESC")
+		s = s.Order("taken_at DESC, photos.photo_uid")
 	case entity.SortOrderOldest:
-		s = s.Order("taken_at, photos.photo_uid, files.file_primary DESC")
+		s = s.Order("taken_at, photos.photo_uid")
 	case entity.SortOrderAdded:
-		s = s.Order("photos.id DESC, files.file_primary DESC")
+		s = s.Order("photos.id DESC")
 	case entity.SortOrderSimilar:
 		s = s.Where("files.file_diff > 0")
 		s = s.Order("photos.photo_color, photos.cell_id, files.file_diff, taken_at DESC, files.file_primary DESC")
 	case entity.SortOrderName:
-		s = s.Order("photos.photo_path, photos.photo_name, files.file_primary DESC")
+		s = s.Order("photos.photo_path, photos.photo_name")
 	default:
-		s = s.Order("taken_at DESC, photos.photo_uid, files.file_primary DESC")
+		s = s.Order("taken_at DESC, photos.photo_uid")
 	}
 
 	if !f.Hidden {

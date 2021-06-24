@@ -543,7 +543,7 @@ export default {
       }
 
       // TODO: Needed?
-      this.$forceUpdate();
+      // this.$forceUpdate();
     },
   },
 };

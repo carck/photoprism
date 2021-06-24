@@ -45,10 +45,6 @@ var stop = make(chan bool, 1)
 
 // Wait starts waiting for indexing & importing opportunities.
 func Start(conf *config.Config) {
-	// Don't start ticker if both are disabled.
-	if conf.AutoIndex().Seconds() <= 0 && conf.AutoImport().Seconds() <= 0 {
-		return
-	}
 
 	ticker := time.NewTicker(time.Minute)
 
@@ -71,6 +67,12 @@ func Start(conf *config.Config) {
 					if err := Import(); err != nil {
 						log.Errorf("auto-import: %s", err)
 					}
+				}
+				if MustCount() {
+					log.Debugf("auto-count: starting")
+					ResetCount()
+					DoCount()
+					log.Debugf("auto-count: stopped")
 				}
 			}
 		}
