@@ -32,8 +32,9 @@
                 :class="photo.classes()"
                 @contextmenu.stop="onContextMenu($event, index)">
           <div class="card-background accent lighten-3"></div>
+          <in-view :tag="'section'" :rootMargin="'200px 0px 200px 0px'" v-slot="{inView}">
           <v-img :key="photo.Hash"
-                 :src="photo.thumbnailUrl('tile_500')"
+                 :src="phoneUrl(photo, inView)"
                  :alt="photo.Title"
                  :title="photo.Title"
                  :transition="false"
@@ -111,7 +112,8 @@
               <v-icon color="white" class="select-off">favorite_border</v-icon>
             </v-btn>
           </v-img>
-
+          </in-view>
+          
           <v-card-actions v-if="photo.Quality < 3 && context === 'review'" class="card-details pa-0">
             <v-layout row wrap align-center>
               <v-flex xs6 class="text-xs-center pa-1">
@@ -225,6 +227,11 @@ export default {
     };
   },
   methods: {
+    phoneUrl(photo, inView){
+      return inView 
+              ? photo.thumbnailUrl('tile_500')
+              : "";
+    },
     livePlayer(photo) {
       return document.querySelector("#live-player-" + photo.ID);
     },

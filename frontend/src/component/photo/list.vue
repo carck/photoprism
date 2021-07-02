@@ -33,8 +33,9 @@
     >
       <template #items="props">
         <td style="user-select: none;" :data-uid="props.item.UID" class="result" :class="props.item.classes()">
+          <in-view :tag="'section'" :rootMargin="'200px 0px 200px 0px'" v-slot="{inView}">
           <v-img :key="props.item.Hash"
-                 :src="props.item.thumbnailUrl('tile_50')"
+                 :src="phoneUrl(props.item, inView)"
                  :alt="props.item.Title"
                  :transition="false"
                  aspect-ratio="1"
@@ -62,6 +63,7 @@
               <v-icon color="white" class="default-hidden action-play" :title="$gettext('Video')">play_arrow</v-icon>
             </v-btn>
           </v-img>
+          </in-view>
         </td>
 
         <td class="p-photo-desc clickable" :data-uid="props.item.UID" style="user-select: none;"
@@ -167,6 +169,11 @@ export default {
     };
   },
   methods: {
+    phoneUrl(photo, inView){
+      return inView 
+              ? photo.thumbnailUrl('tile_50')
+              : "";
+    },
     downloadFile(index) {
       Notify.success(this.$gettext("Downloading…"));
 

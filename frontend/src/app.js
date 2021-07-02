@@ -57,6 +57,7 @@ import Hls from "hls.js";
 import "common/maptiler-lang";
 import { $gettext, Mount } from "common/vm";
 import * as offline from "@lcdp/offline-plugin/runtime";
+import VueObserveVisibility from "vue-observe-visibility";
 
 // Initialize helpers
 const viewer = new Viewer();
@@ -109,6 +110,7 @@ Vue.use(VueFilters);
 Vue.use(Components);
 Vue.use(Dialogs);
 Vue.use(Router);
+Vue.use(VueObserveVisibility);
 
 // Configure client-side routing
 const router = new Router({

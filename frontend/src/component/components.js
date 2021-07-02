@@ -36,6 +36,7 @@ import PVideoPlayer from "./video/player.vue";
 import PPhotoViewer from "./photo/viewer.vue";
 import PPhotoToolbar from "./photo/toolbar.vue";
 import PPhotoCards from "./photo/cards.vue";
+import InView from "./photo/inview.vue";
 import PPhotoMosaic from "./photo/mosaic.vue";
 import PPhotoList from "./photo/list.vue";
 import PPhotoClipboard from "./photo/clipboard.vue";
@@ -66,6 +67,7 @@ components.install = (Vue) => {
   Vue.component("PFileClipboard", PFileClipboard);
   Vue.component("PSubjectClipboard", PSubjectClipboard);
   Vue.component("PAboutFooter", PAboutFooter);
+  Vue.component("InView", InView);
 };
 
 export default components;

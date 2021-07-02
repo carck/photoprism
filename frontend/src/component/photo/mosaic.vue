@@ -31,8 +31,9 @@
                 class="result"
                 :class="photo.classes()"
                 @contextmenu.stop="onContextMenu($event, index)">
+          <in-view :tag="'section'" :rootMargin="'200px 0px 200px 0px'" v-slot="{inView}">
           <v-img :key="photo.Hash"
-                 :src="photo.thumbnailUrl('tile_224')"
+                 :src="phoneUrl(photo, inView)"
                  :alt="photo.Title"
                  :title="photo.Title"
                  :transition="false"
@@ -110,6 +111,7 @@
               <v-icon color="white" class="select-off">favorite_border</v-icon>
             </v-btn>
           </v-img>
+          </in-view>
         </v-card>
       </v-flex>
     </v-layout>
@@ -136,6 +138,11 @@ export default {
     };
   },
   methods: {
+    phoneUrl(photo, inView){
+      return inView 
+              ? photo.thumbnailUrl('tile_224')
+              : "";
+    },
     livePlayer(photo) {
       return document.querySelector("#live-player-" + photo.ID);
     },
