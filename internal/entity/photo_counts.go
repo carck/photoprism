@@ -15,6 +15,7 @@ type LabelPhotoCount struct {
 }
 
 type LabelPhotoCounts []LabelPhotoCount
+
 var autoCount = false
 var countMutex = sync.Mutex{}
 

@@ -1,3 +1,4 @@
+// +build NOTENSORFLOW
 package classify
 
 import (
@@ -11,28 +12,28 @@ import (
 	"path"
 	"path/filepath"
 	"runtime/debug"
-	"sync"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/disintegration/imaging"
-	"github.com/photoprism/photoprism/pkg/txt"
 	"github.com/mattn/go-tflite"
 	"github.com/mattn/go-tflite/delegates/xnnpack"
+	"github.com/photoprism/photoprism/pkg/txt"
 )
 
 // TensorFlow is a wrapper for tensorflow low-level API.
 type TensorFlow struct {
-	mu sync.Mutex
+	mu          sync.Mutex
 	interpreter *tflite.Interpreter
-	modelsPath string
-	disabled   bool
-	modelName  string
-	modelFile  string
-	labels     []string
-	inBytes    []byte
-	inFloats   []float32
-	outFloats  []float32
+	modelsPath  string
+	disabled    bool
+	modelName   string
+	modelFile   string
+	labels      []string
+	inBytes     []byte
+	inFloats    []float32
+	outFloats   []float32
 }
 
 // New returns new TensorFlow instance with Nasnet model.
@@ -106,11 +107,11 @@ func (t *TensorFlow) Labels(img []byte) (result Labels, err error) {
 		scores := t.outFloats
 		outBytes := output.UInt8s()
 		for i := 0; i < output_size; i++ {
-			scores[i] = float32(float64(outBytes[i]) /255.0)
+			scores[i] = float32(float64(outBytes[i]) / 255.0)
 		}
 	}
 	// Return best labels
-        result = t.bestLabels(scores)
+	result = t.bestLabels(scores)
 	if len(result) > 0 {
 		log.Tracef("classify: image classified as %+v", result)
 	}
@@ -175,7 +176,7 @@ func (t *TensorFlow) loadModel() error {
 	interpreter := tflite.NewInterpreter(model, options)
 	if interpreter == nil {
 		defer options.Delete()
-		defer model.Delete()	
+		defer model.Delete()
 		return fmt.Errorf("classify: create interceptor failed, stack: %s", debug.Stack())
 	}
 
@@ -183,7 +184,7 @@ func (t *TensorFlow) loadModel() error {
 	if status != tflite.OK {
 		defer interpreter.Delete()
 		defer options.Delete()
-                defer model.Delete()
+		defer model.Delete()
 		return fmt.Errorf("classify: create tensor failed, stack: %s", debug.Stack())
 	}
 
@@ -194,20 +195,20 @@ func (t *TensorFlow) loadModel() error {
 	inType := input.Type()
 
 	if inType == tflite.UInt8 {
-	    t.inBytes = make([]byte, h*w*c) 
+		t.inBytes = make([]byte, h*w*c)
 	} else if inType == tflite.Float32 {
-	    t.inFloats = make([]float32, h*w*c)
+		t.inFloats = make([]float32, h*w*c)
 	} else {
-	    return fmt.Errorf("is not wanted type")
+		return fmt.Errorf("is not wanted type")
 	}
 
 	output := interpreter.GetOutputTensor(0)
 	if output.Type() == tflite.UInt8 {
-	    output_size := output.Dim(output.NumDims() - 1)
-	    t.outFloats = make([]float32, output_size)
+		output_size := output.Dim(output.NumDims() - 1)
+		t.outFloats = make([]float32, output_size)
 	}
 
-	t.interpreter = interpreter 
+	t.interpreter = interpreter
 
 	return t.loadLabels(modelPath)
 }
@@ -323,4 +324,3 @@ func (t *TensorFlow) imageToTensor(img image.Image, imageHeight, imageWidth int)
 func convertValue(value uint32) float32 {
 	return (float32(value>>8) - float32(127.5)) / float32(127.5)
 }
-

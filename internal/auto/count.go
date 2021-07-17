@@ -4,7 +4,6 @@ import (
 	"github.com/photoprism/photoprism/internal/entity"
 )
 
-
 func ResetCount() {
 	entity.ResetCount()
 }

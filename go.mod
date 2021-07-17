@@ -19,7 +19,6 @@ require (
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-errors/errors v1.4.0 // indirect
 	github.com/go-playground/validator/v10 v10.9.0 // indirect
-	github.com/go-gl/mathgl v0.0.0-20190713194549-592312d8590a // indirect
 	github.com/golang/geo v0.0.0-20210211234256-740aa86cb551
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/open-location-code/go v0.0.0-20210504205230-1796878d947c
@@ -41,7 +40,7 @@ require (
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mattn/go-sqlite3 v2.0.1+incompatible // indirect
-	github.com/mattn/go-tflite v1.0.2-0.20210524070808-ba19dc99415b // indirect
+	github.com/mattn/go-tflite v1.0.2-0.20210524070808-ba19dc99415b
 	github.com/melihmucuk/geocache v0.0.0-20160621165317-521b336a001c
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/montanaflynn/stats v0.6.6
