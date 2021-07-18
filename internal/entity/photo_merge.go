@@ -22,7 +22,7 @@ func (m *Photo) ResolvePrimary() error {
 
 // Identical returns identical photos that can be merged.
 func (m *Photo) Identical(includeMeta, includeUuid bool) (identical Photos, err error) {
-	if m.PhotoStack == IsUnstacked || m.PhotoName == "" {
+	if m.PhotoStack == IsUnstacked || m.PhotoName == "" || !(includeMeta || includeUuid) {
 		return identical, nil
 	}
 
