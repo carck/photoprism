@@ -29,12 +29,12 @@ type Net struct {
 }
 
 // NewNet returns new TensorFlow instance with Facenet model.
-func NewNet(modelPath string, disabled bool) *Net {
+func NewNet(modelPath string, cachePath string, disabled bool) *Net {
 	return &Net{modelPath: modelPath, disabled: disabled, modelName: "mobile_facenet.tflite", modelTags: []string{"serve"}}
 }
 
 // Detect runs the detection and facenet algorithms over the provided source image.
-func (t *Net) Detect(fileName string) (faces Faces, err error) {
+func (t *Net) Detect(fileName string, minSize int, cacheCrop bool, expected int) (faces Faces, err error) {
 	faces, err = Detect(fileName)
 
 	if err != nil {
@@ -52,14 +52,15 @@ func (t *Net) Detect(fileName string) (faces Faces, err error) {
 	}
 
 	for i, f := range faces {
-		if f.Face.Col == 0 && f.Face.Row == 0 {
+		if f.Area.Col == 0 && f.Area.Row == 0 {
 			continue
 		}
 
-		embedding := t.getFaceEmbedding(fileName, f.Face)
+		embedding := t.getFaceEmbedding(fileName, f.Area, f.Eyes)
 
 		if len(embedding) > 0 {
-			faces[i].Embedding = embedding
+			faces[i].Embeddings = make([][]float32, 1)
+			faces[i].Embeddings[0] = embedding
 		}
 	}
 
@@ -123,8 +124,8 @@ func (t *Net) loadModel() error {
 	return nil
 }
 
-func (t *Net) getFaceEmbedding(fileName string, f Point) []float32 {
-	x, y := f.TopLeft()
+func (t *Net) getFaceEmbedding(fileName string, f Area, eyes Areas) []float32 {
+	y, x := f.TopLeft()
 
 	imageBuffer, err := ioutil.ReadFile(fileName)
 	img, err := imaging.Decode(bytes.NewReader(imageBuffer), imaging.AutoOrientation(true))
@@ -150,8 +151,8 @@ func (t *Net) getFaceEmbedding(fileName string, f Point) []float32 {
 	}
 
 	output := t.interpreter.GetOutputTensor(0)
-	outSize :=  output.Dim(output.NumDims() - 1)
-        log.Infof("facenet: output %d", outSize)
+	outSize := output.Dim(output.NumDims() - 1)
+	log.Infof("facenet: output %d", outSize)
 
 	if outSize < 1 {
 		log.Errorf("face: inference failed, no output")

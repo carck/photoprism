@@ -25,17 +25,14 @@
                   :class="marker.classes()"
                   class="result accent lighten-3">
             <div class="card-background accent lighten-3"></div>
-            <v-img :src="marker.thumbnailUrl('tile_320')"
-                   :transition="false"
-                   aspect-ratio="1"
-                   class="accent lighten-2">
+            <canvas :id="'face-' + marker.UID" :key="marker.UID" width="300" height="300" style="width: 100%"
+                    class="v-responsive v-image accent lighten-2">
               <v-btn v-if="!marker.SubjUID && !marker.Invalid" :ripple="false" :depressed="false" class="input-reject"
-                     icon flat small absolute :title="$gettext('Remove')"
-                     @click.stop.prevent="onReject(marker)">
-                <v-icon color="white" class="action-reject">clear</v-icon>
-              </v-btn>
-            </v-img>
-
+                       icon flat small absolute :title="$gettext('Remove')"
+                       @click.stop.prevent="onReject(marker)">
+                  <v-icon color="white" class="action-reject">clear</v-icon>
+                </v-btn>
+              </canvas>
             <v-card-actions class="card-details pa-0">
               <v-layout v-if="marker.Invalid" row wrap align-center>
                 <v-flex xs12 class="text-xs-center pa-0">
@@ -127,6 +124,38 @@ export default {
         return v.length <= this.$config.get('clip') || this.$gettext("Name too long");
       },
     };
+  },
+  mounted() {
+    this.markers.forEach((m) => {
+      const canvas = document.getElementById('face-' + m.UID);
+
+      let ctx = canvas.getContext('2d');
+      let img = new Image();
+
+      img.onload = function () {
+        const w = Math.round(m.W * img.width);
+        const h = Math.round(m.H * img.height);
+        const s = w > h ? w : h;
+        const x = Math.round(m.X * img.width);
+        const y = Math.round(m.Y * img.height);
+
+        ctx.drawImage(img, x, y, s, s, 0, 0, 300, 300);
+        ctx.fillText("" + m.Score, 10, 10);
+      };
+
+      if (m.W < 0.07) {
+        // TODO: Not all users have thumbs with this resolution.
+        img.src = this.model.thumbnailUrl("fit_7680");
+      } else if (m.W < 0.1) {
+        // TODO: Not all users have thumbs with this resolution.
+        img.src = this.model.thumbnailUrl("fit_2048");
+      } else if (m.W < 0.15) {
+        // TODO: Not all users have thumbs with this resolution.
+        img.src = this.model.thumbnailUrl("fit_1280");
+      } else {
+        img.src = this.imageUrl;
+      }
+    });
   },
   methods: {
     refresh() {

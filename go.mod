@@ -2,6 +2,7 @@ module github.com/photoprism/photoprism
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
+	github.com/carck/libfacedetection-go v0.0.0-20210828012513-6e0c3e17ec60
 	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
 	github.com/disintegration/imaging v1.6.2
 	github.com/djherbis/times v1.5.0
