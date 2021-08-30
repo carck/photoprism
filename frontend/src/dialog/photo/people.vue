@@ -17,7 +17,7 @@
         <v-flex
             v-for="(marker, index) in markers"
             :key="index"
-            xs12 sm6 md3 xl2 d-flex
+            xs6 md3 lg2 xl2 d-flex
         >
           <v-card tile
                   :data-id="marker.UID"
@@ -136,8 +136,9 @@ export default {
         const w = Math.round(m.W * img.width);
         const h = Math.round(m.H * img.height);
         const s = w > h ? w : h;
-        const x = Math.round(m.X * img.width);
-        const y = Math.round(m.Y * img.height);
+
+        const x = Math.round((m.X - (m.W / 2)) * img.width);
+        const y = Math.round((m.Y - (m.H / 2)) * img.height);
 
         ctx.drawImage(img, x, y, s, s, 0, 0, 300, 300);
         ctx.fillText("" + m.Score, 10, 10);

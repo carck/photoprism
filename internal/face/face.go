@@ -75,8 +75,8 @@ func (f *Face) CropArea() crop.Area {
 		f.Cols = 1
 	}
 
-	x := float32(f.Area.Col-f.Area.Scale/2) / float32(f.Cols)
-	y := float32(f.Area.Row-f.Area.Scale/2) / float32(f.Rows)
+	x := float32(f.Area.Col) / float32(f.Cols)
+	y := float32(f.Area.Row) / float32(f.Rows)
 
 	return crop.NewArea(
 		f.Area.Name,

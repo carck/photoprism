@@ -163,11 +163,10 @@ func UpdateLabelPhotoCounts() (err error) {
 
 // UpdatePhotoCounts updates precalculated photo and file counts.
 func UpdatePhotoCounts() (err error) {
-        countMutex.Lock()
-        defer countMutex.Unlock()
-
-        autoCount = true
-        return nil
+	countMutex.Lock()
+	defer countMutex.Unlock()
+	autoCount = true
+	return nil
 }
 
 func DoUpdatePhotoCounts() (err error) {

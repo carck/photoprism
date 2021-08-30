@@ -1,4 +1,5 @@
 // +build NOTENSORFLOW
+
 package face
 
 import (
@@ -6,15 +7,18 @@ import (
 	"fmt"
 	"image"
 	"io/ioutil"
+	"math"
 	"path"
 	"path/filepath"
 	"runtime/debug"
 	"sync"
 
+	"github.com/carck/gg"
 	"github.com/disintegration/imaging"
 	"github.com/mattn/go-tflite"
 	"github.com/mattn/go-tflite/delegates/xnnpack"
 	"github.com/photoprism/photoprism/pkg/txt"
+	"golang.org/x/image/draw"
 )
 
 // Net is a wrapper for the TensorFlow Facenet model.
@@ -133,8 +137,28 @@ func (t *Net) getFaceEmbedding(fileName string, f Area, eyes Areas) []float32 {
 		log.Errorf("face: failed to decode image: %v", err)
 	}
 
-	img = imaging.Crop(img, image.Rect(y, x, y+f.Scale, x+f.Scale))
-	img = imaging.Fill(img, 112, 112, imaging.Center, imaging.Lanczos)
+	if len(eyes) == 2 {
+		x1 := float64(eyes[1].Col - eyes[0].Col)
+		y1 := float64(eyes[1].Row - eyes[0].Row)
+
+		angle := math.Atan2(y1, x1) * 180.0 / math.Pi
+
+		dc := gg.NewContext(112, 112)
+		dc.SetRGB255(255, 255, 255)
+		dc.Clear()
+
+		dc.RotateAbout(gg.Radians(-angle), 56, 56)
+		dc.Scale(112/float64(f.Scale), 112/float64(f.Scale))
+
+		dc.DrawImageAnchoredWithTransformer(img, 0, 0, float64(x)/float64(img.Bounds().Dx()), float64(y)/float64(img.Bounds().Dy()), draw.CatmullRom)
+		img = dc.Image()
+
+		//dc.SavePNG(path.Join("/home/l2/face", fmt.Sprintf("%s.png", f.String())))
+
+	} else {
+		img = imaging.Crop(img, image.Rect(x, y, x+f.Scale, y+f.Scale))
+		img = imaging.Fill(img, 112, 112, imaging.Center, imaging.Lanczos)
+	}
 
 	err = t.imageToTensor(img, 112, 112)
 

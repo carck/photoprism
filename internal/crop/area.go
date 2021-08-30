@@ -49,8 +49,8 @@ func (a Area) Thumb(fileHash string) string {
 func (a Area) Bounds(img image.Image) (min, max image.Point, dim int) {
 	size := img.Bounds().Max
 
-	min = image.Point{X: int(float32(size.X) * a.X), Y: int(float32(size.Y) * a.Y)}
-	max = image.Point{X: int(float32(size.X) * (a.X + a.W)), Y: int(float32(size.Y) * (a.Y + a.H))}
+	min = image.Point{X: int(float32(size.X) * (a.X - a.W/2)), Y: int(float32(size.Y) * (a.Y - a.H/2))}
+	max = image.Point{X: int(float32(size.X) * (a.X + a.W/2)), Y: int(float32(size.Y) * (a.Y + a.H/2))}
 	dim = int(float32(size.X) * a.W)
 
 	return min, max, dim
@@ -63,22 +63,22 @@ func (a Area) FileWidth(size Size) int {
 
 // Top returns the top Y coordinate as float64.
 func (a Area) Top() float64 {
-	return float64(a.Y)
+	return float64(a.Y - a.H/2)
 }
 
 // Left returns the left X coordinate as float64.
 func (a Area) Left() float64 {
-	return float64(a.X)
+	return float64(a.X - a.W/2)
 }
 
 // Right returns the right X coordinate as float64.
 func (a Area) Right() float64 {
-	return float64(a.X + a.W)
+	return float64(a.X + a.W/2)
 }
 
 // Bottom returns the bottom Y coordinate as float64.
 func (a Area) Bottom() float64 {
-	return float64(a.Y + a.H)
+	return float64(a.Y + a.H/2)
 }
 
 // Surface returns the surface area.
