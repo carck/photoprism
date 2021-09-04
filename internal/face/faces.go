@@ -40,28 +40,5 @@ func (faces Faces) Uncertainty() int {
 		}
 	}
 
-	switch {
-	case maxScore > 300:
-		return 1
-	case maxScore > 200:
-		return 5
-	case maxScore > 100:
-		return 10
-	case maxScore > 80:
-		return 15
-	case maxScore > 65:
-		return 20
-	case maxScore > 50:
-		return 25
-	case maxScore > 40:
-		return 30
-	case maxScore > 30:
-		return 35
-	case maxScore > 20:
-		return 40
-	case maxScore > 10:
-		return 45
-	}
-
-	return 50
+	return 100 - maxScore
 }

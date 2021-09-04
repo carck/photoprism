@@ -40,7 +40,6 @@ import (
 
 var log = event.Log
 
-// Face represents a face detected.
 type Face struct {
 	Rows       int        `json:"rows,omitempty"`
 	Cols       int        `json:"cols,omitempty"`
