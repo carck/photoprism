@@ -527,22 +527,22 @@ func (m *Marker) Matched() error {
 
 // Top returns the top Y coordinate as float64.
 func (m *Marker) Top() float64 {
-	return float64(m.Y)
+	return float64(m.Y -m.H/2)
 }
 
 // Left returns the left X coordinate as float64.
 func (m *Marker) Left() float64 {
-	return float64(m.X)
+	return float64(m.X - m.W/2)
 }
 
 // Right returns the right X coordinate as float64.
 func (m *Marker) Right() float64 {
-	return float64(m.X + m.W)
+	return float64(m.X + m.W/2)
 }
 
 // Bottom returns the bottom Y coordinate as float64.
 func (m *Marker) Bottom() float64 {
-	return float64(m.Y + m.H)
+	return float64(m.Y + m.H/2)
 }
 
 // Surface returns the surface area.
