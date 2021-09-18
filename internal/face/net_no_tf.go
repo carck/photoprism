@@ -214,5 +214,5 @@ func (t *Net) imageToTensor(img image.Image, imageHeight, imageWidth int) (err e
 }
 
 func convertValue(value uint32) float32 {
-	return (float32(value>>8) - float32(127.5)) / float32(127.5)
+	return (float32(value>>8) - float32(127.5)) / float32(128.0)
 }

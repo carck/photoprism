@@ -527,7 +527,7 @@ func (m *Marker) Matched() error {
 
 // Top returns the top Y coordinate as float64.
 func (m *Marker) Top() float64 {
-	return float64(m.Y -m.H/2)
+	return float64(m.Y - m.H/2)
 }
 
 // Left returns the left X coordinate as float64.

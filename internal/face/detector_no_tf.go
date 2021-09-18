@@ -62,7 +62,7 @@ func LibFaceDetectionDetect(fileName string) (results Faces, err error) {
 		var eyesCoords []Area
 		var landmarkCoords []Area
 
-		if faces[i].Confidence < 60 {
+		if faces[i].Confidence < 70 {
 			continue
 		}
 
