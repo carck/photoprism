@@ -37,7 +37,7 @@
           <v-flex
               v-for="(model, index) in results"
               :key="index"
-              xs12 sm6 md4 lg3 xl2 xxl1 d-flex
+              xs6 sm4 md3 lg2 xxl1 d-flex
           >
             <v-card v-if="model.Marker"
                     :data-id="model.Marker.UID"
