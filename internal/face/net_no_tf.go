@@ -63,8 +63,8 @@ func (t *Net) Detect(fileName string, minSize int, cacheCrop bool, expected int)
 		embedding := t.getFaceEmbedding(fileName, f.Area, f.Eyes)
 
 		if len(embedding) > 0 {
-			faces[i].Embeddings = make([][]float32, 1)
-			faces[i].Embeddings[0] = embedding
+			faces[i].Embeddings = make(Embeddings, 1)
+			faces[i].Embeddings[0] = NewEmbedding(embedding)
 		}
 	}
 
