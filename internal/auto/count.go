@@ -13,7 +13,7 @@ func MustCount() bool {
 }
 
 func DoCount() {
-	err := entity.DoUpdatePhotoCounts()
+	err := entity.DoUpdateCounts()
 	if err != nil {
 		log.Errorf("auto-count: %s", err.Error())
 	}
