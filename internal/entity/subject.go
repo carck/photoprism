@@ -298,7 +298,7 @@ func (m *Subject) RefreshPhotos() error {
 	}
 
 	update := fmt.Sprintf(
-		"UPDATE photos SET checked_at = NULL WHERE id IN (SELECT DISTINCT f.photo_id FROM files f JOIN %s m ON m.file_uid = f.file_uid WHERE m.subj_uid = ?)",
+		"UPDATE photos SET checked_at = NULL WHERE id IN (SELECT f.photo_id FROM files f JOIN %s m ON m.file_uid = f.file_uid WHERE m.subj_uid = ?)",
 		Marker{}.TableName())
 
 	return UnscopedDb().Exec(update, m.SubjUID).Error

@@ -515,7 +515,7 @@ func (m *Marker) RefreshPhotos() error {
 	}
 
 	return UnscopedDb().Exec(`UPDATE photos SET checked_at = NULL WHERE id IN
-		(SELECT f.photo_id FROM files f JOIN ? m ON m.file_uid = f.file_uid WHERE m.marker_uid = ? GROUP BY f.photo_id)`,
+		(SELECT f.photo_id FROM files f JOIN ? m ON m.file_uid = f.file_uid WHERE m.marker_uid = ?)`,
 		gorm.Expr(Marker{}.TableName()), m.MarkerUID).Error
 }
 
