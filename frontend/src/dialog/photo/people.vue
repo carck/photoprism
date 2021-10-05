@@ -26,13 +26,12 @@
                   class="result accent lighten-3">
             <div class="card-background accent lighten-3"></div>
             <canvas :id="'face-' + marker.UID" :key="marker.UID" width="300" height="300" style="width: 100%"
-                    class="v-responsive v-image accent lighten-2">
-              <v-btn v-if="!marker.SubjUID && !marker.Invalid" :ripple="false" :depressed="false" class="input-reject"
-                       icon flat small absolute :title="$gettext('Remove')"
-                       @click.stop.prevent="onReject(marker)">
-                  <v-icon color="white" class="action-reject">clear</v-icon>
-                </v-btn>
-              </canvas>
+                    class="v-responsive v-image accent lighten-2"></canvas>
+            <v-btn v-if="!marker.SubjUID && !marker.Invalid" :ripple="false" :depressed="false" class="input-reject"
+                    icon flat small absolute :title="$gettext('Remove')"
+                    @click.stop.prevent="onReject(marker)">
+              <v-icon color="white" class="action-reject">clear</v-icon>
+            </v-btn>
             <v-card-actions class="card-details pa-0">
               <v-layout v-if="marker.Invalid" row wrap align-center>
                 <v-flex xs12 class="text-xs-center pa-0">
