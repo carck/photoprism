@@ -3,6 +3,8 @@ package query
 import (
 	"time"
 
+	"github.com/dustin/go-humanize/english"
+
 	"github.com/jinzhu/gorm"
 	"github.com/photoprism/photoprism/internal/entity"
 )
@@ -83,11 +85,17 @@ func PhotosMissing(limit int, offset int) (entities entity.Photos, err error) {
 
 // ResetPhotoQuality sets photo quality scores to -1 if files are missing.
 func ResetPhotoQuality() error {
-	log.Info("index: flagging hidden files")
+	start := time.Now()
 
-	return Db().Table("photos").
-		Where("id NOT IN (SELECT photo_id FROM files WHERE file_primary = 1 AND file_missing = 0 AND deleted_at IS NULL)").
-		Update("photo_quality", -1).Error
+	res := Db().Table("photos").
+		Where("id NOT IN (SELECT photo_id FROM files WHERE file_primary = 1 AND file_missing = 0 AND file_error = '' AND deleted_at IS NULL)").
+		Update("photo_quality", -1)
+
+	if res.RowsAffected > 0 {
+		log.Infof("index: flagged %s as hidden [%s]", english.Plural(int(res.RowsAffected), "broken photo", "broken photos"), time.Since(start))
+	}
+
+	return res.Error
 }
 
 // PhotosCheck returns photos selected for maintenance.
@@ -124,10 +132,18 @@ func OrphanPhotos() (photos entity.Photos, err error) {
 
 // FixPrimaries tries to set a primary file for photos that have none.
 func FixPrimaries() error {
-	log.Info("index: updating primary files")
+	start := time.Now()
 
 	var photos entity.Photos
 
+	// Remove primary file flag from broken or missing files.
+	if err := UnscopedDb().Table(entity.File{}.TableName()).
+		Where("file_error <> '' OR file_missing = 1").
+		UpdateColumn("file_primary", 0).Error; err != nil {
+		return err
+	}
+
+	// Find photos without primary file.
 	if err := UnscopedDb().
 		Raw(`SELECT * FROM photos 
 			WHERE deleted_at IS NULL 
@@ -136,13 +152,21 @@ func FixPrimaries() error {
 		return err
 	}
 
+	if len(photos) == 0 {
+		log.Debugf("index: found no photos without primary file [%s]", time.Since(start))
+		return nil
+	}
+
+	// Try to find matching primary files.
 	for _, p := range photos {
-		log.Debugf("index: finding new primary file for photo %s", p.PhotoUID)
+		log.Debugf("index: searching primary file for %s", p.PhotoUID)
 
 		if err := p.SetPrimary(""); err != nil {
 			log.Infof("index: %s (set primary)", err)
 		}
 	}
+
+	log.Infof("index: updated primary files [%s]", time.Since(start))
 
 	return nil
 }
