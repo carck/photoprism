@@ -101,7 +101,7 @@ func (m *Subject) Delete() error {
 	subjectMutex.Lock()
 	defer subjectMutex.Unlock()
 
-	log.Infof("subject: deleting %s %s", txt.Quote(m.SubjType), txt.Quote(m.SubjName))
+	log.Infof("subject: deleting %s %s", TypeString(m.SubjType), txt.Quote(m.SubjName))
 
 	event.EntitiesDeleted("subjects", []string{m.SubjUID})
 
@@ -119,6 +119,15 @@ func (m *Subject) Delete() error {
 	return Db().Delete(m).Error
 }
 
+// AfterDelete resets file and photo counters when the entity was deleted.
+func (m *Subject) AfterDelete(tx *gorm.DB) (err error) {
+	tx.Model(m).Updates(Values{
+		"FileCount":  0,
+		"PhotoCount": 0,
+	})
+	return
+}
+
 // Deleted returns true if the entity is deleted.
 func (m *Subject) Deleted() bool {
 	return m.DeletedAt != nil
@@ -129,7 +138,7 @@ func (m *Subject) Restore() error {
 	if m.Deleted() {
 		m.DeletedAt = nil
 
-		log.Infof("subject: restoring %s %s", txt.Quote(m.SubjType), txt.Quote(m.SubjName))
+		log.Infof("subject: restoring %s %s", TypeString(m.SubjType), txt.Quote(m.SubjName))
 
 		event.EntitiesCreated("subjects", []*Subject{m})
 
@@ -167,7 +176,7 @@ func FirstOrCreateSubject(m *Subject) *Subject {
 	if found := FindSubjectByName(m.SubjName); found != nil {
 		return found
 	} else if createErr := m.Create(); createErr == nil {
-		log.Infof("subject: added %s %s", txt.Quote(m.SubjType), txt.Quote(m.SubjName))
+		log.Infof("subject: added %s %s", TypeString(m.SubjType), txt.Quote(m.SubjName))
 
 		event.EntitiesCreated("subjects", []*Subject{m})
 
@@ -257,7 +266,7 @@ func (m *Subject) UpdateName(name string) (*Subject, error) {
 	if err := m.SetName(name); err != nil {
 		return m, err
 	} else if err := m.Updates(Values{"SubjName": m.SubjName, "SubjSlug": m.SubjSlug}); err == nil {
-		log.Infof("subject: renamed %s %s", txt.Quote(m.SubjType), txt.Quote(m.SubjName))
+		log.Infof("subject: renamed %s %s", TypeString(m.SubjType), txt.Quote(m.SubjName))
 
 		event.EntitiesUpdated("subjects", []*Subject{m})
 
@@ -324,6 +333,14 @@ func (m *Subject) MergeWith(other *Subject) error {
 		UpdateColumn("subj_uid", other.SubjUID).Error; err != nil {
 		return err
 	} else if err := other.UpdateMarkerNames(); err != nil {
+		return err
+	}
+
+	// Update file and photo counts.
+	if err := Db().Model(other).Updates(Values{
+		"FileCount":  other.FileCount + m.FileCount,
+		"PhotoCount": other.PhotoCount + m.PhotoCount,
+	}).Error; err != nil {
 		return err
 	}
 

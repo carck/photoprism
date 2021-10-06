@@ -7,8 +7,9 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize/english"
-
 	"github.com/jinzhu/gorm"
+
+	"github.com/photoprism/photoprism/internal/mutex"
 )
 
 type LabelPhotoCount struct {
@@ -65,6 +66,9 @@ func LabelCounts() LabelPhotoCounts {
 
 // UpdatePlacesCounts updates the places photo counts.
 func UpdatePlacesCounts() (err error) {
+	mutex.IndexUpdate.Lock()
+	defer mutex.IndexUpdate.Unlock()
+
 	start := time.Now()
 
 	// Update places.
@@ -86,6 +90,9 @@ func UpdatePlacesCounts() (err error) {
 
 // UpdateSubjectCounts updates the subject file counts.
 func UpdateSubjectCounts() (err error) {
+	mutex.IndexUpdate.Lock()
+	defer mutex.IndexUpdate.Unlock()
+
 	start := time.Now()
 
 	var res *gorm.DB
@@ -138,6 +145,9 @@ func UpdateSubjectCounts() (err error) {
 
 // UpdateLabelCounts updates the label photo counts.
 func UpdateLabelCounts() (err error) {
+	mutex.IndexUpdate.Lock()
+	defer mutex.IndexUpdate.Unlock()
+
 	start := time.Now()
 	var res *gorm.DB
 	if IsDialect(MySQL) {
