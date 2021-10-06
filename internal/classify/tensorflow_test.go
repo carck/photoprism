@@ -3,7 +3,7 @@
 package classify
 
 import (
-	"io/ioutil"
+	"os"
 	"sync"
 	"testing"
 
@@ -86,7 +86,7 @@ func TestTensorFlow_Labels(t *testing.T) {
 	t.Run("chameleon_lime.jpg", func(t *testing.T) {
 		tensorFlow := NewTest(t)
 
-		if imageBuffer, err := ioutil.ReadFile(examplesPath + "/chameleon_lime.jpg"); err != nil {
+		if imageBuffer, err := os.ReadFile(examplesPath + "/chameleon_lime.jpg"); err != nil {
 			t.Error(err)
 		} else {
 			result, err := tensorFlow.Labels(imageBuffer)
@@ -110,7 +110,7 @@ func TestTensorFlow_Labels(t *testing.T) {
 	t.Run("dog_orange.jpg", func(t *testing.T) {
 		tensorFlow := NewTest(t)
 
-		if imageBuffer, err := ioutil.ReadFile(examplesPath + "/dog_orange.jpg"); err != nil {
+		if imageBuffer, err := os.ReadFile(examplesPath + "/dog_orange.jpg"); err != nil {
 			t.Error(err)
 		} else {
 			result, err := tensorFlow.Labels(imageBuffer)
@@ -134,7 +134,7 @@ func TestTensorFlow_Labels(t *testing.T) {
 	t.Run("Random.docx", func(t *testing.T) {
 		tensorFlow := NewTest(t)
 
-		if imageBuffer, err := ioutil.ReadFile(examplesPath + "/Random.docx"); err != nil {
+		if imageBuffer, err := os.ReadFile(examplesPath + "/Random.docx"); err != nil {
 			t.Error(err)
 		} else {
 			result, err := tensorFlow.Labels(imageBuffer)
@@ -145,7 +145,7 @@ func TestTensorFlow_Labels(t *testing.T) {
 	t.Run("6720px_white.jpg", func(t *testing.T) {
 		tensorFlow := NewTest(t)
 
-		if imageBuffer, err := ioutil.ReadFile(examplesPath + "/6720px_white.jpg"); err != nil {
+		if imageBuffer, err := os.ReadFile(examplesPath + "/6720px_white.jpg"); err != nil {
 			t.Error(err)
 		} else {
 			result, err := tensorFlow.Labels(imageBuffer)
@@ -160,7 +160,7 @@ func TestTensorFlow_Labels(t *testing.T) {
 	t.Run("disabled true", func(t *testing.T) {
 		tensorFlow := New(assetsPath, true)
 
-		if imageBuffer, err := ioutil.ReadFile(examplesPath + "/dog_orange.jpg"); err != nil {
+		if imageBuffer, err := os.ReadFile(examplesPath + "/dog_orange.jpg"); err != nil {
 			t.Error(err)
 		} else {
 			result, err := tensorFlow.Labels(imageBuffer)
@@ -226,7 +226,7 @@ func TestTensorFlow_MakeTensor(t *testing.T) {
 	t.Run("cat_brown.jpg", func(t *testing.T) {
 		tensorFlow := NewTest(t)
 
-		imageBuffer, err := ioutil.ReadFile(examplesPath + "/cat_brown.jpg")
+		imageBuffer, err := os.ReadFile(examplesPath + "/cat_brown.jpg")
 
 		if err != nil {
 			t.Fatal(err)
@@ -240,7 +240,7 @@ func TestTensorFlow_MakeTensor(t *testing.T) {
 	t.Run("Random.docx", func(t *testing.T) {
 		tensorFlow := NewTest(t)
 
-		imageBuffer, err := ioutil.ReadFile(examplesPath + "/Random.docx")
+		imageBuffer, err := os.ReadFile(examplesPath + "/Random.docx")
 		assert.Nil(t, err)
 		result, err := tensorFlow.createTensor(imageBuffer, "jpeg")
 
