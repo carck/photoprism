@@ -25,10 +25,10 @@
           <v-icon>refresh</v-icon>
         </v-btn>
 
-        <v-btn v-if="!filter.hidden" icon class="action-show-all" :title="$gettext('Show all')" @click.stop="showAll">
+        <v-btn v-if="!filter.hidden" icon class="action-show-all" :title="$gettext('Show all')" @click.stop="showHidden('yes')">
           <v-icon>visibility</v-icon>
         </v-btn>
-        <v-btn v-else icon class="action-show-default" :title="$gettext('Show less')" @click.stop="showDefault">
+        <v-btn v-else icon class="action-show-default" :title="$gettext('Show less')" @click.stop="showHidden('')">
           <v-icon>visibility_off</v-icon>
         </v-btn>
       </v-toolbar>
@@ -134,6 +134,7 @@
                     <v-text-field
                         v-model="model.Name"
                         :rules="[titleRule]"
+                        :readonly="readonly"
                         :label="$gettext('Name')"
                         color="secondary-dark"
                         class="input-rename background-inherit elevation-0"
@@ -163,6 +164,7 @@
         </v-layout>
       </v-container>
     </v-container>
+    <p-sponsor-dialog :show="dialog.sponsor" @close="dialog.sponsor = false"></p-sponsor-dialog>
     <p-people-merge-dialog lazy :show="merge.show" :subj1="merge.subj1" :subj2="merge.subj2" @cancel="onCancelMerge"
                            @confirm="onMerge"></p-people-merge-dialog>
   </div>
@@ -211,12 +213,20 @@ export default {
       titleRule: v => v.length <= this.$config.get("clip") || this.$gettext("Name too long"),
       input: new Input(),
       lastId: "",
+      dialog: {
+        sponsor: false,
+      },
       merge: {
         subj1: null,
         subj2: null,
         show: false,
       },
     };
+  },
+  computed: {
+    readonly: function() {
+      return this.busy || this.loading;
+    },
   },
   watch: {
     '$route'() {
@@ -251,21 +261,23 @@ export default {
   },
   methods: {
     onSave(m) {
+      if (!m.Name || m.Name.trim() === "") {
+        // Refuse to save empty name.
+        return;
+      }
+
       const existing = this.$config.getPerson(m.Name);
 
       if (!existing) {
-        m.update();
-        return;
+        this.busy = true;
+        m.update().finally(() => {
+          this.busy = false;
+        });
+      } else if (existing.UID !== m.UID) {
+        this.merge.subj1 = m;
+        this.merge.subj2 = existing;
+        this.merge.show = true;
       }
-
-      if (existing.UID === m.UID) {
-        // Name didn't change.
-        return;
-      }
-
-      this.merge.subj1 = m;
-      this.merge.subj2 = existing;
-      this.merge.show = true;
     },
     onCancelMerge() {
       this.merge.subj1.Name = this.merge.subj1.originalValue("Name");
@@ -274,9 +286,11 @@ export default {
       this.merge.subj2 = null;
     },
     onMerge() {
+      this.busy = true;
       this.merge.show = false;
       this.$notify.blockUI();
       this.merge.subj1.update().finally(() => {
+        this.busy = false;
         this.merge.subj1 = null;
         this.merge.subj2 = null;
         this.$notify.unblockUI();
@@ -380,6 +394,14 @@ export default {
         }
       }
     },
+    showHidden(value) {
+      this.$earlyAccess().then(() => {
+        this.filter.hidden = value;
+        this.updateQuery();
+      }).catch(() => {
+        this.dialog.sponsor = true;
+      });
+    },
     onToggleHidden(ev, index) {
       const inputType = this.input.eval(ev, index);
 
@@ -387,22 +409,20 @@ export default {
         return;
       }
 
-      return this.toggleHidden(this.results[index]);
+      this.$earlyAccess().then(() => {
+        this.toggleHidden(this.results[index]);
+      }).catch(() => {
+        this.dialog.sponsor = true;
+      });
     },
     toggleHidden(model) {
       if (!model) {
         return;
       }
-
-      model.toggleHidden();
-    },
-    showAll() {
-      this.filter.hidden = "yes";
-      this.updateQuery();
-    },
-    showDefault() {
-      this.filter.hidden = "";
-      this.updateQuery();
+      this.busy = true;
+      model.toggleHidden().finally(() => {
+        this.busy = false;
+      });
     },
     clearQuery() {
       this.filter.q = '';
@@ -596,7 +616,7 @@ export default {
     onUpdate(ev, data) {
       if (!this.listen) return;
 
-      if (!data || !data.entities) {
+      if (!data || !data.entities || !Array.isArray(data.entities)) {
         return;
       }
 
