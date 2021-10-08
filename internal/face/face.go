@@ -86,28 +86,14 @@ func (f *Face) CropArea() crop.Area {
 	)
 }
 
-// EyesMidpoint returns the point in between the eyes.
-func (f *Face) EyesMidpoint() Area {
-	if len(f.Eyes) != 2 {
-		return Area{
-			Name:  "midpoint",
-			Row:   f.Area.Row,
-			Col:   f.Area.Col,
-			Scale: f.Area.Scale,
-		}
-	}
-
-	return Area{
-		Name:  "midpoint",
-		Row:   (f.Eyes[0].Row + f.Eyes[1].Row) / 2,
-		Col:   (f.Eyes[0].Col + f.Eyes[1].Col) / 2,
-		Scale: (f.Eyes[0].Scale + f.Eyes[1].Scale) / 2,
-	}
-}
-
 // RelativeLandmarks returns relative face areas.
 func (f *Face) RelativeLandmarks() crop.Areas {
-	p := f.EyesMidpoint()
+	p := Area{
+		Name:  "zeropoint",
+		Row:   0,
+		Col:   0,
+		Scale: 1,
+	}
 
 	m := f.Landmarks.Relative(p, float32(f.Rows), float32(f.Cols))
 	m = append(m, f.Eyes.Relative(p, float32(f.Rows), float32(f.Cols))...)

@@ -1,4 +1,6 @@
+//go:build NOTENSORFLOW
 // +build NOTENSORFLOW
+
 package classify
 
 import (
