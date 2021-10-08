@@ -124,7 +124,7 @@ func EmbeddingsMidpoint(embeddings Embeddings) (result Embedding, radius float64
 	// Only one embedding?
 	if count == 1 {
 		// Return embedding if there is only one.
-		return embeddings[0], 0.0, 1
+		return embeddings[0], 0.35, 1
 	}
 
 	dim := len(embeddings[0])
