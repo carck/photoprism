@@ -42,6 +42,7 @@ type Marker struct {
 	EmbeddingsJSON json.RawMessage `gorm:"type:MEDIUMBLOB;" json:"-" yaml:"EmbeddingsJSON,omitempty"`
 	embeddings     face.Embeddings `gorm:"-"`
 	LandmarksJSON  json.RawMessage `gorm:"type:MEDIUMBLOB;" json:"-" yaml:"LandmarksJSON,omitempty"`
+	landmarks      crop.Areas      `gorm:"-"`
 	X              float32         `gorm:"type:FLOAT;" json:"X" yaml:"X,omitempty"`
 	Y              float32         `gorm:"type:FLOAT;" json:"Y" yaml:"Y,omitempty"`
 	W              float32         `gorm:"type:FLOAT;" json:"W" yaml:"W,omitempty"`
@@ -404,6 +405,19 @@ func (m *Marker) Embeddings() face.Embeddings {
 	}
 
 	return m.embeddings
+}
+
+//  Landmarks returns parsed landmarks
+func (m *Marker) Landmarks() crop.Areas {
+	if len(m.LandmarksJSON) == 0 {
+		return crop.Areas{}
+	} else if len(m.landmarks) > 0 {
+		return m.landmarks
+	} else if err := json.Unmarshal(m.LandmarksJSON, &m.landmarks); err != nil {
+		log.Errorf("markers: %s while parsing landmarks json", err)
+	}
+
+	return m.landmarks
 }
 
 // SubjectName returns the matching subject's name.
