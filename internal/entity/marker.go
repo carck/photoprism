@@ -643,30 +643,7 @@ func (m *Marker) DetectedFace() bool {
 
 // Uncertainty returns the detection uncertainty based on the score in percent.
 func (m *Marker) Uncertainty() int {
-	switch {
-	case m.Score > 300:
-		return 1
-	case m.Score > 200:
-		return 5
-	case m.Score > 100:
-		return 10
-	case m.Score > 80:
-		return 15
-	case m.Score > 65:
-		return 20
-	case m.Score > 50:
-		return 25
-	case m.Score > 40:
-		return 30
-	case m.Score > 30:
-		return 35
-	case m.Score > 20:
-		return 40
-	case m.Score > 10:
-		return 45
-	}
-
-	return 50
+	return 100 - m.Score
 }
 
 // FindMarker returns an existing row if exists.
