@@ -33,6 +33,17 @@ type Net struct {
 	inFloats    []float32
 }
 
+func sinc(x float64) float64 {
+	if x == 0 {
+		return 1
+	}
+	return math.Sin(math.Pi*x) / (math.Pi * x)
+}
+
+var Lanczos = &draw.Kernel{3, func(x float64) float64 {
+	return sinc(x) * sinc(x/3.0)
+}}
+
 // NewNet returns new TensorFlow instance with Facenet model.
 func NewNet(modelPath string, cachePath string, disabled bool) *Net {
 	return &Net{modelPath: modelPath, disabled: disabled, modelName: "mobile_facenet.tflite", modelTags: []string{"serve"}}
@@ -151,7 +162,7 @@ func (t *Net) getFaceEmbedding(fileName string, f Area, eyes Areas) []float32 {
 		dc.RotateAbout(gg.Radians(-angle), 56, 56)
 		dc.Scale(112/float64(f.Scale), 112/float64(f.Scale))
 
-		dc.DrawImageAnchoredWithTransformer(img, 0, 0, float64(x)/float64(img.Bounds().Dx()), float64(y)/float64(img.Bounds().Dy()), draw.CatmullRom)
+		dc.DrawImageAnchoredWithTransformer(img, 0, 0, float64(x)/float64(img.Bounds().Dx()), float64(y)/float64(img.Bounds().Dy()), Lanczos)
 		img = dc.Image()
 
 		//dc.SavePNG(path.Join("/home/l2/face", fmt.Sprintf("%s.png", f.String())))
