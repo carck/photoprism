@@ -19,23 +19,19 @@ To get a first impression, you're welcome to play with our public demo at [demo.
 
 ## Features ##
 
-* PhotoPrism makes browsing and organizing your pictures as easy as it should be, whether it’s on a phone, tablet, or desktop computer
-* Because the [user interface](https://demo.photoprism.org/) is a [Progressive Web App](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps),
-  it provides a native app-like experience, and you can easily install it on the home screen of common operating systems and devices
-* Includes four high-resolution [world maps](https://demo.photoprism.org/places) to see where you've been,
-  and for rediscovering long-forgotten shots
-* Play Live Photos™ by hovering over them in albums and search results
-* Enjoy privacy-preserving face detection and recognition 💎
-* AI-powered [image classification](https://docs.photoprism.org/developer-guide/metadata/classification/)
+* Browse all your photos and videos without worrying about duplicates, RAW images or video codecs
+* Powerful [search filters](https://demo.photoprism.org/browse?q=mono%3Atrue%20quality%3A3%20photo%3Atrue) make finding the right picture a walk in the park
+* Since the [user interface](https://demo.photoprism.org/) is a [Progressive Web App](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps),
+  it provides a native app-like experience, and you can easily install it on the home screen of all major operating systems and mobile devices
+* Includes four high-resolution [world maps](https://demo.photoprism.org/places) to see where you've been and for rediscovering long-forgotten shots
+* Play Live Photos™ by hovering over them in [albums](https://demo.photoprism.org/albums) and [search results](https://demo.photoprism.org/browse?view=cards&q=type%3Alive)
+* Enjoy privacy-preserving [face detection and recognition](https://demo.photoprism.org/people) 💎
+* AI-powered [image classification](https://demo.photoprism.org/labels)
   based on Google TensorFlow
-* Metadata can be extracted and merged from Exif, XMP, and proprietary formats such as Google Photos JSON sidecar files
-* Image properties like _colors_, _chroma_, _luminance_, _quality_, _panoramic projection_, and _location type_
-  will be detected automatically whenever you update the index or import files
-* Index all your photos and videos without worrying about duplicates, the conversion of [RAW images](https://docs.photoprism.org/user-guide/settings/library/), or video transcoding
+* Metadata is extracted and merged from Exif, XMP, and proprietary formats such as Google Photos JSON
+* Image properties like colors, chroma, luminance, quality, panoramic projection, and location type are automatically detected when you update the index or import files
 * Use [PhotoSync](https://www.photosync-app.com/) to securely backup iOS and Android mobile devices in the background
-* WebDAV clients, like Microsoft’s Windows Explorer and Apple's Finder, may
-  [connect](https://docs.photoprism.org/user-guide/sync/webdav/) directly to PhotoPrism so that you to can open,
-  edit, and delete files from your computer or phone as if they were local
+* WebDAV clients such as Microsoft's Windows Explorer and Apple's Finder can [connect](https://docs.photoprism.org/user-guide/sync/webdav/) directly to PhotoPrism, allowing you to open, edit, and delete files from your computer or phone as if they were local
 
 ## Getting Started ##
 
@@ -68,7 +64,7 @@ Thank you very much! 💜
 
 ## Roadmap ##
 
-Our vision is to provide the most user-friendly solution for browsing, organizing, and sharing your pictures.
+Our vision is to provide the most user-friendly solution for browsing, organizing, and sharing your photo collection.
 The [roadmap](https://github.com/photoprism/photoprism/projects/5) shows what tasks are in progress, 
 what needs testing, and which feature requests are going to be implemented next.
 
