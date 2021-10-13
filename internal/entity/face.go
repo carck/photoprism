@@ -14,6 +14,8 @@ import (
 )
 
 var faceMutex = sync.Mutex{}
+var faceRefreshMutex = sync.Mutex{}
+var faceRefreshMap = map[string]bool{}
 
 // Face represents the face of a Subject.
 type Face struct {
@@ -273,11 +275,30 @@ func (m *Face) RefreshPhotos() error {
 		return fmt.Errorf("empty face id")
 	}
 
+	faceRefreshMutex.Lock()
+	defer faceRefreshMutex.Unlock()
+	faceRefreshMap[m.ID] = true
+	return nil
+}
+
+func GetAndClearPhotosToRefresh() (result map[string]bool) {
+	faceRefreshMutex.Lock()
+	defer faceRefreshMutex.Unlock()
+
+	result = faceRefreshMap
+	faceRefreshMap = map[string]bool{}
+	return result
+}
+
+func DoRefreshPhotos() error {
+	target := GetAndClearPhotosToRefresh()
 	update := fmt.Sprintf(
 		"UPDATE photos SET checked_at = NULL WHERE id IN (SELECT f.photo_id FROM files f JOIN %s m ON m.file_uid = f.file_uid WHERE m.face_id = ?)",
 		Marker{}.TableName())
-
-	return UnscopedDb().Exec(update, m.ID).Error
+	for k, _ := range target {
+		UnscopedDb().Exec(update, k)
+	}
+	return nil
 }
 
 // Hide hides the face by default.

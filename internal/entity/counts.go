@@ -22,19 +22,6 @@ type LabelPhotoCounts []LabelPhotoCount
 var autoCount = false
 var countMutex = sync.Mutex{}
 
-func ResetCount() {
-	countMutex.Lock()
-	defer countMutex.Unlock()
-
-	autoCount = false
-}
-
-func MustCount() bool {
-	countMutex.Lock()
-	defer countMutex.Unlock()
-	return autoCount
-}
-
 // LabelCounts returns the number of photos for each label ID.
 func LabelCounts() LabelPhotoCounts {
 	result := LabelPhotoCounts{}
@@ -206,7 +193,18 @@ func UpdateCounts() (err error) {
 	return nil
 }
 
+func GetAndClearCount() (result bool) {
+	countMutex.Lock()
+	defer countMutex.Unlock()
+	result = autoCount
+	autoCount = false
+	return result
+}
+
 func DoUpdateCounts() (err error) {
+	if !GetAndClearCount() {
+		return nil
+	}
 	log.Info("index: updating counts")
 
 	if err = UpdatePlacesCounts(); err != nil {

@@ -68,12 +68,10 @@ func Start(conf *config.Config) {
 						log.Errorf("auto-import: %s", err)
 					}
 				}
-				if MustCount() {
-					log.Debugf("auto-count: starting")
-					ResetCount()
-					DoCount()
-					log.Debugf("auto-count: stopped")
-				}
+
+				DoPhotoCount()
+
+				DoRefreshPhotos()
 			}
 		}
 	}()
