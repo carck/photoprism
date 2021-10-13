@@ -15,7 +15,7 @@ import (
 
 var faceMutex = sync.Mutex{}
 var faceRefreshMutex = sync.Mutex{}
-var faceRefreshMap = map[string]bool{}
+var faceRefreshMap = map[string]int{}
 
 // Face represents the face of a Subject.
 type Face struct {
@@ -275,28 +275,50 @@ func (m *Face) RefreshPhotos() error {
 		return fmt.Errorf("empty face id")
 	}
 
-	faceRefreshMutex.Lock()
-	defer faceRefreshMutex.Unlock()
-	faceRefreshMap[m.ID] = true
+	SetPhotoToRefresh(m.ID, 1)
 	return nil
 }
 
-func GetAndClearPhotosToRefresh() (result map[string]bool) {
+func SetPhotoToRefresh(id string, t int) {
+	faceRefreshMutex.Lock()
+	defer faceRefreshMutex.Unlock()
+	faceRefreshMap[id] = t
+}
+
+func GetAndClearPhotosToRefresh() (result map[string]int) {
 	faceRefreshMutex.Lock()
 	defer faceRefreshMutex.Unlock()
 
 	result = faceRefreshMap
-	faceRefreshMap = map[string]bool{}
+	faceRefreshMap = map[string]int{}
 	return result
 }
 
 func DoRefreshPhotos() error {
 	target := GetAndClearPhotosToRefresh()
+
 	update := fmt.Sprintf(
 		"UPDATE photos SET checked_at = NULL WHERE id IN (SELECT f.photo_id FROM files f JOIN %s m ON m.file_uid = f.file_uid WHERE m.face_id = ?)",
 		Marker{}.TableName())
-	for k, _ := range target {
-		UnscopedDb().Exec(update, k)
+
+	update2 := fmt.Sprintf(
+		"UPDATE photos SET checked_at = NULL WHERE id IN (SELECT f.photo_id FROM files f JOIN %s m ON m.file_uid = f.file_uid WHERE m.subj_uid = ?)",
+		Marker{}.TableName())
+
+	update3 := fmt.Sprintf(
+		"UPDATE photos SET checked_at = NULL WHERE id IN (SELECT f.photo_id FROM files f JOIN %s m ON m.file_uid = f.file_uid WHERE m.marker_uid = ?)",
+		Marker{}.TableName())
+
+	for k, v := range target {
+		if v == 1 {
+			UnscopedDb().Exec(update, k)
+		}
+		if v == 2 {
+			UnscopedDb().Exec(update2, k)
+		}
+		if v == 3 {
+			UnscopedDb().Exec(update3, k)
+		}
 	}
 	return nil
 }

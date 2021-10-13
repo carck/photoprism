@@ -568,10 +568,8 @@ func (m *Marker) RefreshPhotos() error {
 	if m.MarkerUID == "" {
 		return fmt.Errorf("empty marker uid")
 	}
-
-	return UnscopedDb().Exec(`UPDATE photos SET checked_at = NULL WHERE id IN
-		(SELECT f.photo_id FROM files f JOIN ? m ON m.file_uid = f.file_uid WHERE m.marker_uid = ?)`,
-		gorm.Expr(Marker{}.TableName()), m.MarkerUID).Error
+	SetPhotoToRefresh(m.MarkerUID, 3)
+	return nil
 }
 
 // Matched updates the match timestamp.

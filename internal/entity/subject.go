@@ -389,11 +389,8 @@ func (m *Subject) RefreshPhotos() error {
 		return fmt.Errorf("empty subject uid")
 	}
 
-	update := fmt.Sprintf(
-		"UPDATE photos SET checked_at = NULL WHERE id IN (SELECT f.photo_id FROM files f JOIN %s m ON m.file_uid = f.file_uid WHERE m.subj_uid = ?)",
-		Marker{}.TableName())
-
-	return UnscopedDb().Exec(update, m.SubjUID).Error
+	SetPhotoToRefresh(m.SubjUID, 2)
+	return nil
 }
 
 // MergeWith merges this subject with another subject and then deletes it.
