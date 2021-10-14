@@ -111,6 +111,14 @@ func (m PhotoResults) UIDs() []string {
 	return result
 }
 
+func (m PhotoResults) PreventMarkers() {
+	for _, el := range m {
+		for _, f := range el.Files {
+			f.NoMarkers = true
+		}
+	}
+}
+
 func (m PhotoResults) Merged() (PhotoResults, int, error) {
 	count := len(m)
 	merged := make([]Photo, 0, count)
@@ -125,6 +133,7 @@ func (m PhotoResults) Merged() (PhotoResults, int, error) {
 			return merged, count, err
 		}
 
+		file.NoMarkers = true
 		file.ID = res.FileID
 		res.CompositeID = fmt.Sprintf("%d-%d", res.ID, res.FileID)
 

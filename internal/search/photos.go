@@ -513,6 +513,8 @@ func Photos(f form.PhotoSearch) (results PhotoResults, count int, err error) {
 
 	log.Infof("photos: found %s for %s [%s]", english.Plural(len(results), "result", "results"), f.SerializeAll(), time.Since(start))
 
+	results.PreventMarkers()
+
 	if f.Merged {
 		return results.Merged()
 	}

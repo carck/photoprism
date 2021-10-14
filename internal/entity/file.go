@@ -71,6 +71,7 @@ type File struct {
 	DeletedAt       *time.Time    `sql:"index" json:"DeletedAt,omitempty" yaml:"-"`
 	Share           []FileShare   `json:"-" yaml:"-"`
 	Sync            []FileSync    `json:"-" yaml:"-"`
+	NoMarkers       bool          `gorm:"-" json:"-" yaml:"-"`
 	markers         *Markers
 }
 
@@ -541,7 +542,7 @@ func (m *File) SaveMarkers() (count int, err error) {
 
 // Markers finds and returns existing file markers.
 func (m *File) Markers() *Markers {
-	if m.markers != nil {
+	if m.markers != nil || m.NoMarkers {
 		return m.markers
 	} else if m.FileUID == "" {
 		m.markers = &Markers{}
