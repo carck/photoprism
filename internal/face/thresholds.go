@@ -4,7 +4,7 @@ import (
 	"github.com/photoprism/photoprism/internal/crop"
 )
 
-var CropSize = crop.Sizes[crop.Tile160]          // Face image crop size for FaceNet.
+var CropSize = crop.Sizes[crop.Tile112]          // Face image crop size for FaceNet.
 var OverlapThreshold = 42                        // Face area overlap threshold in percent.
 var OverlapThresholdFloor = OverlapThreshold - 1 // Reduced overlap area to avoid rounding inconsistencies.
 var ScoreThreshold = 70.0                        // Min face score.

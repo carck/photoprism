@@ -4,16 +4,18 @@ import (
 	"bytes"
 	"fmt"
 	"image"
+	"math"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
-	"github.com/photoprism/photoprism/pkg/txt"
-
+	"github.com/carck/gg"
 	"github.com/disintegration/imaging"
 	"github.com/photoprism/photoprism/internal/thumb"
 	"github.com/photoprism/photoprism/pkg/fs"
+	"github.com/photoprism/photoprism/pkg/txt"
+	"golang.org/x/image/draw"
 )
 
 // Filenames of usable thumb sizes.
@@ -36,8 +38,19 @@ var thumbFileSizes = []thumb.Size{
 	thumb.Sizes[thumb.Fit7680],
 }
 
+func sinc(x float64) float64 {
+	if x == 0 {
+		return 1
+	}
+	return math.Sin(math.Pi*x) / (math.Pi * x)
+}
+
+var Lanczos = &draw.Kernel{3, func(x float64) float64 {
+	return sinc(x) * sinc(x/3.0)
+}}
+
 // ImageFromThumb returns a cropped area from an existing thumbnail image.
-func ImageFromThumb(thumbName string, area Area, size Size, cache bool) (img image.Image, err error) {
+func ImageFromThumb(thumbName string, area Area, size Size, cache bool, angle float64) (img image.Image, err error) {
 	// Use same folder for caching if "cache" is true.
 	filePath := filepath.Dir(thumbName)
 
@@ -71,11 +84,23 @@ func ImageFromThumb(thumbName string, area Area, size Size, cache bool) (img ima
 		log.Debugf("crop: %s is too small, upscaling %dpx to %dpx", filepath.Base(thumbName), dim, size.Width)
 	}
 
-	// Crop area from image.
-	img = imaging.Crop(img, image.Rect(min.X, min.Y, max.X, max.Y))
+	if angle == 0 {
+		// Crop area from image.
+		img = imaging.Crop(img, image.Rect(min.X, min.Y, max.X, max.Y))
+		// Resample crop area.
+		img = thumb.Resample(img, size.Width, size.Height, size.Options...)
+	} else {
+		dc := gg.NewContext(size.Width, size.Height)
+		dc.SetRGB255(255, 255, 255)
+		dc.Clear()
 
-	// Resample crop area.
-	img = thumb.Resample(img, size.Width, size.Height, size.Options...)
+		dc.RotateAbout(gg.Radians(-angle), float64(size.Width/2), float64(size.Height/2))
+		dc.Scale(float64(size.Width)/float64(dim), float64(size.Height)/float64(dim))
+
+		dc.DrawImageAnchoredWithTransformer(img, 0, 0, float64(min.X)/float64(img.Bounds().Dx()), float64(min.Y)/float64(img.Bounds().Dy()), Lanczos)
+		img = dc.Image()
+		//dc.SavePNG(path.Join("/home/l2/face", cropBase))
+	}
 
 	// Cache crop image?
 	if cache {

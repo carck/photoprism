@@ -4,22 +4,18 @@
 package face
 
 import (
-	"bytes"
 	"fmt"
 	"image"
-	"io/ioutil"
 	"math"
 	"path"
 	"path/filepath"
 	"runtime/debug"
 	"sync"
 
-	"github.com/carck/gg"
-	"github.com/disintegration/imaging"
 	"github.com/mattn/go-tflite"
 	"github.com/mattn/go-tflite/delegates/xnnpack"
+	"github.com/photoprism/photoprism/internal/crop"
 	"github.com/photoprism/photoprism/pkg/txt"
-	"golang.org/x/image/draw"
 )
 
 // Net is a wrapper for the TensorFlow Facenet model.
@@ -32,17 +28,6 @@ type Net struct {
 	mutex       sync.Mutex
 	inFloats    []float32
 }
-
-func sinc(x float64) float64 {
-	if x == 0 {
-		return 1
-	}
-	return math.Sin(math.Pi*x) / (math.Pi * x)
-}
-
-var Lanczos = &draw.Kernel{3, func(x float64) float64 {
-	return sinc(x) * sinc(x/3.0)
-}}
 
 // NewNet returns new TensorFlow instance with Facenet model.
 func NewNet(modelPath string, cachePath string, disabled bool) *Net {
@@ -72,7 +57,7 @@ func (t *Net) Detect(fileName string, minSize int, cacheCrop bool, expected int)
 			continue
 		}
 
-		embedding := t.getFaceEmbedding(fileName, f.Area, f.Eyes)
+		embedding := t.getFaceEmbedding(fileName, f)
 
 		if len(embedding) > 0 {
 			faces[i].Embeddings = make(Embeddings, 1)
@@ -140,14 +125,10 @@ func (t *Net) loadModel() error {
 	return nil
 }
 
-func (t *Net) getFaceEmbedding(fileName string, f Area, eyes Areas) []float32 {
-	y, x := f.TopLeft()
-
-	imageBuffer, err := ioutil.ReadFile(fileName)
-	img, err := imaging.Decode(bytes.NewReader(imageBuffer), imaging.AutoOrientation(true))
-	if err != nil {
-		log.Errorf("face: failed to decode image: %v", err)
-	}
+func (t *Net) getFaceEmbedding(fileName string, f Face) []float32 {
+	eyes := f.Eyes
+	var img image.Image
+	var err error
 
 	if len(eyes) == 2 {
 		x1 := float64(eyes[1].Col - eyes[0].Col)
@@ -155,27 +136,21 @@ func (t *Net) getFaceEmbedding(fileName string, f Area, eyes Areas) []float32 {
 
 		angle := math.Atan2(y1, x1) * 180.0 / math.Pi
 
-		dc := gg.NewContext(112, 112)
-		dc.SetRGB255(255, 255, 255)
-		dc.Clear()
-
-		dc.RotateAbout(gg.Radians(-angle), 56, 56)
-		dc.Scale(112/float64(f.Scale), 112/float64(f.Scale))
-
-		dc.DrawImageAnchoredWithTransformer(img, 0, 0, float64(x)/float64(img.Bounds().Dx()), float64(y)/float64(img.Bounds().Dy()), Lanczos)
-		img = dc.Image()
-
-		//dc.SavePNG(path.Join("/home/l2/face", fmt.Sprintf("%s.png", f.String())))
-
+		img, err = crop.ImageFromThumb(fileName, f.CropArea(), CropSize, false, angle)
 	} else {
-		img = imaging.Crop(img, image.Rect(x, y, x+f.Scale, y+f.Scale))
-		img = imaging.Fill(img, 112, 112, imaging.Center, imaging.Lanczos)
+		img, err = crop.ImageFromThumb(fileName, f.CropArea(), CropSize, false, 0)
 	}
 
-	err = t.imageToTensor(img, 112, 112)
+	if err != nil {
+		log.Errorf("face: failed to crop image : %v", err)
+		return nil
+	}
+
+	err = t.imageToTensor(img, CropSize.Width, CropSize.Height)
 
 	if err != nil {
 		log.Errorf("face: failed to convert image to tensor: %v", err)
+		return nil
 	}
 	// TODO: prewhiten image as in facenet
 
