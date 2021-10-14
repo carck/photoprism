@@ -16,6 +16,12 @@
         <v-btn v-else icon class="action-exclude-hidden" :title="$gettext('Exclude hidden')" @click.stop="onExcludeHidden">
           <v-icon>visibility_off</v-icon>
         </v-btn>
+	<v-btn v-if="filter.unknown === 'no'" icon class="action-show-hidden" :title="$gettext('Show Unknown')" @click.stop="onShowUnknown">
+          <v-icon>perm_identity</v-icon>
+        </v-btn>
+        <v-btn v-else icon class="action-exclude-hidden" :title="$gettext('Exclude Unkown')" @click.stop="onExcludeUnknown">
+          <v-icon>person_search</v-icon>
+        </v-btn>
       </v-toolbar>
     </v-form>
 
@@ -143,8 +149,9 @@ export default {
     const routeName = this.$route.name;
     const q = query['q'] ? query['q'] : '';
     const hidden = query['hidden'] ? query['hidden'] : '';
+    const unknown = query['unknown'] ? query['unknown'] : 'yes';
     const order = this.sortOrder();
-    const filter = {q, hidden, order};
+    const filter = {q, hidden, unknown, order};
     const settings = {};
 
     return {
@@ -196,6 +203,7 @@ export default {
 
       this.filter.q = query["q"] ? query["q"] : "";
       this.filter.hidden = query["hidden"] ? query["hidden"] : "";
+      this.filter.unknown = query["unknown"] ? query["unknown"] : "";
       this.filter.order = this.sortOrder();
       this.routeName = this.$route.name;
 
@@ -322,8 +330,18 @@ export default {
     onExcludeHidden() {
       this.showHidden("");
     },
+    onShowUnknown() {
+      this.showUnknown("yes");
+    },
+    onExcludeUnknown() {
+      this.showUnknown("no");
+    },
     showHidden(value) {
       this.filter.hidden = value;
+      this.updateQuery();
+    },
+    showUnknown(value) {
+      this.filter.unknown = value;
       this.updateQuery();
     },
     clearQuery() {

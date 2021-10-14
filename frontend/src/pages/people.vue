@@ -57,7 +57,7 @@ export default {
       {
         'name': 'people_faces',
         'component': Faces,
-        'filter': {markers: true, unknown: true},
+        'filter': {markers: true},
         'label': this.$gettext('New'),
         'class': '',
         'path': '/people/new',
