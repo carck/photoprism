@@ -297,18 +297,16 @@ func GetAndClearPhotosToRefresh() (result map[string]int) {
 func DoRefreshPhotos() error {
 	target := GetAndClearPhotosToRefresh()
 
-	update := fmt.Sprintf(
-		"UPDATE photos SET checked_at = NULL WHERE id IN (SELECT f.photo_id FROM files f JOIN %s m ON m.file_uid = f.file_uid WHERE m.face_id = ?)",
-		Marker{}.TableName())
+	update := "UPDATE photos SET checked_at = NULL WHERE id IN (SELECT f.photo_id FROM files f JOIN markers m ON m.file_uid = f.file_uid WHERE m.face_id = ?)"
+	update2 := "UPDATE photos SET checked_at = NULL WHERE id IN (SELECT f.photo_id FROM files f JOIN markers m ON m.file_uid = f.file_uid WHERE m.subj_id = ?)"
+	update3 := "UPDATE photos SET checked_at = NULL WHERE id IN (SELECT f.photo_id FROM files f JOIN markers m ON m.file_uid = f.file_uid WHERE m.maker_uid = ?)"
 
-	update2 := fmt.Sprintf(
-		"UPDATE photos SET checked_at = NULL WHERE id IN (SELECT f.photo_id FROM files f JOIN %s m ON m.file_uid = f.file_uid WHERE m.subj_uid = ?)",
-		Marker{}.TableName())
+	if MySQL == DbDialect() {
+		update = "UPDATE photos p inner join files f on f.photo_id = p.id  inner join markers m on m.file_uid = f.file_uid SET checked_at = NULL WHERE m.face_id = ?)"
+		update2 = "UPDATE photos p inner join files f on f.photo_id = p.id  inner join markers m on m.file_uid = f.file_uid SET checked_at = NULL WHERE m.subj_id = ?)"
+		update3 = "UPDATE photos p inner join files f on f.photo_id = p.id  inner join markers m on m.file_uid = f.file_uid SET checked_at = NULL WHERE m.marker_uid = ?)"
 
-	update3 := fmt.Sprintf(
-		"UPDATE photos SET checked_at = NULL WHERE id IN (SELECT f.photo_id FROM files f JOIN %s m ON m.file_uid = f.file_uid WHERE m.marker_uid = ?)",
-		Marker{}.TableName())
-
+	}
 	for k, v := range target {
 		if v == 1 {
 			UnscopedDb().Exec(update, k)
