@@ -2,7 +2,6 @@ package entity
 
 import (
 	"encoding/json"
-	"math"
 	"time"
 )
 
@@ -16,12 +15,6 @@ func (m *Marker) MarshalJSON() ([]byte, error) {
 	} else {
 		name = subj.SubjName
 	}
-
-	l_eye := m.Landmarks()[3]
-	r_eye := m.Landmarks()[4]
-	x1 := float64(r_eye.X - l_eye.X)
-	y1 := float64(r_eye.Y - l_eye.Y)
-	angle := math.Atan2(y1, x1) * 180.0 / math.Pi
 
 	return json.Marshal(&struct {
 		UID       string
@@ -40,7 +33,6 @@ func (m *Marker) MarshalJSON() ([]byte, error) {
 		W         float32 `json:",omitempty"`
 		H         float32 `json:",omitempty"`
 		Q         int     `json:",omitempty"`
-		Angle     float64 `json:",omitempty"`
 		Size      int     `json:",omitempty"`
 		Score     int     `json:",omitempty"`
 		Thumb     string
@@ -62,7 +54,6 @@ func (m *Marker) MarshalJSON() ([]byte, error) {
 		W:         m.W,
 		H:         m.H,
 		Q:         m.Q,
-		Angle:     angle,
 		Size:      m.Size,
 		Score:     m.Score,
 		Thumb:     m.Thumb,

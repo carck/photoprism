@@ -420,6 +420,14 @@ func (m *Marker) Landmarks() crop.Areas {
 	return m.landmarks
 }
 
+func (m *Marker) Angle() float64 {
+	l_eye := m.Landmarks()[3]
+	r_eye := m.Landmarks()[4]
+	x1 := float64(r_eye.X - l_eye.X)
+	y1 := float64(r_eye.Y - l_eye.Y)
+	return math.Atan2(y1, x1) * 180.0 / math.Pi
+}
+
 // SubjectName returns the matching subject's name.
 func (m *Marker) SubjectName() string {
 	if m.MarkerName != "" {
