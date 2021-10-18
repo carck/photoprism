@@ -25,9 +25,9 @@ To get a first impression, you're welcome to play with our public demo at [demo.
   it provides a native app-like experience, and you can conveniently install it on the home screen of all major operating systems and mobile devices
 * Includes four high-resolution [world maps](https://demo.photoprism.org/places) to bring back the memories of your favorite trips
 * Recognizes the faces of your [family and friends](https://demo.photoprism.org/people) 💎
-* Automatic [classification](https://demo.photoprism.org/labels) of pictures based on their content and location
+* [Automatic classification](https://demo.photoprism.org/labels) of pictures based on their content and location
 * Metadata is extracted and merged from Exif, XMP, and other sources such as Google Photos
-* Many more image properties like colors, luminance, and quality can be searched as well
+* Many more image properties like [colors](https://demo.photoprism.org/browse?view=cards&q=color:red), [chroma](https://demo.photoprism.org/browse?view=cards&q=mono%3Atrue), and [quality](https://demo.photoprism.org/review) can be searched as well
 * Use [PhotoSync](https://www.photosync-app.com/) to securely backup iOS and Android phones in the background
 * WebDAV clients such as Microsoft's Windows Explorer and Apple's Finder can [connect](https://docs.photoprism.org/user-guide/sync/webdav/) directly to PhotoPrism, allowing you to open, edit, and delete files from your computer as if they were local
 
@@ -49,8 +49,7 @@ We recommend updating your existing `docker-compose.yml` config based on
 
 Your continued support helps us provide services like satellite maps and develop new features.
 
-Feature requests endorsed by silver and [gold sponsors](SPONSORS.md) receive a [golden label](https://github.com/photoprism/photoprism/issues?q=is%3Aissue+is%3Aopen+label%3Asponsor) and will be prioritized.
-Let us know when we mistakenly label an idea as [unfunded](https://github.com/photoprism/photoprism/issues?q=is%3Aissue+is%3Aopen+label%3Aunfunded).
+Ideas endorsed by silver and [gold sponsors](SPONSORS.md) receive a [golden label](https://github.com/photoprism/photoprism/issues?q=is%3Aissue+is%3Aopen+label%3Asponsor) and will be prioritized.
 
 Also, please [leave a star](https://github.com/photoprism/photoprism/stargazers) on GitHub if you like this project. 
 It provides additional motivation to keep going.
