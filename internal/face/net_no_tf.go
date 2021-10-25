@@ -13,7 +13,6 @@ import (
 	"sync"
 
 	"github.com/mattn/go-tflite"
-	"github.com/mattn/go-tflite/delegates/xnnpack"
 	"github.com/photoprism/photoprism/internal/crop"
 	"github.com/photoprism/photoprism/pkg/txt"
 )
@@ -31,7 +30,7 @@ type Net struct {
 
 // NewNet returns new TensorFlow instance with Facenet model.
 func NewNet(modelPath string, cachePath string, disabled bool) *Net {
-	return &Net{modelPath: modelPath, disabled: disabled, modelName: "mobile_facenet.tflite", modelTags: []string{"serve"}}
+	return &Net{modelPath: modelPath, disabled: disabled, modelName: "facenet.tflite", modelTags: []string{"serve"}}
 }
 
 // Detect runs the detection and facenet algorithms over the provided source image.
@@ -91,7 +90,6 @@ func (t *Net) loadModel() error {
 	}
 
 	options := tflite.NewInterpreterOptions()
-	options.AddDelegate(xnnpack.New(xnnpack.DelegateOptions{NumThreads: 2}))
 	options.SetNumThread(4)
 	options.SetErrorReporter(func(msg string, user_data interface{}) {
 		fmt.Println(msg)
@@ -123,6 +121,17 @@ func (t *Net) loadModel() error {
 	t.interpreter = interpreter
 
 	return nil
+}
+
+func L2Norm(data []float32, epsilon float64) {
+	var sum float64 = 0
+	for _, v := range data {
+		sum += math.Pow(float64(v), 2)
+	}
+	norm := math.Sqrt(math.Max(sum, epsilon))
+	for i, v := range data {
+		data[i] = float32(float64(v) / norm)
+	}
 }
 
 func (t *Net) getFaceEmbedding(fileName string, f Face) []float32 {
@@ -170,6 +179,7 @@ func (t *Net) getFaceEmbedding(fileName string, f Face) []float32 {
 	} else {
 		result := make([]float32, outSize)
 		copy(result, output.Float32s())
+		L2Norm(result, 1e-12)
 		return result
 	}
 	return nil
@@ -188,12 +198,15 @@ func (t *Net) imageToTensor(img image.Image, imageHeight, imageWidth int) (err e
 
 	input := t.interpreter.GetInputTensor(0)
 	ff := t.inFloats
+	rs := imageHeight*imageWidth
+	bs := 2*rs
 	for y := 0; y < imageHeight; y++ {
 		for x := 0; x < imageWidth; x++ {
 			r, g, b, _ := img.At(x, y).RGBA()
-			ff[(y*imageWidth+x)*3+0] = convertValue(r)
-			ff[(y*imageWidth+x)*3+1] = convertValue(g)
-			ff[(y*imageWidth+x)*3+2] = convertValue(b)
+			base := y*imageWidth+x
+			ff[base] = convertValue(r)
+			ff[rs+base] = convertValue(g)
+			ff[bs+base] = convertValue(b)
 		}
 	}
 	copy(input.Float32s(), ff)
@@ -201,5 +214,5 @@ func (t *Net) imageToTensor(img image.Image, imageHeight, imageWidth int) (err e
 }
 
 func convertValue(value uint32) float32 {
-	return (float32(value>>8) - float32(127.5)) / float32(128.0)
+	return (float32(value>>8) - float32(127.5)) / float32(127.5)
 }
