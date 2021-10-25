@@ -2,14 +2,15 @@ PhotoPrism: Browse Your Life in Pictures
 ========================================
 
 [![License: AGPL](https://img.shields.io/badge/license-AGPL-blue.svg)][license]
-[![Code Quality](https://goreportcard.com/badge/github.com/photoprism/photoprism)][goreport]
 [![Build Status](https://drone.photoprism.app/api/badges/photoprism/photoprism/status.svg?ref=refs/heads/develop)][ci]
 [![GitHub contributors](https://img.shields.io/github/contributors/photoprism/photoprism.svg)](https://github.com/photoprism/photoprism/graphs/contributors/)
 [![Documentation](https://img.shields.io/badge/read-the%20docs-4aa087.svg)][docs]
 [![Community Chat](https://img.shields.io/badge/chat-on%20gitter-4aa087.svg)][chat]
+[![GitHub Discussions](https://img.shields.io/badge/ask-%20on%20github-4d6a91.svg)][ask]
 [![Twitter](https://img.shields.io/badge/follow-@photoprism_app-00acee.svg)][twitter]
 
-PhotoPrism® is an AI-powered Open Source app for browsing, organizing & sharing your photo collection.
+PhotoPrism® is an AI-powered app for browsing, organizing & sharing your photo collection.
+It makes use of the latest technologies to tag and find pictures automatically without getting in your way.
 You can run it at home, on a private server, or in the cloud.
 
 ![](https://dl.photoprism.org/img/ui/desktop-1000px.jpg)
@@ -62,16 +63,34 @@ The [roadmap](https://github.com/photoprism/photoprism/projects/5) shows what ta
 what needs testing, and which features are going to be implemented next.
 
 Please give ideas you like a thumbs-up 👍  , so that we know what is most popular.
+You are welcome to submit specific feature requests via [GitHub Issues](https://github.com/photoprism/photoprism/issues)
+if you have verified that no similar [idea](https://github.com/photoprism/photoprism/labels/idea) or
+[todo](https://github.com/photoprism/photoprism/labels/todo) already exists.
+
+## Questions?
+
+Follow us on [Twitter](https://twitter.com/photoprism_app) or join our [Community Chat](https://gitter.im/browseyourlife/community)
+to get regular updates, connect with other users, and discuss your ideas. Don't be afraid to ask silly questions.
+
+## Getting Support ##
+
+Please use [GitHub Issues](https://github.com/photoprism/photoprism/issues) only to report clearly identified bugs and 
+impediments to us. If you are not sure, first use [GitHub Discussions](https://github.com/photoprism/photoprism/discussions) 
+or ask in our [Community Chat](https://gitter.im/browseyourlife/community). [Sponsors](https://docs.photoprism.org/funding/) 
+receive direct [technical support](https://photoprism.app/contact) via email.
+
+When reporting a problem, please include the version you are using and information
+about your environment such as browser, operating system, installed memory, and
+processor type.
 
 ## Contributions ##
 
-We welcome contributions of any kind. If you have a bug or an idea, read our 
-[guide](https://docs.photoprism.org/developer-guide/) before opening an issue.
-Issues labeled [help wanted](https://github.com/photoprism/photoprism/labels/help%20wanted) / 
+We welcome contributions of any kind, including bug reports, testing, writing documentation, 
+tutorials, blog posts, and pull requests. Issues labeled 
+[help wanted](https://github.com/photoprism/photoprism/labels/help%20wanted) / 
 [easy](https://github.com/photoprism/photoprism/issues?q=is%3Aissue+is%3Aopen+label%3Aeasy) can be
-good (first) contributions. 
-
-Follow us on [Twitter][twitter] to receive regular project updates and discuss development related topics. Don't be afraid to ask stupid questions.
+good (first) contributions. Our step-by-step guide explains how to submit 
+[pull requests](https://docs.photoprism.org/developer-guide/pull-requests/).
 
 ## Trademarks ##
 
@@ -92,6 +111,7 @@ goods, products, or services without prior written permission. In other words, p
 [docs]: https://docs.photoprism.org/
 [issuehunt]: https://issuehunt.io/repos/119160553
 [chat]: https://gitter.im/browseyourlife/community
+[ask]: https://github.com/photoprism/photoprism/discussions
 [twitter]: https://twitter.com/photoprism_app
 [unfunded issues]: https://github.com/photoprism/photoprism/issues?q=is%3Aissue+is%3Aopen+label%3Aunfunded
 [sponsored issues]: https://github.com/photoprism/photoprism/issues?q=is%3Aissue+is%3Aopen+label%3Asponsor
