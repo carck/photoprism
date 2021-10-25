@@ -72,6 +72,7 @@ require (
 )
 
 require (
+	github.com/carck/onnx-runtime-go v0.0.0-20211025062225-5769a1ef01ee // indirect
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dsoprea/go-logging v0.0.0-20200710184922-b02d349568dd // indirect

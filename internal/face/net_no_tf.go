@@ -12,14 +12,14 @@ import (
 	"runtime/debug"
 	"sync"
 
-	"github.com/mattn/go-tflite"
+	"github.com/carck/onnx-runtime-go"
 	"github.com/photoprism/photoprism/internal/crop"
 	"github.com/photoprism/photoprism/pkg/txt"
 )
 
 // Net is a wrapper for the TensorFlow Facenet model.
 type Net struct {
-	interpreter *tflite.Interpreter
+	model *onnx.Model
 	modelPath   string
 	disabled    bool
 	modelName   string
@@ -30,7 +30,7 @@ type Net struct {
 
 // NewNet returns new TensorFlow instance with Facenet model.
 func NewNet(modelPath string, cachePath string, disabled bool) *Net {
-	return &Net{modelPath: modelPath, disabled: disabled, modelName: "facenet.tflite", modelTags: []string{"serve"}}
+	return &Net{modelPath: modelPath, disabled: disabled, modelName: "facenet.onnx", modelTags: []string{"serve"}}
 }
 
 // Detect runs the detection and facenet algorithms over the provided source image.
@@ -69,7 +69,7 @@ func (t *Net) Detect(fileName string, minSize int, cacheCrop bool, expected int)
 
 // ModelLoaded tests if the TensorFlow model is loaded.
 func (t *Net) ModelLoaded() bool {
-	return t.interpreter != nil
+	return t.model != nil
 }
 
 func (t *Net) loadModel() error {
@@ -84,41 +84,18 @@ func (t *Net) loadModel() error {
 
 	log.Infof("facenet: loading %s", txt.Quote(filepath.Base(modelPath)))
 
-	model := tflite.NewModelFromFile(modelPath)
+	shape := []int64{1, 3, 112, 112}
+	inputNames := []string{"input.1"}
+	outputNames := []string{"683"}
+
+	model := onnx.NewModel(modelPath, shape, inputNames, outputNames, onnx.CPU)
 	if model == nil {
 		return fmt.Errorf("classify: load model failed, stack: %s", debug.Stack())
 	}
 
-	options := tflite.NewInterpreterOptions()
-	options.SetNumThread(4)
-	options.SetErrorReporter(func(msg string, user_data interface{}) {
-		fmt.Println(msg)
-	}, nil)
+	t.inFloats = make([]float32, 112*112*3)
 
-	interpreter := tflite.NewInterpreter(model, options)
-	if interpreter == nil {
-		defer options.Delete()
-		defer model.Delete()
-		return fmt.Errorf("classify: create interceptor failed, stack: %s", debug.Stack())
-	}
-
-	status := interpreter.AllocateTensors()
-	if status != tflite.OK {
-		defer interpreter.Delete()
-		defer options.Delete()
-		defer model.Delete()
-		return fmt.Errorf("classify: create tensor failed, stack: %s", debug.Stack())
-	}
-
-	input := interpreter.GetInputTensor(0)
-	h := input.Dim(1)
-	w := input.Dim(2)
-	c := input.Dim(3)
-	t.inFloats = make([]float32, h*w*c)
-
-	log.Infof("facenet: input %d %d %d", h, w, c)
-
-	t.interpreter = interpreter
+	t.model =  model
 
 	return nil
 }
@@ -163,26 +140,13 @@ func (t *Net) getFaceEmbedding(fileName string, f Face) []float32 {
 	}
 	// TODO: prewhiten image as in facenet
 
-	// Run inference.
-	status := t.interpreter.Invoke()
-	if status != tflite.OK {
-		log.Errorf("face: failed to invoke: %v", err)
-		return nil
-	}
+	output := t.model.RunInference(t.inFloats)
+	defer output.Delete()
 
-	output := t.interpreter.GetOutputTensor(0)
-	outSize := output.Dim(output.NumDims() - 1)
-	log.Infof("facenet: output %d", outSize)
-
-	if outSize < 1 {
-		log.Errorf("face: inference failed, no output")
-	} else {
-		result := make([]float32, outSize)
-		copy(result, output.Float32s())
-		L2Norm(result, 1e-12)
-		return result
-	}
-	return nil
+	res := make([]float32, 512)
+	output.CopyToBuffer(res, 512*4)
+	L2Norm(res, 1e-12)
+	return res 
 }
 
 func (t *Net) imageToTensor(img image.Image, imageHeight, imageWidth int) (err error) {
@@ -196,7 +160,6 @@ func (t *Net) imageToTensor(img image.Image, imageHeight, imageWidth int) (err e
 		return fmt.Errorf("face: image width and height must be > 0")
 	}
 
-	input := t.interpreter.GetInputTensor(0)
 	ff := t.inFloats
 	rs := imageHeight*imageWidth
 	bs := 2*rs
@@ -209,7 +172,6 @@ func (t *Net) imageToTensor(img image.Image, imageHeight, imageWidth int) (err e
 			ff[bs+base] = convertValue(b)
 		}
 	}
-	copy(input.Float32s(), ff)
 	return nil
 }
 
