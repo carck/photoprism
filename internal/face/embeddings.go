@@ -61,9 +61,9 @@ func (embeddings Embeddings) First() Embedding {
 	return embeddings[0]
 }
 
-// Float64 returns embeddings as a float64 slice.
-func (embeddings Embeddings) Float64() [][]float64 {
-	result := make([][]float64, len(embeddings))
+// Float32 returns embeddings as a float32 slice.
+func (embeddings Embeddings) Float32() [][]float32 {
+	result := make([][]float32, len(embeddings))
 
 	for i, e := range embeddings {
 		result[i] = e
@@ -141,19 +141,19 @@ func EmbeddingsMidpoint(embeddings Embeddings) (result Embedding, radius float64
 		values := make(stats.Float64Data, count)
 
 		for j := 0; j < count; j++ {
-			values[j] = embeddings[j][i]
+			values[j] = float64(embeddings[j][i])
 		}
 
 		if m, err := stats.Mean(values); err != nil {
 			log.Warnf("embeddings: %s", err)
 		} else {
-			result[i] = m
+			result[i] = float32(m)
 		}
 	}
 
 	// Radius is the max embedding distance + 0.01 from result.
 	for _, emb := range embeddings {
-		if d := clusters.EuclideanDistance(result, emb); d > radius {
+		if d := clusters.EuclideanDistance32(result, emb); d > radius {
 			radius = d + 0.01
 		}
 	}

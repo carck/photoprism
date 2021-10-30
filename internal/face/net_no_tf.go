@@ -19,13 +19,13 @@ import (
 
 // Net is a wrapper for the TensorFlow Facenet model.
 type Net struct {
-	model *onnx.Model
-	modelPath   string
-	disabled    bool
-	modelName   string
-	modelTags   []string
-	mutex       sync.Mutex
-	inFloats    []float32
+	model     *onnx.Model
+	modelPath string
+	disabled  bool
+	modelName string
+	modelTags []string
+	mutex     sync.Mutex
+	inFloats  []float32
 }
 
 // NewNet returns new TensorFlow instance with Facenet model.
@@ -95,7 +95,7 @@ func (t *Net) loadModel() error {
 
 	t.inFloats = make([]float32, 112*112*3)
 
-	t.model =  model
+	t.model = model
 
 	return nil
 }
@@ -146,7 +146,7 @@ func (t *Net) getFaceEmbedding(fileName string, f Face) []float32 {
 	res := make([]float32, 512)
 	output.CopyToBuffer(res, 512*4)
 	L2Norm(res, 1e-12)
-	return res 
+	return res
 }
 
 func (t *Net) imageToTensor(img image.Image, imageHeight, imageWidth int) (err error) {
@@ -161,12 +161,12 @@ func (t *Net) imageToTensor(img image.Image, imageHeight, imageWidth int) (err e
 	}
 
 	ff := t.inFloats
-	rs := imageHeight*imageWidth
-	bs := 2*rs
+	rs := imageHeight * imageWidth
+	bs := 2 * rs
 	for y := 0; y < imageHeight; y++ {
 		for x := 0; x < imageWidth; x++ {
 			r, g, b, _ := img.At(x, y).RGBA()
-			base := y*imageWidth+x
+			base := y*imageWidth + x
 			ff[base] = convertValue(r)
 			ff[rs+base] = convertValue(g)
 			ff[bs+base] = convertValue(b)

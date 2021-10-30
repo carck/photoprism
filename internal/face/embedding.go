@@ -8,22 +8,13 @@ import (
 )
 
 // Embedding represents a face embedding.
-type Embedding []float64
+type Embedding []float32
 
 var NullEmbedding = make(Embedding, 512)
 
 // NewEmbedding creates a new embedding from an inference result.
 func NewEmbedding(inference []float32) Embedding {
-	result := make(Embedding, len(inference))
-
-	var v float32
-	var i int
-
-	for i, v = range inference {
-		result[i] = float64(v)
-	}
-
-	return result
+	return inference
 }
 
 // Blacklisted tests if the face embedding is blacklisted.
@@ -43,7 +34,7 @@ func (m Embedding) Unsuitable() bool {
 
 // Distance calculates the distance to another face embedding.
 func (m Embedding) Distance(other Embedding) float64 {
-	return clusters.EuclideanDistance(m, other)
+	return clusters.EuclideanDistance32(m, other)
 }
 
 // Magnitude returns the face embedding vector length (magnitude).

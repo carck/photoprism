@@ -3,6 +3,7 @@ package photoprism
 import (
 	"fmt"
 
+	"github.com/carck/onnx-runtime-go"
 	"github.com/dustin/go-humanize/english"
 
 	"github.com/photoprism/photoprism/internal/entity"
@@ -37,12 +38,12 @@ func (w *Faces) Cluster(opt FacesOptions) (added entity.Faces, err error) {
 		log.Debugf("faces: at least %d samples needed for clustering", opt.SampleThreshold())
 		return added, nil
 	} else {
-		var c clusters.HardClusterer
+		var c clusters.HardClusterer32
 
 		// See https://dl.photoprism.org/research/ for research on face clustering algorithms.
-		if c, err = clusters.DBSCAN(face.ClusterCore, face.ClusterDist, w.conf.Workers(), clusters.EuclideanDistance); err != nil {
+		if c, err = clusters.DBSCAN32(face.ClusterCore, float32(face.ClusterDist), w.conf.Workers(), onnx.EuclideanDistance512C); err != nil {
 			return added, err
-		} else if err = c.Learn(embeddings.Float64()); err != nil {
+		} else if err = c.Learn(embeddings.Float32()); err != nil {
 			return added, err
 		}
 
