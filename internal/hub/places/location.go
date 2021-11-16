@@ -135,16 +135,20 @@ func (l Location) Label() (result string) {
 	return l.Place.LocLabel
 }
 
-func (l Location) State() (result string) {
-	return txt.NormalizeState(l.Place.LocState)
-}
-
 func (l Location) City() (result string) {
 	return l.Place.LocCity
 }
 
+func (l Location) District() (result string) {
+	return l.Place.LocDistrict
+}
+
 func (l Location) CountryCode() (result string) {
 	return l.Place.LocCountry
+}
+
+func (l Location) State() (result string) {
+	return txt.NormalizeState(l.Place.LocState, l.CountryCode())
 }
 
 func (l Location) Latitude() (result float64) {
