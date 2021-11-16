@@ -7,6 +7,7 @@ import (
 
 	"github.com/photoprism/photoprism/internal/event"
 	"github.com/photoprism/photoprism/internal/maps"
+
 	"github.com/photoprism/photoprism/pkg/s2"
 	"github.com/photoprism/photoprism/pkg/txt"
 )
@@ -16,12 +17,17 @@ var cellMutex = sync.Mutex{}
 // Cell represents a S2 cell with location data.
 type Cell struct {
 	ID           string    `gorm:"type:VARBINARY(42);primary_key;auto_increment:false;" json:"ID" yaml:"ID"`
-	CellName     string    `gorm:"type:VARCHAR(255);" json:"Name" yaml:"Name,omitempty"`
-	CellCategory string    `gorm:"type:VARCHAR(64);" json:"Category" yaml:"Category,omitempty"`
+	CellName     string    `gorm:"type:VARCHAR(200);" json:"Name" yaml:"Name,omitempty"`
+	CellCategory string    `gorm:"type:VARCHAR(50);" json:"Category" yaml:"Category,omitempty"`
 	PlaceID      string    `gorm:"type:VARBINARY(42);default:'zz'" json:"-" yaml:"PlaceID"`
 	Place        *Place    `gorm:"PRELOAD:true" json:"Place" yaml:"-"`
 	CreatedAt    time.Time `json:"CreatedAt" yaml:"-"`
 	UpdatedAt    time.Time `json:"UpdatedAt" yaml:"-"`
+}
+
+// TableName returns the entity database table name.
+func (Cell) TableName() string {
+	return "cells"
 }
 
 // UnknownLocation is PhotoPrism's default location.
@@ -45,6 +51,74 @@ func NewCell(lat, lng float32) *Cell {
 	result.ID = s2.PrefixedToken(float64(lat), float64(lng))
 
 	return result
+}
+
+// Refresh updates the index by retrieving the latest data from an external API.
+func (m *Cell) Refresh(api string) (err error) {
+	start := time.Now()
+
+	// Unknown?
+	if m.Unknown() {
+		// Skip.
+		return nil
+	}
+
+	// Initialize.
+	l := &maps.Location{
+		ID: s2.NormalizeToken(m.ID),
+	}
+
+	// Query geodata API.
+	if err = l.QueryApi(api); err != nil {
+		return err
+	}
+
+	// Unknown location or label missing?
+	if l.Unknown() || l.Label() == "" {
+		// Ignore.
+		return nil
+	}
+
+	cellTable := Cell{}.TableName()
+	placeTable := Place{}.TableName()
+
+	place := Place{}
+
+	// Find existing place by label.
+	if err := UnscopedDb().Where("place_label = ?", l.Label()).First(&place).Error; err != nil {
+		log.Tracef("places: %s for cell %s", err, m.ID)
+		place = Place{ID: m.ID}
+	} else {
+		log.Tracef("places: found matching place %s for cell %s", place.ID, m.ID)
+	}
+
+	// Update place.
+	if place.ID == "" {
+		// Do nothing.
+	} else if res := UnscopedDb().Table(placeTable).Where("id = ?", place.ID).UpdateColumns(Values{
+		"place_label":    l.Label(),
+		"place_city":     l.City(),
+		"place_district": l.District(),
+		"place_state":    l.State(),
+		"place_country":  l.CountryCode(),
+		"place_keywords": l.KeywordString(),
+	}); res.Error != nil {
+		log.Tracef("places: %s for cell %s", err, m.ID)
+	} else if res.RowsAffected > 0 {
+		// Update cell place id, name, and category.
+		log.Tracef("places: updating place, name, and category for cell %s", m.ID)
+		err = UnscopedDb().Table(cellTable).Where("id = ?", m.ID).
+			UpdateColumns(Values{"cell_name": l.Name(), "cell_category": l.Category(), "place_id": place.ID}).Error
+	} else {
+		// Update cell name and category.
+		log.Tracef("places: updating name and category for cell %s", m.ID)
+		err = UnscopedDb().Table(cellTable).Where("id = ?", m.ID).
+			UpdateColumns(Values{"cell_name": l.Name(), "cell_category": l.Category()}).Error
+	}
+
+	log.Debugf("places: refreshed cell %s [%s]", txt.Quote(m.ID), time.Since(start))
+
+	return err
 }
 
 // Find retrieves location data from the database or an external api if not known already.

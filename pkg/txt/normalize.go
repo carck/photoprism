@@ -28,18 +28,31 @@ func NormalizeName(name string) string {
 }
 
 // NormalizeState returns the full, normalized state name.
-func NormalizeState(s string) string {
-	s = strings.TrimSpace(s)
+func NormalizeState(stateName, countryCode string) string {
+	// Remove whitespace from name.
+	stateName = strings.TrimSpace(stateName)
 
-	if s == "" || s == UnknownStateCode {
+	// Empty?
+	if stateName == "" || stateName == UnknownStateCode {
+		// State doesn't have a name.
 		return ""
 	}
 
-	if expanded, ok := States[s]; ok {
-		return expanded
+	// Normalize country code.
+	countryCode = strings.ToLower(strings.TrimSpace(countryCode))
+
+	// Is the name an abbreviation that should be normalized?
+	if states, found := StatesByCountry[countryCode]; !found {
+		// Unknown country.
+	} else if normalized, found := states[stateName]; !found {
+		// Unknown abbreviation.
+	} else if normalized != "" {
+		// Yes, use normalized name.
+		stateName = normalized
 	}
 
-	return s
+	// Return normalized state name.
+	return stateName
 }
 
 // NormalizeQuery replaces search operator with default symbols.
@@ -53,4 +66,9 @@ func NormalizeQuery(s string) string {
 	s = strings.ReplaceAll(s, SpacedPlus, And)
 	s = strings.ReplaceAll(s, "%", "*")
 	return strings.Trim(s, "+&|_-=!@$%^(){}\\<>,.;: ")
+}
+
+// NormalizeUsername returns the normalized username (lowercase, whitespace trimmed).
+func NormalizeUsername(s string) string {
+	return strings.ToLower(Clip(s, ClipUsername))
 }
