@@ -67,6 +67,9 @@ func Faces(f form.FaceSearch) (results FaceResults, err error) {
 		s = s.Order(fmt.Sprintf("%s.created_at DESC", facesTable))
 	case "samples":
 		s = s.Order(fmt.Sprintf("%s.samples DESC, %s.id", facesTable, facesTable))
+	case "cnt":
+		s = s.Joins("JOIN (select face_id, count(*) as cnt from  markers m group by m.face_id) f_cnt on f_cnt.face_id=faces.id")
+		s = s.Order("f_cnt.cnt DESC")
 	default:
 		s = s.Order(fmt.Sprintf("%s.samples DESC, %s.id", facesTable, facesTable))
 	}

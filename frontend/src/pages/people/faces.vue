@@ -227,7 +227,7 @@ export default {
       return this.batchSize;
     },
     sortOrder() {
-      return "samples";
+      return "cnt";
     },
     setOffset(offset) {
       this.offset = offset;
