@@ -169,7 +169,7 @@ func (c *batchDbscanClusterer) run() {
 					}
 				}
 
-				if c.a[ns[j]] == 0 {
+				if c.a[ns[j]] == 0 || c.a[ns[j]] == -1 {
 					c.a[ns[j]] = n
 					c.b[m]++
 				}
