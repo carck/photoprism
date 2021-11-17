@@ -43,7 +43,7 @@ func FromRequest(hash, area string, size Size, thumbPath string) (fileName strin
 	}
 
 	// Get absolute crop coordinates and dimension.
-	min, max, dim := a.Bounds(img)
+	min, max, dim, _ := a.Bounds(img)
 
 	if dim < size.Width {
 		log.Debugf("crop: %s is too small, upscaling %dpx to %dpx", filepath.Base(thumbName), dim, size.Width)

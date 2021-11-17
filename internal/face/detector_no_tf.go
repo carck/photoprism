@@ -64,19 +64,21 @@ func LibFaceDetectionDetect(fileName string) (results Faces, err error) {
 		var eyesCoords []Area
 		var landmarkCoords []Area
 
-		if faces[i].Confidence < 70 {
-			continue
-		}
-
 		q := faces[i].W
 		if faces[i].H > q {
 			q = faces[i].H
 		}
+
+		if faces[i].Confidence < 80 || q < 20 {
+			continue
+		}
+
 		faceCoord := NewArea(
 			"face",
 			int(faces[i].Y+faces[i].H/2.0),
 			int(faces[i].X+faces[i].W/2.0),
-			q,
+			faces[i].W,
+			faces[i].H,
 		)
 
 		for j := 0; j < 5; j++ {
@@ -86,12 +88,14 @@ func LibFaceDetectionDetect(fileName string) (results Faces, err error) {
 					faces[i].Landmarks[j*2+1],
 					faces[i].Landmarks[j*2],
 					int(1),
+					int(1),
 				))
 			} else {
 				landmarkCoords = append(landmarkCoords, NewArea(
 					"mouth",
 					faces[i].Landmarks[j*2+1],
 					faces[i].Landmarks[j*2],
+					int(1),
 					int(1),
 				))
 			}
