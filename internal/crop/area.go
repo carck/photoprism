@@ -46,15 +46,14 @@ func (a Area) Thumb(fileHash string) string {
 }
 
 // Bounds returns absolute coordinates and dimension.
-func (a Area) Bounds(img image.Image) (min, max image.Point, dimx, dimy int) {
+func (a Area) Bounds(img image.Image) (min, max image.Point, dim int) {
 	size := img.Bounds().Max
 
 	min = image.Point{X: int(float32(size.X) * (a.X - a.W/2)), Y: int(float32(size.Y) * (a.Y - a.H/2))}
 	max = image.Point{X: int(float32(size.X) * (a.X + a.W/2)), Y: int(float32(size.Y) * (a.Y + a.H/2))}
-	dimx = int(float32(size.X) * a.W)
-	dimy = int(float32(size.Y) * a.H)
+	dim = int(float32(size.X) * a.W)
 
-	return min, max, dimx, dimy
+	return min, max, dim
 }
 
 // FileWidth returns the ideal file width based on the crop size.

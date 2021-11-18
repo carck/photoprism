@@ -52,10 +52,7 @@ type Face struct {
 
 // Size returns the absolute face size in pixels.
 func (f *Face) Size() int {
-	if f.Area.W > f.Area.H {
-		return f.Area.W
-	}
-	return f.Area.H
+	return f.Area.Scale
 }
 
 // Dim returns the max number of rows and cols as float32 to calculate relative coordinates.
@@ -84,19 +81,18 @@ func (f *Face) CropArea() crop.Area {
 		f.Area.Name,
 		x,
 		y,
-		float32(f.Area.W)/float32(f.Cols),
-		float32(f.Area.H)/float32(f.Rows),
+		float32(f.Area.Scale)/float32(f.Cols),
+		float32(f.Area.Scale)/float32(f.Rows),
 	)
 }
 
 // RelativeLandmarks returns relative face areas.
 func (f *Face) RelativeLandmarks() crop.Areas {
 	p := Area{
-		Name: "zeropoint",
-		Row:  0,
-		Col:  0,
-		W:    1,
-		H:    1,
+		Name:  "zeropoint",
+		Row:   0,
+		Col:   0,
+		Scale: 1,
 	}
 
 	m := f.Landmarks.Relative(p, float32(f.Rows), float32(f.Cols))

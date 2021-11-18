@@ -78,10 +78,10 @@ func ImageFromThumb(thumbName string, area Area, size Size, cache bool, angle fl
 	}
 
 	// Get absolute crop coordinates and dimension.
-	min, max, dimx, dimy := area.Bounds(img)
+	min, max, dim := area.Bounds(img)
 
-	if dimx < size.Width {
-		log.Debugf("crop: %s is too small, upscaling %dpx to %dpx", filepath.Base(thumbName), dimx, size.Width)
+	if dim < size.Width {
+		log.Debugf("crop: %s is too small, upscaling %dpx to %dpx", filepath.Base(thumbName), dim, size.Width)
 	}
 
 	if angle == 0 {
@@ -95,7 +95,7 @@ func ImageFromThumb(thumbName string, area Area, size Size, cache bool, angle fl
 		dc.Clear()
 
 		dc.RotateAbout(gg.Radians(-angle), float64(size.Width/2), float64(size.Height/2))
-		dc.Scale(float64(size.Width)/float64(dimx), float64(size.Height)/float64(dimy))
+		dc.Scale(float64(size.Width)/float64(dim), float64(size.Height)/float64(dim))
 
 		dc.DrawImageAnchoredWithTransformer(img, 0, 0, float64(min.X)/float64(img.Bounds().Dx()), float64(min.Y)/float64(img.Bounds().Dy()), Lanczos)
 		img = dc.Image()
