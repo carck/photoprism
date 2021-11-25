@@ -148,6 +148,13 @@ func SavePhotoForm(model Photo, form form.Photo) error {
 		return errors.New("can't save form when photo id is missing")
 	}
 
+	// Update time fields.
+	if model.TimeZoneUTC() {
+		model.TakenAtLocal = model.TakenAt
+	} else {
+		model.TakenAt = model.GetTakenAt()
+	}
+
 	model.UpdateDateFields()
 
 	details := model.GetDetails()
@@ -601,117 +608,6 @@ func (m *Photo) SetDescription(desc, source string) {
 
 	m.PhotoDescription = newDesc
 	m.DescriptionSrc = source
-}
-
-// SetTakenAt changes the photo date if not empty and from the same source.
-func (m *Photo) SetTakenAt(taken, local time.Time, zone, source string) {
-	if taken.IsZero() || taken.Year() < 1000 || taken.Year() > txt.YearMax {
-		return
-	}
-
-	if SrcPriority[source] < SrcPriority[m.TakenSrc] && !m.TakenAt.IsZero() {
-		return
-	}
-
-	// Remove time zone if time was extracted from file name.
-	if source == SrcName {
-		zone = ""
-	}
-
-	// Round times to avoid jitter.
-	taken = taken.Round(time.Second).UTC()
-
-	// Default local time to taken if zero or invalid.
-	if local.IsZero() || local.Year() < 1000 {
-		local = taken
-	} else {
-		local = local.Round(time.Second)
-	}
-
-	// Don't update older date.
-	if SrcPriority[source] <= SrcPriority[SrcAuto] && !m.TakenAt.IsZero() && taken.After(m.TakenAt) {
-		return
-	}
-
-	// Set UTC time and date source.
-	m.TakenAt = taken
-	m.TakenAtLocal = local
-	m.TakenSrc = source
-
-	if zone == time.UTC.String() && m.TimeZone != "" {
-		// Location exists, set local time from UTC.
-		m.TakenAtLocal = m.GetTakenAtLocal()
-	} else if zone != "" {
-		// Apply new time zone.
-		m.TimeZone = zone
-		m.TakenAt = m.GetTakenAt()
-	} else if m.TimeZone == time.UTC.String() {
-		// Local is UTC.
-		m.TimeZone = zone
-		m.TakenAtLocal = taken
-	} else if m.TimeZone != "" {
-		// Apply existing time zone.
-		m.TakenAtLocal = m.GetTakenAtLocal()
-	}
-
-	m.UpdateDateFields()
-}
-
-// UpdateTimeZone updates the time zone.
-func (m *Photo) UpdateTimeZone(zone string) {
-	if zone == "" || zone == time.UTC.String() {
-		return
-	}
-
-	if SrcPriority[m.TakenSrc] >= SrcPriority[SrcManual] && m.TimeZone != "" {
-		return
-	}
-
-	if m.TimeZone == time.UTC.String() {
-		m.TimeZone = zone
-		m.TakenAtLocal = m.GetTakenAtLocal()
-	} else {
-		m.TimeZone = zone
-		m.TakenAt = m.GetTakenAt()
-	}
-}
-
-// UpdateDateFields updates internal date fields.
-func (m *Photo) UpdateDateFields() {
-	if m.TakenAt.IsZero() || m.TakenAt.Year() < 1000 {
-		return
-	}
-
-	if m.TakenAtLocal.IsZero() || m.TakenAtLocal.Year() < 1000 {
-		m.TakenAtLocal = m.TakenAt
-	}
-
-	// Set date to unknown if file system date is about the same as indexing time.
-	if m.TakenSrc == SrcAuto && m.TakenAt.After(m.CreatedAt.Add(-24*time.Hour)) {
-		m.PhotoYear = UnknownYear
-		m.PhotoMonth = UnknownMonth
-		m.PhotoDay = UnknownDay
-	} else if m.TakenSrc != SrcManual {
-		m.PhotoYear = m.TakenAtLocal.Year()
-		m.PhotoMonth = int(m.TakenAtLocal.Month())
-		m.PhotoDay = m.TakenAtLocal.Day()
-	}
-}
-
-// SetCoordinates changes the photo lat, lng and altitude if not empty and from the same source.
-func (m *Photo) SetCoordinates(lat, lng float32, altitude int, source string) {
-	if lat == 0.0 && lng == 0.0 {
-		return
-	}
-
-	if SrcPriority[source] < SrcPriority[m.PlaceSrc] && m.HasLatLng() {
-		return
-	}
-
-	m.PhotoLat = lat
-	m.PhotoLng = lng
-	m.PhotoAltitude = altitude
-	m.PlaceSrc = source
 }
 
 // SetCamera updates the camera.
