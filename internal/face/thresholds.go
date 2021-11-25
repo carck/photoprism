@@ -8,11 +8,11 @@ var CropSize = crop.Sizes[crop.Tile112]          // Face image crop size for Fac
 var OverlapThreshold = 42                        // Face area overlap threshold in percent.
 var OverlapThresholdFloor = OverlapThreshold - 1 // Reduced overlap area to avoid rounding inconsistencies.
 var ScoreThreshold = 70.0                        // Min face score.
-var ClusterScoreThreshold = 95                   // Min score for faces forming a cluster.
-var SizeThreshold = 30                           // Min face size in pixels.
+var ClusterScoreThreshold = 99                   // Min score for faces forming a cluster.
+var SizeThreshold = 112                           // Min face size in pixels.
 var ClusterSizeThreshold = 30                    // Min size for faces forming a cluster in pixels.
-var ClusterDist = 0.74                           // Similarity distance threshold of faces forming a cluster core.
-var MatchDist = 0.46                             // Distance offset threshold for matching new faces with clusters.
+var ClusterDist = 0.64                           // Similarity distance threshold of faces forming a cluster core.
+var MatchDist = 0.56                             // Distance offset threshold for matching new faces with clusters.
 var ClusterCore = 4                              // Min number of faces forming a cluster core.
 var SampleThreshold = 2 * ClusterCore            // Threshold for automatic clustering to start.
 
