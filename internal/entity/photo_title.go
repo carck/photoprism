@@ -60,7 +60,7 @@ func (m *Photo) UpdateTitle(labels classify.Labels) error {
 		names = txt.JoinNames(people, true)
 	}
 
-	if m.LocationLoaded() {
+	if m.LocationLoaded() && m.TrustedLocation() {
 		knownLocation = true
 		loc := m.Cell
 
