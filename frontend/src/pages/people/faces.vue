@@ -203,7 +203,7 @@ export default {
 
       this.filter.q = query["q"] ? query["q"] : "";
       this.filter.hidden = query["hidden"] ? query["hidden"] : "";
-      this.filter.unknown = query["unknown"] ? query["unknown"] : "";
+      this.filter.unknown = query["unknown"] ? query["unknown"] : "yes";
       this.filter.order = this.sortOrder();
       this.routeName = this.$route.name;
 
