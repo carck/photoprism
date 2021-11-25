@@ -89,16 +89,6 @@ func (w *Faces) Audit(fix bool) (err error) {
 					log.Infof("face %s: has no subject (%s)", f2.ID, entity.SrcString(f2.FaceSrc))
 				}
 
-				if !fix {
-					// Do nothing.
-				} else if ok, err := f1.ResolveCollision(face.Embeddings{f2.Embedding()}); err != nil {
-					log.Errorf("face %s: %s", f1.ID, err)
-				} else if ok {
-					log.Infof("face %s: ambiguous subject has been resolved", f1.ID)
-					resolved++
-				} else {
-					log.Infof("face %s: ambiguous subject could not be resolved", f1.ID)
-				}
 			}
 		}
 	}

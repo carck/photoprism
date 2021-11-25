@@ -85,16 +85,6 @@ func (w *Faces) Start(opt FacesOptions) (err error) {
 		log.Debugf("markers: found no missing subjects [%s]", time.Since(start))
 	}
 
-	// Resolve collisions of different subject's faces.
-	start = time.Now()
-	if c, r, err := query.ResolveFaceCollisions(); err != nil {
-		log.Errorf("faces: %s (resolve ambiguous subjects)", err)
-	} else if c > 0 {
-		log.Infof("faces: resolved %d / %d ambiguous subjects [%s]", r, c, time.Since(start))
-	} else {
-		log.Debugf("faces: found no ambiguous subjects [%s]", time.Since(start))
-	}
-
 	// Optimize existing face clusters.
 	start = time.Now()
 	if res, err := w.Optimize(); err != nil {
