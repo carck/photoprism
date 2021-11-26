@@ -14,8 +14,11 @@ const Accuracy1Km = 1000
 
 // EstimateCountry updates the photo with an estimated country if possible.
 func (m *Photo) EstimateCountry() {
-	if SrcPriority[m.PlaceSrc] > SrcPriority[SrcEstimate] || m.UnknownCamera() || m.HasLocation() || m.HasPlace() {
-		// Ignore.
+	if SrcPriority[m.PlaceSrc] > SrcPriority[SrcEstimate] || m.HasLocation() || m.HasPlace() {
+		// Keep existing data.
+		return
+	} else if m.UnknownCamera() && m.PhotoType == TypeImage {
+		// Don't estimate if it seems to be a non-photographic image.
 		return
 	}
 
@@ -56,26 +59,28 @@ func (m *Photo) EstimateCountry() {
 // EstimateLocation updates the photo with an estimated place and country if possible.
 func (m *Photo) EstimateLocation(force bool) {
 	if SrcPriority[m.PlaceSrc] > SrcPriority[SrcEstimate] || m.HasLocation() && m.PlaceSrc == SrcAuto {
-		// Ignore if location was set otherwise.
+		// Keep existing data.
 		return
 	} else if force || m.EstimatedAt == nil {
 		// Proceed.
 	} else if hours := TimeStamp().Sub(*m.EstimatedAt) / time.Hour; hours < MetadataEstimateInterval {
-		// Ignore if estimated less than 7 days ago.
+		// Ignore if location has been estimated recently (in the last 7 days by default).
 		return
 	}
 
 	m.EstimatedAt = TimePointer()
 
-	// Don't estimate if it's a non-photographic image.
-	if m.UnknownCamera() {
+	// Don't estimate if it seems to be a non-photographic image.
+	if m.UnknownCamera() && m.PhotoType == TypeImage {
 		m.RemoveLocation(SrcEstimate, false)
+		m.RemoveLocationLabels()
 		return
 	}
 
 	// Estimate country if TakenAt is unreliable.
 	if SrcPriority[m.TakenSrc] <= SrcPriority[SrcName] {
 		m.RemoveLocation(SrcEstimate, false)
+		m.RemoveLocationLabels()
 		m.EstimateCountry()
 		return
 	}
@@ -116,16 +121,18 @@ func (m *Photo) EstimateLocation(force bool) {
 	if len(mostRecent) == 0 {
 		log.Debugf("photo: unknown position at %s", m.TakenAt)
 		m.RemoveLocation(SrcEstimate, false)
+		m.RemoveLocationLabels()
 		m.EstimateCountry()
 	} else if recentPhoto := mostRecent[0]; recentPhoto.HasLocation() && recentPhoto.HasPlace() {
 		// Too much time difference?
 		if hours := recentPhoto.TakenAt.Sub(m.TakenAt) / time.Hour; hours < -36 || hours > 36 {
 			log.Debugf("photo: skipping %s, %d hours time difference to recent position", m, hours)
 			m.RemoveLocation(SrcEstimate, false)
+			m.RemoveLocationLabels()
 			m.EstimateCountry()
-		} else if len(mostRecent) == 1 {
+		} else if len(mostRecent) == 1 || m.UnknownCamera() {
 			m.AdoptPlace(recentPhoto, SrcEstimate, false)
-		} else if recentPhoto.HasPlace() {
+		} else {
 			p1 := mostRecent[0]
 			p2 := mostRecent[1]
 
@@ -137,20 +144,18 @@ func (m *Photo) EstimateLocation(force bool) {
 			} else {
 				m.AdoptPlace(recentPhoto, SrcEstimate, false)
 			}
-		} else if recentPhoto.HasCountry() {
-			m.RemoveLocation(SrcEstimate, false)
-			m.PhotoCountry = recentPhoto.PhotoCountry
-			m.PlaceSrc = SrcEstimate
-			m.UpdateTimeZone(recentPhoto.TimeZone)
-
-			log.Debugf("photo: probable country for %s is %s", m, txt.Quote(m.CountryName()))
-		} else {
-			m.RemoveLocation(SrcEstimate, false)
-			m.EstimateCountry()
 		}
+	} else if recentPhoto.HasCountry() {
+		log.Debugf("photo: estimated country for %s is %s", m, txt.Quote(m.CountryName()))
+		m.RemoveLocation(SrcEstimate, false)
+		m.RemoveLocationLabels()
+		m.PhotoCountry = recentPhoto.PhotoCountry
+		m.PlaceSrc = SrcEstimate
+		m.UpdateTimeZone(recentPhoto.TimeZone)
 	} else {
 		log.Warnf("photo: %s has no location, uid %s", recentPhoto.PhotoName, recentPhoto.PhotoUID)
 		m.RemoveLocation(SrcEstimate, false)
+		m.RemoveLocationLabels()
 		m.EstimateCountry()
 	}
 }
