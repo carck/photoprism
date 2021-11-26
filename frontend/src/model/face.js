@@ -147,6 +147,12 @@ export class Face extends RestModel {
     });
   }
 
+  clearSubject() {
+    return Api.delete(this.getEntityResource(this.getId()) + "/subject").then((r) =>
+      Promise.resolve(this.setValues(r.data))
+    );
+  }
+
   static batchSize() {
     return 24;
   }

@@ -80,6 +80,9 @@
                         hide-details
                         single-line
                         solo-inverted
+                        clearable
+                        clear-icon="eject"
+                        @click:clear="onClearSubject(model)"
                         @change="onRename(model)"
                         @keyup.enter.native="onRename(model)"
                     ></v-text-field>
@@ -562,6 +565,14 @@ export default {
         this.$notify.unblockUI();
         this.busy = false;
         this.changeFaceCount(-1);
+      });
+    },
+    onClearSubject(model) {
+      this.busy = true;
+      this.$notify.blockUI();
+      model.clearSubject().finally(() => {
+        this.$notify.unblockUI();
+        this.busy = false;
       });
     },
     changeFaceCount(count) {

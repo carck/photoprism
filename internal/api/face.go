@@ -122,3 +122,34 @@ func UpdateFace(router *gin.RouterGroup) {
 		c.JSON(http.StatusOK, m)
 	})
 }
+
+// Clear face subject.
+//
+// DELETE /api/v1/faces/:id/subject
+func ClearFaceSubject(router *gin.RouterGroup) {
+	router.DELETE("/faces/:id/subject", func(c *gin.Context) {
+		s := Auth(SessionID(c), acl.ResourceSubjects, acl.ActionDelete)
+
+		if s.Invalid() {
+			AbortUnauthorized(c)
+			return
+		}
+
+		faceId := c.Param("id")
+		face := entity.FindFace(faceId)
+
+		if face == nil {
+			Abort(c, http.StatusNotFound, i18n.ErrFaceNotFound)
+			return
+		}
+		if err := face.ClearSubject(); err != nil {
+			log.Errorf("faces: %s (clear subject)", err)
+			AbortSaveFailed(c)
+			return
+		}
+
+		event.SuccessMsg(i18n.MsgChangesSaved)
+
+		c.JSON(http.StatusOK, face)
+	})
+}

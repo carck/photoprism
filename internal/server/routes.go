@@ -140,6 +140,7 @@ func registerRoutes(router *gin.Engine, conf *config.Config) {
 		api.SearchFaces(v1)
 		api.GetFace(v1)
 		api.UpdateFace(v1)
+		api.ClearFaceSubject(v1)
 
 		// Indexing and importing.
 		api.Upload(v1)
