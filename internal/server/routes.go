@@ -72,7 +72,7 @@ func registerRoutes(router *gin.Engine, conf *config.Config) {
 
 		// Photos.
 		api.SearchPhotos(v1)
-		api.SearchPhotosGeo(v1)
+		api.SearchGeo(v1)
 		api.GetPhoto(v1)
 		api.GetPhotoYaml(v1)
 		api.UpdatePhoto(v1)
@@ -125,9 +125,9 @@ func registerRoutes(router *gin.Engine, conf *config.Config) {
 		api.DislikeLabel(v1)
 
 		// Folders.
+		api.SearchFoldersOriginals(v1)
+		api.SearchFoldersImport(v1)
 		api.FolderCover(v1)
-		api.GetFoldersOriginals(v1)
-		api.GetFoldersImport(v1)
 
 		// People and other subjects.
 		api.SearchSubjects(v1)
