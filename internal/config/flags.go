@@ -230,6 +230,11 @@ var GlobalFlags = []cli.Flag{
 		EnvVar: "PHOTOPRISM_UPLOAD_NSFW",
 	},
 	cli.StringFlag{
+		Name:   "app-icon",
+		Usage:  "application `ICON` (logo, app, crisp, mint, bold)",
+		EnvVar: "PHOTOPRISM_APP_ICON",
+	},
+	cli.StringFlag{
 		Name:   "app-name",
 		Usage:  "application `NAME` when installed on a device",
 		Value:  "PhotoPrism",
@@ -240,11 +245,6 @@ var GlobalFlags = []cli.Flag{
 		Usage:  "application `MODE` (fullscreen, standalone, minimal-ui, browser)",
 		Value:  "standalone",
 		EnvVar: "PHOTOPRISM_APP_MODE",
-	},
-	cli.StringFlag{
-		Name:   "app-icon",
-		Usage:  "application `ICON` (default, square, glow, lens, camera)",
-		EnvVar: "PHOTOPRISM_APP_ICON",
 	},
 	cli.StringFlag{
 		Name:   "cdn-url",
