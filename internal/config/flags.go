@@ -9,10 +9,10 @@ import (
 
 // GlobalFlags describes global command-line parameters and flags.
 var GlobalFlags = []cli.Flag{
-	cli.BoolFlag{
-		Name:   "debug",
-		Usage:  "enable debug mode, show additional log messages",
-		EnvVar: "PHOTOPRISM_DEBUG",
+	cli.StringFlag{
+		Name:   "admin-password",
+		Usage:  "initial admin `PASSWORD`, minimum 4 characters",
+		EnvVar: "PHOTOPRISM_ADMIN_PASSWORD",
 	},
 	cli.StringFlag{
 		Name:   "log-level, l",
@@ -20,16 +20,10 @@ var GlobalFlags = []cli.Flag{
 		Value:  "info",
 		EnvVar: "PHOTOPRISM_LOG_LEVEL",
 	},
-	cli.StringFlag{
-		Name:   "log-filename",
-		Usage:  "optional server log `FILENAME`",
-		EnvVar: "PHOTOPRISM_LOG_FILENAME",
-		Value:  "",
-	},
-	cli.StringFlag{
-		Name:   "pid-filename",
-		Usage:  "daemon mode process id `FILENAME`",
-		EnvVar: "PHOTOPRISM_PID_FILENAME",
+	cli.BoolFlag{
+		Name:   "debug",
+		Usage:  "enable debug mode, show additional log messages",
+		EnvVar: "PHOTOPRISM_DEBUG",
 	},
 	cli.BoolFlag{
 		Name:   "test",
@@ -58,11 +52,6 @@ var GlobalFlags = []cli.Flag{
 		Name:   "public, p",
 		Usage:  "disable password authentication",
 		EnvVar: "PHOTOPRISM_PUBLIC",
-	},
-	cli.StringFlag{
-		Name:   "admin-password",
-		Usage:  "initial admin `PASSWORD`, minimum 4 characters",
-		EnvVar: "PHOTOPRISM_ADMIN_PASSWORD",
 	},
 	cli.BoolFlag{
 		Name:   "read-only, r",
@@ -511,5 +500,16 @@ var GlobalFlags = []cli.Flag{
 		Usage:  "similarity `OFFSET` for matching faces with existing clusters",
 		Value:  face.MatchDist,
 		EnvVar: "PHOTOPRISM_FACE_MATCH_DIST",
+	},
+	cli.StringFlag{
+		Name:   "pid-filename",
+		Usage:  "process id `FILENAME` (daemon mode only)",
+		EnvVar: "PHOTOPRISM_PID_FILENAME",
+	},
+	cli.StringFlag{
+		Name:   "log-filename",
+		Usage:  "server log `FILENAME` (daemon mode only)",
+		EnvVar: "PHOTOPRISM_LOG_FILENAME",
+		Value:  "",
 	},
 }
