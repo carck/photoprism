@@ -40,7 +40,7 @@ var LowMem = false
 var TotalMem uint64
 
 const MsgSponsor = "Help us make a difference and become a sponsor today!"
-const SignUpURL = "https://docs.photoprism.org/funding/"
+const SignUpURL = "https://docs.photoprism.app/funding/"
 const MsgSignUp = "Visit " + SignUpURL + " to learn more."
 const MsgSponsorCommand = "Since running this command puts additional load on our infrastructure," +
 	" we unfortunately can only offer it to sponsors."
@@ -475,8 +475,8 @@ func (c *Config) Workers() int {
 		cores = cpuid.CPU.PhysicalCores
 	}
 
-	// Limit number of workers when using SQLite to avoid database locking issues.
-	if c.DatabaseDriver() == SQLite && (cores >= 8 && c.options.Workers <= 0 || c.options.Workers > 4) {
+	// Limit number of workers when using SQLite3 to avoid database locking issues.
+	if c.DatabaseDriver() == SQLite3 && (cores >= 8 && c.options.Workers <= 0 || c.options.Workers > 4) {
 		return 4
 	}
 
