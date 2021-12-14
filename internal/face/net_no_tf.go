@@ -55,10 +55,10 @@ func (t *Net) Detect(fileName string, minSize int, cacheCrop bool, expected int)
 		if f.Area.Col == 0 && f.Area.Row == 0 {
 			continue
 		}
-
-		embedding := t.getFaceEmbedding(fileName, f)
+		q, embedding := t.getFaceEmbedding(fileName, f)
 
 		if len(embedding) > 0 {
+			faces[i].Q = q
 			faces[i].Embeddings = make(Embeddings, 1)
 			faces[i].Embeddings[0] = NewEmbedding(embedding)
 		}
@@ -100,7 +100,7 @@ func (t *Net) loadModel() error {
 	return nil
 }
 
-func L2Norm(data []float32, epsilon float64) {
+func L2Norm(data []float32, epsilon float64) float64 {
 	var sum float64 = 0
 	for _, v := range data {
 		sum += math.Pow(float64(v), 2)
@@ -109,9 +109,10 @@ func L2Norm(data []float32, epsilon float64) {
 	for i, v := range data {
 		data[i] = float32(float64(v) / norm)
 	}
+	return norm
 }
 
-func (t *Net) getFaceEmbedding(fileName string, f Face) []float32 {
+func (t *Net) getFaceEmbedding(fileName string, f Face) (float64, []float32) {
 	eyes := f.Eyes
 	var img image.Image
 	var err error
@@ -129,14 +130,14 @@ func (t *Net) getFaceEmbedding(fileName string, f Face) []float32 {
 
 	if err != nil {
 		log.Errorf("face: failed to crop image : %v", err)
-		return nil
+		return 0, nil
 	}
 
 	err = t.imageToTensor(img, CropSize.Width, CropSize.Height)
 
 	if err != nil {
 		log.Errorf("face: failed to convert image to tensor: %v", err)
-		return nil
+		return 0, nil
 	}
 	// TODO: prewhiten image as in facenet
 
@@ -145,8 +146,8 @@ func (t *Net) getFaceEmbedding(fileName string, f Face) []float32 {
 
 	res := make([]float32, 512)
 	output.CopyToBuffer(res, 512*4)
-	L2Norm(res, 1e-12)
-	return res
+	norm := L2Norm(res, 1e-12)
+	return norm, res
 }
 
 func (t *Net) imageToTensor(img image.Image, imageHeight, imageWidth int) (err error) {

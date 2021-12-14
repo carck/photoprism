@@ -108,6 +108,7 @@ func NewFaceMarker(f face.Face, file File, subjUID string) *Marker {
 		return nil
 	}
 
+	m.Q = int(f.Q)
 	m.SetEmbeddings(f.Embeddings)
 	m.LandmarksJSON = f.RelativeLandmarksJSON()
 

@@ -44,6 +44,7 @@ type Face struct {
 	Rows       int        `json:"rows,omitempty"`
 	Cols       int        `json:"cols,omitempty"`
 	Score      int        `json:"score,omitempty"`
+	Q          float64    `json:"q,omitempty"`
 	Area       Area       `json:"face,omitempty"`
 	Eyes       Areas      `json:"eyes,omitempty"`
 	Landmarks  Areas      `json:"landmarks,omitempty"`
