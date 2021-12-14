@@ -424,7 +424,7 @@ func (m *Face) ClearSubject() error {
 	if err := m.Updates(Values{"SubjUID": ""}); err != nil {
 		return err
 	}
-	
+
 	if err := Db().Model(&Marker{}).
 		Where("face_id = ?", m.ID).
 		UpdateColumns(Values{"marker_name": "", "subj_uid": "", "subj_src": SrcAuto}).Error; err != nil {
