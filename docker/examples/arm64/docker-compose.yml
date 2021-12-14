@@ -4,8 +4,8 @@ version: '3.5'
 #
 # Note:
 # - You have to boot your Raspberry Pi 3/4 with the parameter "arm_64bit=1" in config.txt to use our ARM64 (64-bit) image.
-#   An "exec format error" will occur otherwise.
-# - Use https://dl.photoprism.org/docker/armv7/docker-compose.yml for running PhotoPrism on ARMv7-based (32-bit) devices.
+#   An "exec format" or "no matching manifest" error will occur otherwise.
+# - Use https://dl.photoprism.app/docker/armv7/docker-compose.yml for running PhotoPrism on ARMv7-based (32-bit) devices.
 # - Running PhotoPrism on a server with less than 4 GB of swap space or setting a memory/swap limit can cause unexpected
 #   restarts ("crashes"), especially when the indexer temporarily needs more memory to process large files.
 # - If you see Docker errors related to "cgroups", it may help to add the following to /boot/firmware/cmdline.txt:
@@ -14,11 +14,11 @@ version: '3.5'
 #   HTTPS reverse proxy such as Traefik, Caddy, or NGINX. Your files and passwords will otherwise be transmitted
 #   in clear text and can be intercepted by anyone, including your provider, hackers, and governments.
 #
-# Documentation : https://docs.photoprism.org/getting-started/raspberry-pi/
+# Documentation : https://docs.photoprism.app/getting-started/raspberry-pi/
 # Docker Hub URL: https://hub.docker.com/r/photoprism/photoprism/
 #
 # DOCKER COMPOSE COMMAND REFERENCE
-# see https://docs.photoprism.org/getting-started/docker-compose/#command-line-interface
+# see https://docs.photoprism.app/getting-started/docker-compose/#command-line-interface
 # --------------------------------------------------------------------------
 # Start    | docker-compose up -d
 # Stop     | docker-compose stop
@@ -43,15 +43,14 @@ version: '3.5'
 services:
   ## App Server (required)
   photoprism:
-    ## photoprism/photoprism-arm64 has been replaced by a single multi-arch image for AMD64,
-    ## ARM64, and ARMv7. Use photoprism/photoprism:preview for testing preview builds or
-    ## photoprism/photoprism:latest for the stable release:
+    ## photoprism/photoprism-arm64 has been replaced by a single multi-arch image for AMD64 and ARM64 (64-bit).
+    ## Use photoprism/photoprism:preview for testing preview builds or :latest for the stable release:
     image: photoprism/photoprism:latest
     depends_on:
       - mariadb
     ## Only enable automatic restarts once your installation is properly
     ## configured as it otherwise may get stuck in a restart loop,
-    ## see https://docs.photoprism.org/getting-started/faq/#why-is-photoprism-getting-stuck-in-a-restart-loop
+    ## see https://docs.photoprism.app/getting-started/faq/#why-is-photoprism-getting-stuck-in-a-restart-loop
     # restart: unless-stopped
     security_opt:
       - seccomp:unconfined
@@ -112,7 +111,7 @@ services:
       - "./storage:/photoprism/storage"
 
   ## Database Server (recommended)
-  ## see https://docs.photoprism.org/getting-started/faq/#should-i-use-sqlite-mariadb-or-mysql
+  ## see https://docs.photoprism.app/getting-started/faq/#should-i-use-sqlite-mariadb-or-mysql
   mariadb:
     restart: unless-stopped
     image: arm64v8/mariadb:10.6 # this mariadb image runs on ARM64-based devices only
@@ -130,7 +129,7 @@ services:
       MYSQL_PASSWORD: insecure
 
   ## Watchtower upgrades services automatically (optional)
-  ## see https://docs.photoprism.org/getting-started/updates/#watchtower
+  ## see https://docs.photoprism.app/getting-started/updates/#watchtower
   #
   # watchtower:
   #   restart: unless-stopped

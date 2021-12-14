@@ -7,6 +7,7 @@
 .EXPORT_ALL_VARIABLES: ; # send all vars to shell
 
 export GO111MODULE=on
+export GODEBUG=http2client=0
 
 GOIMPORTS=goimports
 BINARY_NAME=photoprism
@@ -81,6 +82,11 @@ migrate:
 generate:
 	go generate ./pkg/... ./internal/...
 	go fmt ./pkg/... ./internal/...
+	# Revert unnecessary file change?
+	POT_UNCHANGED='1 file changed, 1 insertion(+), 1 deletion(-)'
+	@if [ ${$(shell git diff --shortstat assets/locales/messages.pot):1:45} == $(POT_UNCHANGED) ]; then\
+		git checkout -- assets/locales/messages.pot;\
+	fi
 install-bin:
 	scripts/build.sh prod ~/.local/bin/$(BINARY_NAME)
 install-assets:
@@ -199,31 +205,37 @@ clean:
 docker-development:
 	docker pull --platform=amd64 ubuntu:21.10
 	docker pull --platform=arm64 ubuntu:21.10
-	docker pull --platform=arm ubuntu:21.10
-	scripts/docker-buildx.sh development linux/amd64,linux/arm64,linux/arm $(DOCKER_TAG)
+	scripts/docker/multiarch.sh development linux/amd64,linux/arm64 $(DOCKER_TAG)
 docker-preview:
-	scripts/docker-buildx.sh photoprism linux/amd64,linux/arm64,linux/arm
+	scripts/docker/multiarch.sh photoprism linux/amd64,linux/arm64
 docker-release:
-	scripts/docker-buildx.sh photoprism linux/amd64,linux/arm64,linux/arm $(DOCKER_TAG)
+	scripts/docker/multiarch.sh photoprism linux/amd64,linux/arm64 $(DOCKER_TAG)
+docker-armv7-preview:
+	scripts/docker/arch.sh photoprism linux/arm armv7-preview /armv7
+docker-armv7-release:
+	scripts/docker/arch.sh photoprism linux/arm armv7 /armv7
 docker-local:
-	scripts/docker-build.sh photoprism
+	scripts/docker/build.sh photoprism
 docker-pull:
-	docker pull photoprism/photoprism:latest
+	docker pull photoprism/photoprism:preview photoprism/photoprism:latest
+docker-goproxy:
+	docker pull golang:alpine
+	scripts/docker/multiarch.sh goproxy linux/amd64,linux/arm64 $(DOCKER_TAG)
 docker-demo:
-	scripts/docker-build.sh demo $(DOCKER_TAG)
-	scripts/docker-push.sh demo $(DOCKER_TAG)
+	scripts/docker/build.sh demo $(DOCKER_TAG)
+	scripts/docker/push.sh demo $(DOCKER_TAG)
 docker-demo-local:
-	scripts/docker-build.sh photoprism
-	scripts/docker-build.sh demo $(DOCKER_TAG)
-	scripts/docker-push.sh demo $(DOCKER_TAG)
+	scripts/docker/build.sh photoprism
+	scripts/docker/build.sh demo $(DOCKER_TAG)
+	scripts/docker/push.sh demo $(DOCKER_TAG)
 docker-dummy-webdav:
 	docker pull --platform=amd64 golang:1
 	docker pull --platform=arm64 golang:1
-	scripts/docker-buildx.sh dummy-webdav linux/amd64,linux/arm64 $(DOCKER_TAG)
+	scripts/docker/multiarch.sh dummy-webdav linux/amd64,linux/arm64 $(DOCKER_TAG)
 docker-dummy-oidc:
 	docker pull --platform=amd64 golang:1
 	docker pull --platform=arm64 golang:1
-	scripts/docker-buildx.sh dummy-oidc linux/amd64,linux/arm64 $(DOCKER_TAG)
+	scripts/docker/multiarch.sh dummy-oidc linux/amd64,linux/arm64 $(DOCKER_TAG)
 packer-digitalocean:
 	$(info Buildinng DigitalOcean marketplace image...)
 	(cd ./docker/examples/cloud && packer build digitalocean.json)

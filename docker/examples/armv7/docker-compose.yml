@@ -1,9 +1,9 @@
 version: '3.5'
 
-# Example Docker Compose config file for PhotoPrism (ARMv7-based devices)
+# Example Docker Compose config file for PhotoPrism (ARMv7-based, 32-bit devices)
 #
 # Note:
-# - Use https://dl.photoprism.org/docker/arm64/docker-compose.yml for running PhotoPrism on ARM64-based (64-bit) devices.
+# - Use https://dl.photoprism.app/docker/arm64/docker-compose.yml for running PhotoPrism on ARM64-based (64-bit) devices.
 # - Running PhotoPrism on a server with less than 4 GB of swap space or setting a memory/swap limit can cause unexpected
 #   restarts ("crashes"), especially when the indexer temporarily needs more memory to process large files.
 # - If you see Docker errors related to "cgroups", it may help to add the following to /boot/firmware/cmdline.txt:
@@ -12,11 +12,11 @@ version: '3.5'
 #   HTTPS reverse proxy such as Traefik, Caddy, or NGINX. Your files and passwords will otherwise be transmitted
 #   in clear text and can be intercepted by anyone, including your provider, hackers, and governments.
 #
-# Documentation : https://docs.photoprism.org/getting-started/raspberry-pi/
+# Documentation : https://docs.photoprism.app/getting-started/raspberry-pi/
 # Docker Hub URL: https://hub.docker.com/r/photoprism/photoprism/
 #
 # DOCKER COMPOSE COMMAND REFERENCE
-# see https://docs.photoprism.org/getting-started/docker-compose/#command-line-interface
+# see https://docs.photoprism.app/getting-started/docker-compose/#command-line-interface
 # --------------------------------------------------------------------------
 # Start    | docker-compose up -d
 # Stop     | docker-compose stop
@@ -41,15 +41,13 @@ version: '3.5'
 services:
   ## App Server (required)
   photoprism:
-    ## photoprism/photoprism-arm64 has been replaced by a single multi-arch image for AMD64,
-    ## ARM64, and ARMv7. Use photoprism/photoprism:preview for testing preview builds or
-    ## photoprism/photoprism:latest for the stable release:
-    image: photoprism/photoprism:latest
+    ## Use photoprism/photoprism:armv7-preview for testing preview builds or :armv7 for the stable release:
+    image: photoprism/photoprism:armv7
     depends_on:
       - mariadb
     ## Only enable automatic restarts once your installation is properly
     ## configured as it otherwise may get stuck in a restart loop,
-    ## see https://docs.photoprism.org/getting-started/faq/#why-is-photoprism-getting-stuck-in-a-restart-loop
+    ## see https://docs.photoprism.app/getting-started/faq/#why-is-photoprism-getting-stuck-in-a-restart-loop
     # restart: unless-stopped
     security_opt:
       - seccomp:unconfined
@@ -109,10 +107,10 @@ services:
       - "./storage:/photoprism/storage"
 
   ## Database Server (recommended)
-  ## see https://docs.photoprism.org/getting-started/faq/#should-i-use-sqlite-mariadb-or-mysql
+  ## see https://docs.photoprism.app/getting-started/faq/#should-i-use-sqlite-mariadb-or-mysql
   mariadb:
     restart: unless-stopped
-    image: lscr.io/linuxserver/mariadb:latest
+    image: linuxserver/mariadb:latest
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
@@ -127,7 +125,7 @@ services:
       MYSQL_PASSWORD: insecure
 
   ## Watchtower upgrades services automatically (optional)
-  ## see https://docs.photoprism.org/getting-started/updates/#watchtower
+  ## see https://docs.photoprism.app/getting-started/updates/#watchtower
   #
   # watchtower:
   #   restart: unless-stopped

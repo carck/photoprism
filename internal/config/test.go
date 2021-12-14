@@ -21,7 +21,7 @@ import (
 // Download URL and ZIP hash for test files.
 const (
 	TestDataZip  = "/tmp/photoprism/testdata.zip"
-	TestDataURL  = "https://dl.photoprism.org/qa/testdata.zip"
+	TestDataURL  = "https://dl.photoprism.app/qa/testdata.zip"
 	TestDataHash = "be394d5bee8a5634d415e9e0663eef20b5604510" // sha1sum
 )
 
@@ -48,7 +48,7 @@ func NewTestOptions() *Options {
 	//   dbDsn = "photoprism:photoprism@tcp(mariadb:4001)/photoprism?parseTime=true",
 
 	if dbDriver == "test" || dbDriver == "sqlite" || dbDriver == "" || dbDsn == "" {
-		dbDriver = SQLite
+		dbDriver = SQLite3
 		dbDsn = ".test.db"
 	}
 
@@ -94,7 +94,7 @@ func NewTestOptionsError() *Options {
 		OriginalsPath:  testDataPath + "/originals",
 		ImportPath:     testDataPath + "/import",
 		TempPath:       testDataPath + "/temp",
-		DatabaseDriver: SQLite,
+		DatabaseDriver: SQLite3,
 		DatabaseDsn:    ".test-error.db",
 	}
 
@@ -124,7 +124,7 @@ func NewTestConfig() *Config {
 		token:   rnd.Token(8),
 	}
 
-	s := NewSettings()
+	s := NewSettings(c)
 
 	if err := os.MkdirAll(c.ConfigPath(), os.ModePerm); err != nil {
 		log.Fatalf("config: %s", err.Error())
