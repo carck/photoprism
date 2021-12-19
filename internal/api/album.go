@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/photoprism/photoprism/internal/acl"
 	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/event"
@@ -17,8 +18,9 @@ import (
 	"github.com/photoprism/photoprism/internal/query"
 	"github.com/photoprism/photoprism/internal/search"
 	"github.com/photoprism/photoprism/internal/service"
+
 	"github.com/photoprism/photoprism/pkg/fs"
-	"github.com/photoprism/photoprism/pkg/txt"
+	"github.com/photoprism/photoprism/pkg/sanitize"
 )
 
 // SaveAlbumAsYaml saves album data as YAML file.
@@ -35,7 +37,7 @@ func SaveAlbumAsYaml(a entity.Album) {
 	if err := a.SaveAsYaml(fileName); err != nil {
 		log.Errorf("album: %s (update yaml)", err)
 	} else {
-		log.Debugf("album: updated yaml file %s", txt.Quote(filepath.Base(fileName)))
+		log.Debugf("album: updated yaml file %s", sanitize.Log(filepath.Base(fileName)))
 	}
 }
 
@@ -51,7 +53,7 @@ func GetAlbum(router *gin.RouterGroup) {
 			return
 		}
 
-		id := c.Param("uid")
+		id := sanitize.IdString(c.Param("uid"))
 		a, err := query.AlbumByUID(id)
 
 		if err != nil {
@@ -85,10 +87,8 @@ func CreateAlbum(router *gin.RouterGroup) {
 		a := entity.NewAlbum(f.AlbumTitle, entity.AlbumDefault)
 		a.AlbumFavorite = f.AlbumFavorite
 
-		log.Debugf("album: creating %+v %+v", f, a)
-
 		if res := entity.Db().Create(a); res.Error != nil {
-			AbortAlreadyExists(c, txt.Quote(a.AlbumTitle))
+			AbortAlreadyExists(c, sanitize.Log(a.AlbumTitle))
 			return
 		}
 
@@ -116,7 +116,7 @@ func UpdateAlbum(router *gin.RouterGroup) {
 			return
 		}
 
-		uid := c.Param("uid")
+		uid := sanitize.IdString(c.Param("uid"))
 		a, err := query.AlbumByUID(uid)
 
 		if err != nil {
@@ -168,7 +168,7 @@ func DeleteAlbum(router *gin.RouterGroup) {
 			return
 		}
 
-		id := c.Param("uid")
+		id := sanitize.IdString(c.Param("uid"))
 
 		a, err := query.AlbumByUID(id)
 
@@ -198,7 +198,7 @@ func DeleteAlbum(router *gin.RouterGroup) {
 
 		SaveAlbumAsYaml(a)
 
-		event.SuccessMsg(i18n.MsgAlbumDeleted, txt.Quote(a.AlbumTitle))
+		event.SuccessMsg(i18n.MsgAlbumDeleted, sanitize.Log(a.AlbumTitle))
 
 		c.JSON(http.StatusOK, a)
 	})
@@ -219,7 +219,7 @@ func LikeAlbum(router *gin.RouterGroup) {
 			return
 		}
 
-		id := c.Param("uid")
+		id := sanitize.IdString(c.Param("uid"))
 		a, err := query.AlbumByUID(id)
 
 		if err != nil {
@@ -257,7 +257,7 @@ func DislikeAlbum(router *gin.RouterGroup) {
 			return
 		}
 
-		id := c.Param("uid")
+		id := sanitize.IdString(c.Param("uid"))
 		a, err := query.AlbumByUID(id)
 
 		if err != nil {
@@ -292,7 +292,7 @@ func CloneAlbums(router *gin.RouterGroup) {
 			return
 		}
 
-		a, err := query.AlbumByUID(c.Param("uid"))
+		a, err := query.AlbumByUID(sanitize.IdString(c.Param("uid")))
 
 		if err != nil {
 			Abort(c, http.StatusNotFound, i18n.ErrAlbumNotFound)
@@ -327,7 +327,7 @@ func CloneAlbums(router *gin.RouterGroup) {
 		}
 
 		if len(added) > 0 {
-			event.SuccessMsg(i18n.MsgSelectionAddedTo, txt.Quote(a.Title()))
+			event.SuccessMsg(i18n.MsgSelectionAddedTo, sanitize.Log(a.Title()))
 
 			PublishAlbumEvent(EntityUpdated, a.AlbumUID, c)
 
@@ -357,7 +357,7 @@ func AddPhotosToAlbum(router *gin.RouterGroup) {
 			return
 		}
 
-		uid := c.Param("uid")
+		uid := sanitize.IdString(c.Param("uid"))
 		a, err := query.AlbumByUID(uid)
 
 		if err != nil {
@@ -377,9 +377,9 @@ func AddPhotosToAlbum(router *gin.RouterGroup) {
 
 		if len(added) > 0 {
 			if len(added) == 1 {
-				event.SuccessMsg(i18n.MsgEntryAddedTo, txt.Quote(a.Title()))
+				event.SuccessMsg(i18n.MsgEntryAddedTo, sanitize.Log(a.Title()))
 			} else {
-				event.SuccessMsg(i18n.MsgEntriesAddedTo, len(added), txt.Quote(a.Title()))
+				event.SuccessMsg(i18n.MsgEntriesAddedTo, len(added), sanitize.Log(a.Title()))
 			}
 
 			RemoveFromAlbumCoverCache(a.AlbumUID)
@@ -417,7 +417,7 @@ func RemovePhotosFromAlbum(router *gin.RouterGroup) {
 			return
 		}
 
-		a, err := query.AlbumByUID(c.Param("uid"))
+		a, err := query.AlbumByUID(sanitize.IdString(c.Param("uid")))
 
 		if err != nil {
 			Abort(c, http.StatusNotFound, i18n.ErrAlbumNotFound)
@@ -428,9 +428,9 @@ func RemovePhotosFromAlbum(router *gin.RouterGroup) {
 
 		if len(removed) > 0 {
 			if len(removed) == 1 {
-				event.SuccessMsg(i18n.MsgEntryRemovedFrom, txt.Quote(a.Title()))
+				event.SuccessMsg(i18n.MsgEntryRemovedFrom, sanitize.Log(a.Title()))
 			} else {
-				event.SuccessMsg(i18n.MsgEntriesRemovedFrom, len(removed), txt.Quote(txt.Quote(a.Title())))
+				event.SuccessMsg(i18n.MsgEntriesRemovedFrom, len(removed), sanitize.Log(sanitize.Log(a.Title())))
 			}
 
 			RemoveFromAlbumCoverCache(a.AlbumUID)
@@ -455,7 +455,7 @@ func DownloadAlbum(router *gin.RouterGroup) {
 		}
 
 		start := time.Now()
-		a, err := query.AlbumByUID(c.Param("uid"))
+		a, err := query.AlbumByUID(sanitize.IdString(c.Param("uid")))
 
 		if err != nil {
 			Abort(c, http.StatusNotFound, i18n.ErrAlbumNotFound)
@@ -480,12 +480,12 @@ func DownloadAlbum(router *gin.RouterGroup) {
 
 		for _, file := range files {
 			if file.FileHash == "" {
-				log.Warnf("download: empty file hash, skipped %s", txt.Quote(file.FileName))
+				log.Warnf("download: empty file hash, skipped %s", sanitize.Log(file.FileName))
 				continue
 			}
 
 			if file.FileSidecar {
-				log.Debugf("download: skipped sidecar %s", txt.Quote(file.FileName))
+				log.Debugf("download: skipped sidecar %s", sanitize.Log(file.FileName))
 				continue
 			}
 
@@ -505,12 +505,12 @@ func DownloadAlbum(router *gin.RouterGroup) {
 					Abort(c, http.StatusInternalServerError, i18n.ErrZipFailed)
 					return
 				}
-				log.Infof("download: added %s as %s", txt.Quote(file.FileName), txt.Quote(alias))
+				log.Infof("download: added %s as %s", sanitize.Log(file.FileName), sanitize.Log(alias))
 			} else {
-				log.Errorf("download: failed finding %s", txt.Quote(file.FileName))
+				log.Errorf("download: failed finding %s", sanitize.Log(file.FileName))
 			}
 		}
 
-		log.Infof("download: created %s [%s]", txt.Quote(zipFileName), time.Since(start))
+		log.Infof("download: created %s [%s]", sanitize.Log(zipFileName), time.Since(start))
 	})
 }
