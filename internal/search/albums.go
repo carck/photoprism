@@ -14,9 +14,6 @@ func Albums(f form.SearchAlbums) (results AlbumResults, err error) {
 		return results, err
 	}
 
-	// Clip and normalize search query.
-	f.Query = txt.NormalizeQuery(f.Query)
-
 	// Base query.
 	s := UnscopedDb().Table("albums").
 		Select("albums.*, cp.photo_count, cl.link_count, CASE WHEN albums.album_year = 0 THEN 0 ELSE 1 END AS has_year").
@@ -89,8 +86,8 @@ func Albums(f form.SearchAlbums) (results AlbumResults, err error) {
 		s = s.Order("albums.album_favorite DESC, albums.album_title ASC, albums.album_uid DESC")
 	}
 
-	if f.ID != "" {
-		s = s.Where("albums.album_uid IN (?)", strings.Split(f.ID, txt.Or))
+	if f.UID != "" {
+		s = s.Where("albums.album_uid IN (?)", strings.Split(strings.ToLower(f.UID), txt.Or))
 
 		if result := s.Scan(&results); result.Error != nil {
 			return results, result.Error

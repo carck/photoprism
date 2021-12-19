@@ -20,7 +20,7 @@ require (
 	github.com/esimov/pigo v1.4.5
 	github.com/gin-contrib/gzip v0.0.5
 	github.com/gin-gonic/gin v1.7.7
-	github.com/go-errors/errors v1.4.0 // indirect
+	github.com/go-errors/errors v1.4.1 // indirect
 	github.com/go-playground/validator/v10 v10.9.0 // indirect
 	github.com/golang/geo v0.0.0-20210211234256-740aa86cb551
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -58,9 +58,9 @@ require (
 	github.com/ulule/deepcopier v0.0.0-20200430083143-45decc6639b6
 	github.com/urfave/cli v1.22.5
 	go4.org v0.0.0-20201209231011-d4a079459e60 // indirect
-	golang.org/x/crypto v0.0.0-20211209193657-4570a0811e8b
+	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
 	golang.org/x/image v0.0.0-20211028202545-6944b10bf410 // indirect
-	golang.org/x/net v0.0.0-20211209124913-491a49abca63
+	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f
 	golang.org/x/sys v0.0.0-20211213223007-03aa0b5f6827 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gonum.org/v1/gonum v0.9.3
@@ -78,8 +78,8 @@ require (
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
-	github.com/go-xmlfmt/xmlfmt v0.0.0-20191208150333-d5b6f63a941b // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
+	github.com/go-xmlfmt/xmlfmt v0.0.0-20211206191508-7fd73a941850 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-pointer v0.0.1 // indirect

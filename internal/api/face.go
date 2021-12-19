@@ -3,6 +3,8 @@ package api
 import (
 	"net/http"
 
+	"github.com/photoprism/photoprism/pkg/sanitize"
+
 	"github.com/gin-gonic/gin"
 
 	"github.com/photoprism/photoprism/internal/acl"
@@ -26,7 +28,7 @@ func GetFace(router *gin.RouterGroup) {
 			return
 		}
 
-		f := form.SearchFaces{ID: c.Param("id"), Markers: true}
+		f := form.SearchFaces{UID: c.Param("id"), Markers: true}
 
 		if results, err := search.Faces(f); err != nil || len(results) < 1 {
 			Abort(c, http.StatusNotFound, i18n.ErrFaceNotFound)
@@ -56,7 +58,7 @@ func UpdateFace(router *gin.RouterGroup) {
 			return
 		}
 
-		faceId := c.Param("id")
+		faceId := sanitize.Token(c.Param("id"))
 		m := entity.FindFace(faceId)
 
 		if m == nil {
