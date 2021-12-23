@@ -56,6 +56,7 @@ export class Marker extends RestModel {
       SubjUID: "",
       Score: 0,
       Size: 0,
+      Q: 0,
     };
   }
 

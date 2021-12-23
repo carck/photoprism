@@ -141,7 +141,12 @@ export default {
         const y = Math.round((m.Y - (m.H / 2)) * img.height);
 
         ctx.drawImage(img, x, y, s, s, 0, 0, 300, 300);
-        ctx.fillText("" + m.Score, 10, 10);
+        let txt = m.Score + "/" + m.Q;
+        let width = ctx.measureText(txt).width;
+        ctx.fillStyle="#FFFFFF";
+        ctx.fillRect(10, 0, width * 1.1, 15);
+        ctx.fillStyle="#000000";
+        ctx.fillText(txt, 10, 10)
       };
 
       if (m.W < 0.07) {
