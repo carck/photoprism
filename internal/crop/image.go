@@ -10,19 +10,12 @@ import (
 	"path/filepath"
 	"strings"
 
-<<<<<<< HEAD
 	"github.com/carck/gg"
 	"github.com/disintegration/imaging"
 	"github.com/photoprism/photoprism/internal/thumb"
 	"github.com/photoprism/photoprism/pkg/fs"
-	"github.com/photoprism/photoprism/pkg/txt"
-	"golang.org/x/image/draw"
-=======
-	"github.com/disintegration/imaging"
-	"github.com/photoprism/photoprism/internal/thumb"
-	"github.com/photoprism/photoprism/pkg/fs"
 	"github.com/photoprism/photoprism/pkg/sanitize"
->>>>>>> f1bc9f6e7246aa62c08c85087da281f27300bbb7
+	"golang.org/x/image/draw"
 )
 
 // Filenames of usable thumb sizes.

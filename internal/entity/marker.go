@@ -232,14 +232,6 @@ func (m *Marker) SetFace(f *Face, dist float64) (updated bool, err error) {
 	// Any reason we don't want to set a new face for this marker?
 	if m.SubjSrc == SrcAuto || f.SubjUID == "" || m.SubjUID == "" || f.SubjUID == m.SubjUID {
 		// Don't skip if subject wasn't set manually, or subjects match.
-<<<<<<< HEAD
-=======
-	} else if reported, err := f.ResolveCollision(m.Embeddings()); err != nil {
-		return false, err
-	} else if reported {
-		log.Warnf("marker %s: face %s has ambiguous subjects %s <> %s, subject source %s", sanitize.Log(m.MarkerUID), sanitize.Log(f.ID), sanitize.Log(m.SubjUID), sanitize.Log(f.SubjUID), SrcString(m.SubjSrc))
-		return false, nil
->>>>>>> f1bc9f6e7246aa62c08c85087da281f27300bbb7
 	} else {
 		return false, nil
 	}
@@ -496,13 +488,6 @@ func (m *Marker) ClearSubject(src string) error {
 	} else if m.face == nil {
 		m.subject = nil
 		return nil
-<<<<<<< HEAD
-=======
-	} else if resolved, err := m.face.ResolveCollision(m.Embeddings()); err != nil {
-		return err
-	} else if resolved {
-		log.Debugf("marker %s: resolved ambiguous subjects for face %s", sanitize.Log(m.MarkerUID), sanitize.Log(m.face.ID))
->>>>>>> f1bc9f6e7246aa62c08c85087da281f27300bbb7
 	}
 
 	// Clear references.

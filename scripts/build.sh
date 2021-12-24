@@ -44,13 +44,7 @@ elif [[ $1 == "static" ]]; then
   echo "Done."
 else
   echo "Building production binary..."
-<<<<<<< HEAD
 	go build -tags NOTENSORFLOW -ldflags "-s -w -X main.version=${PHOTOPRISM_DATE}-${PHOTOPRISM_VERSION}-${PHOTOPRISM_OS}-${PHOTOPRISM_ARCH}" -o $2 cmd/photoprism/photoprism.go
 	du -h $2
 	echo "Done."
-=======
-  go build -ldflags "-s -w -X main.version=${PHOTOPRISM_DATE}-${PHOTOPRISM_VERSION}-${PHOTOPRISM_OS}-${PHOTOPRISM_ARCH}" -o $2 cmd/photoprism/photoprism.go
-  du -h $2
-  echo "Done."
->>>>>>> f1bc9f6e7246aa62c08c85087da281f27300bbb7
 fi
