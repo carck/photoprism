@@ -72,7 +72,7 @@ func (w *Faces) Cluster(opt FacesOptions) (added entity.Faces, err error) {
 		}
 
 		for _, cluster := range results {
-			if len(cluster) < 3 {
+			if len(cluster) < 2 {
 				continue
 			}
 			if f := entity.NewFace("", entity.SrcAuto, cluster); f == nil {

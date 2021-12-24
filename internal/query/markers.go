@@ -83,6 +83,7 @@ func Embeddings(single, unclustered bool, size, score int) (result face.Embeddin
 		Where("marker_type = ?", entity.MarkerFace).
 		Where("marker_invalid = 0").
 		Where("embeddings_json <> ''").
+		Where("q >= 17").
 		Order("marker_uid")
 
 	if size > 0 {
