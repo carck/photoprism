@@ -49,6 +49,7 @@ func UnmatchedFaceMarkers(limit, offset int, matchedBefore *time.Time) (result e
 	db := Db().
 		Where("marker_type = ?", entity.MarkerFace).
 		Where("marker_invalid = 0").
+		Where("q >= 16").
 		Where("embeddings_json <> ''")
 
 	if matchedBefore == nil {
@@ -68,6 +69,7 @@ func UnmatchedFaceMarkers(limit, offset int, matchedBefore *time.Time) (result e
 func FaceMarkers(limit, offset int) (result entity.Markers, err error) {
 	err = Db().
 		Where("marker_type = ?", entity.MarkerFace).
+		Where("q >= 16").
 		Order("marker_uid").Limit(limit).Offset(offset).
 		Find(&result).Error
 
