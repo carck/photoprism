@@ -97,7 +97,7 @@ func ImageFromThumb(thumbName string, area Area, size Size, cache bool, angle fl
 		dc.RotateAbout(gg.Radians(-angle), float64(size.Width/2), float64(size.Height/2))
 		dc.Scale(float64(size.Width)/float64(dim), float64(size.Height)/float64(dim))
 
-		dc.DrawImageAnchoredWithTransformer(img, 0, 0, float64(min.X)/float64(img.Bounds().Dx()), float64(min.Y)/float64(img.Bounds().Dy()), Lanczos)
+		dc.DrawImageAnchoredWithTransformer(img, 0, 0, float64(min.X)/float64(img.Bounds().Dx()), float64(min.Y)/float64(img.Bounds().Dy()), draw.BiLinear)
 		img = dc.Image()
 		//dc.SavePNG(path.Join("/home/l2/face", cropBase))
 	}
