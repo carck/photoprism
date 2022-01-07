@@ -21,7 +21,7 @@ import (
 )
 
 // MediaFile indexes a single media file.
-func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName string) (result IndexResult) {
+func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID string) (result IndexResult) {
 	if m == nil {
 		err := errors.New("index: media file is nil - you might have found a bug")
 		log.Error(err)
@@ -130,35 +130,81 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName string) (
 		}
 	}
 
-	// Look for existing photo if file wasn't indexed yet...
-	if !fileExists {
+	// Find existing photo if a photo uid was provided or file has not been indexed yet...
+	if !fileExists && photoUID != "" {
+		// Find existing photo by UID.
+		photoQuery = entity.UnscopedDb().First(&photo, "photo_uid = ?", photoUID)
+
+		if photoQuery.Error == nil {
+			// Found.
+			fileStacked = true
+		} else {
+			// Log and return error if photo uid was not found.
+			log.Errorf("index: cannot add %s to unknown photo uid %s", logName, photoUID)
+
+			result.Status = IndexFailed
+			result.Err = photoQuery.Error
+
+			return result
+		}
+	} else if !fileExists {
+		// Find existing photo by matching path and name.
 		if photoQuery = entity.UnscopedDb().First(&photo, "photo_path = ? AND photo_name = ?", filePath, fullBase); photoQuery.Error == nil || fileBase == fullBase || !o.Stack {
 			// Skip next query.
 		} else if photoQuery = entity.UnscopedDb().First(&photo, "photo_path = ? AND photo_name = ? AND photo_stack > -1", filePath, fileBase); photoQuery.Error == nil {
+			// Found.
+			fileStacked = true
+		} else if photoQuery = entity.UnscopedDb().First(&photo, "id IN (SELECT photo_id FROM files WHERE file_name = LIKE ? AND file_root = ? AND file_sidecar = 0 AND file_missing = 0) AND photo_path = ? AND photo_stack > -1", fs.StripKnownExt(fileName)+".%", entity.RootOriginals, filePath); photoQuery.Error == nil {
+			// Found.
 			fileStacked = true
 		}
 
-		// Stack file based on matching location and time metadata?
-		if o.Stack && photoQuery.Error != nil && Config().Settings().StackMeta() && m.MetaData().HasTimeAndPlace() {
-			metaData = m.MetaData()
-			photoQuery = entity.UnscopedDb().First(&photo, "photo_lat = ? AND photo_lng = ? AND taken_at = ? AND taken_src = 'meta' AND camera_serial = ?", metaData.Lat, metaData.Lng, metaData.TakenAt, metaData.CameraSerial)
+		// Find existing photo by unique id or time and location?
+		if o.Stack {
+			// Same unique ID?
+			if photoQuery.Error != nil && Config().Settings().StackUUID() && m.MetaData().HasDocumentID() {
+				photoQuery = entity.UnscopedDb().First(&photo, "uuid <> '' AND uuid = ?", sanitize.Log(m.MetaData().DocumentID))
 
-			if photoQuery.Error == nil {
-				fileStacked = true
+				if photoQuery.Error == nil {
+					// Found.
+					fileStacked = true
+				}
+			}
+
+			// Matching location and time metadata?
+			if photoQuery.Error != nil && Config().Settings().StackMeta() && m.MetaData().HasTimeAndPlace() {
+				metaData = m.MetaData()
+				photoQuery = entity.UnscopedDb().First(&photo, "photo_lat = ? AND photo_lng = ? AND taken_at = ? AND taken_src = 'meta' AND camera_serial = ?", metaData.Lat, metaData.Lng, metaData.TakenAt, metaData.CameraSerial)
+
+				if photoQuery.Error == nil {
+					// Found.
+					fileStacked = true
+				}
 			}
 		}
-
-		// Stack file based on the same unique ID?
-		if o.Stack && photoQuery.Error != nil && Config().Settings().StackUUID() && m.MetaData().HasDocumentID() {
-			photoQuery = entity.UnscopedDb().First(&photo, "uuid <> '' AND uuid = ?", m.MetaData().DocumentID)
-
-			if photoQuery.Error == nil {
-				fileStacked = true
-			}
-		}
-	} else {
+	} else if fileExists {
+		// Find photo by id if file exists.
 		photoQuery = entity.UnscopedDb().First(&photo, "id = ?", file.PhotoID)
+	} else {
+		// Should never happen.
+		result.Status = IndexFailed
+		result.Err = fmt.Errorf("failed indexing %s - please report as this should never happen", logName)
 
+		return result
+	}
+
+	// Found a photo?
+	photoExists = photoQuery.Error == nil
+
+	// Detect changes in existing files.
+	if fileExists {
+		// Detect and report changed photo UID.
+		if photoExists && photoUID != "" && photoUID != file.PhotoUID {
+			fileChanged = true
+			log.Debugf("index: %s has new photo uid %s", sanitize.Log(m.BaseName()), photoUID)
+		}
+
+		// Detect and report file changes.
 		if fileRenamed {
 			fileChanged = true
 			log.Debugf("index: %s was renamed", sanitize.Log(m.BaseName()))
@@ -171,8 +217,13 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName string) (
 		}
 	}
 
-	photoExists = photoQuery.Error == nil
+	// Update file <=> photo relationship if needed.
+	if photoExists && (file.PhotoID != photo.ID || file.PhotoUID != photo.PhotoUID) {
+		file.PhotoID = photo.ID
+		file.PhotoUID = photo.PhotoUID
+	}
 
+	// Skip unchanged files.
 	if !fileChanged && photoExists && o.SkipUnchanged() || !photoExists && m.IsSidecar() {
 		result.Status = IndexSkipped
 		return result
@@ -183,6 +234,7 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName string) (
 		log.Error(err)
 	}
 
+	// Fetch photo details such as keywords, subject, and artist.
 	details := photo.GetDetails()
 
 	// Try to recover photo metadata from backup if not exists.
@@ -217,14 +269,7 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName string) (
 		log.Errorf("index: %s while updating covers of %s", err, logName)
 	}
 
-	photo.PhotoPath = filePath
-
-	if !o.Stack || !stripSequence || photo.PhotoStack == entity.IsUnstacked {
-		photo.PhotoName = fullBase
-	} else {
-		photo.PhotoName = fileBase
-	}
-
+	// Clear (previous) file error.
 	file.FileError = ""
 
 	// Flag first JPEG as primary file for this photo.
@@ -235,6 +280,17 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName string) (
 			}
 		} else {
 			file.FilePrimary = m.IsJpeg()
+		}
+	}
+
+	// Update photo path and name based on the main filename.
+	if !fileStacked && (file.FilePrimary || photo.PhotoName == "") {
+		photo.PhotoPath = filePath
+
+		if !o.Stack || !stripSequence || photo.PhotoStack == entity.IsUnstacked {
+			photo.PhotoName = fullBase
+		} else {
+			photo.PhotoName = fileBase
 		}
 	}
 
@@ -330,7 +386,15 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName string) (
 		if metaData := m.MetaData(); metaData.Error == nil {
 			file.FileCodec = metaData.Codec
 			file.SetProjection(metaData.Projection)
+			file.SetHDR(metaData.IsHDR())
 			file.SetColorProfile(metaData.ColorProfile)
+
+			if file.OriginalName == "" && filepath.Base(file.FileName) != metaData.FileName {
+				file.OriginalName = metaData.FileName
+				if photo.OriginalName == "" {
+					photo.OriginalName = fs.StripKnownExt(metaData.FileName)
+				}
+			}
 
 			if metaData.HasInstanceID() {
 				log.Infof("index: %s has instance_id %s", logName, sanitize.Log(metaData.InstanceID))
@@ -353,6 +417,7 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName string) (
 			details.SetArtist(metaData.Artist, entity.SrcXmp)
 			details.SetCopyright(metaData.Copyright, entity.SrcXmp)
 		} else {
+			log.Warn(err.Error())
 			file.FileError = err.Error()
 		}
 	case m.IsRaw(), m.IsHEIF(), m.IsImageOther():
@@ -383,12 +448,20 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName string) (
 				file.InstanceID = metaData.InstanceID
 			}
 
+			if file.OriginalName == "" && filepath.Base(file.FileName) != metaData.FileName {
+				file.OriginalName = metaData.FileName
+				if photo.OriginalName == "" {
+					photo.OriginalName = fs.StripKnownExt(metaData.FileName)
+				}
+			}
+
 			file.FileCodec = metaData.Codec
 			file.FileWidth = m.Width()
 			file.FileHeight = m.Height()
 			file.FileAspectRatio = m.AspectRatio()
 			file.FilePortrait = m.Portrait()
 			file.SetProjection(metaData.Projection)
+			file.SetHDR(metaData.IsHDR())
 			file.SetColorProfile(metaData.ColorProfile)
 
 			if res := m.Megapixels(); res > photo.PhotoResolution {
@@ -400,10 +473,12 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName string) (
 			photo.SetExposure(m.FocalLength(), m.FNumber(), m.Iso(), m.Exposure(), entity.SrcMeta)
 		}
 
-		if photo.TypeSrc == entity.SrcAuto {
-			// Update photo type only if not manually modified.
-			if m.IsRaw() && photo.PhotoType == entity.TypeImage {
+		// Update photo type if an image and not manually modified.
+		if photo.TypeSrc == entity.SrcAuto && photo.PhotoType == entity.TypeImage {
+			if m.IsRaw() {
 				photo.PhotoType = entity.TypeRaw
+			} else if m.IsLive() {
+				photo.PhotoType = entity.TypeLive
 			}
 		}
 	case m.IsVideo():
@@ -433,6 +508,13 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName string) (
 				file.InstanceID = metaData.InstanceID
 			}
 
+			if file.OriginalName == "" && filepath.Base(file.FileName) != metaData.FileName {
+				file.OriginalName = metaData.FileName
+				if photo.OriginalName == "" {
+					photo.OriginalName = fs.StripKnownExt(metaData.FileName)
+				}
+			}
+
 			file.FileCodec = metaData.Codec
 			file.FileWidth = m.Width()
 			file.FileHeight = m.Height()
@@ -440,6 +522,7 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName string) (
 			file.FilePortrait = m.Portrait()
 			file.FileDuration = metaData.Duration
 			file.SetProjection(metaData.Projection)
+			file.SetHDR(metaData.IsHDR())
 			file.SetColorProfile(metaData.ColorProfile)
 
 			if res := m.Megapixels(); res > photo.PhotoResolution {
@@ -555,10 +638,12 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName string) (
 
 	photo.UpdateDateFields()
 
+	// Panorama?
 	if file.Panorama() {
 		photo.PhotoPanorama = true
 	}
 
+	// Set remaining file properties.
 	file.FileSidecar = m.IsSidecar()
 	file.FileVideo = m.IsVideo()
 	file.FileType = string(m.FileType())
@@ -566,6 +651,12 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName string) (
 	file.FileOrientation = m.Orientation()
 	file.ModTime = modTime.Unix()
 
+	// Detect ICC color profile for JPEGs if still unknown at this point.
+	if file.FileColorProfile == "" && file.FileType == string(fs.FormatJpeg) {
+		file.SetColorProfile(m.ColorProfile())
+	}
+
+	// Update existing photo?
 	if photoExists || photo.HasID() {
 		if err := photo.Save(); err != nil {
 			log.Errorf("index: %s in %s (update existing photo)", err, logName)

@@ -275,6 +275,7 @@ func (m *Face) RefreshPhotos() error {
 		return fmt.Errorf("empty face id")
 	}
 
+<<<<<<< HEAD
 	SetPhotoToRefresh(m.ID, 1)
 	return nil
 }

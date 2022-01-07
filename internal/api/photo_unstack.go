@@ -17,6 +17,8 @@ import (
 	"github.com/photoprism/photoprism/internal/service"
 )
 
+// PhotoUnstack removes a file from an existing photo stack.
+//
 // POST /api/v1/photos/:uid/files/:file_uid/unstack
 //
 // Parameters:
@@ -42,11 +44,11 @@ func PhotoUnstack(router *gin.RouterGroup) {
 		}
 
 		if file.FilePrimary {
-			log.Errorf("photo: can't unstack primary file")
+			log.Errorf("photo: cannot unstack primary file")
 			AbortBadRequest(c)
 			return
 		} else if file.FileSidecar {
-			log.Errorf("photo: can't unstack sidecar files")
+			log.Errorf("photo: cannot unstack sidecar files")
 			AbortBadRequest(c)
 			return
 		} else if file.FileRoot != entity.RootOriginals {
@@ -64,16 +66,23 @@ func PhotoUnstack(router *gin.RouterGroup) {
 			log.Errorf("photo: %s (unstack %s)", err, sanitize.Log(baseName))
 			AbortEntityNotFound(c)
 			return
+		} else if file.Photo == nil {
+			log.Errorf("photo: cannot find photo for file uid %s (unstack)", fileUID)
+			AbortEntityNotFound(c)
+			return
 		}
 
 		stackPhoto := *file.Photo
 		stackPrimary, err := stackPhoto.PrimaryFile()
 
 		if err != nil {
-			log.Errorf("photo: can't find primary file for %s (unstack)", sanitize.Log(baseName))
+			log.Errorf("photo: cannot find primary file for %s (unstack)", sanitize.Log(baseName))
 			AbortUnexpected(c)
 			return
 		}
+
+		// Flag original photo as unstacked / not stackable.
+		stackPhoto.SetStack(entity.IsUnstacked)
 
 		related, err := unstackFile.RelatedFiles(false)
 
@@ -96,7 +105,7 @@ func PhotoUnstack(router *gin.RouterGroup) {
 
 		if unstackFile.BasePrefix(false) == stackPhoto.PhotoName {
 			if conf.ReadOnly() {
-				log.Errorf("photo: can't rename files in read only mode (unstack %s)", sanitize.Log(baseName))
+				log.Errorf("photo: cannot rename files in read only mode (unstack %s)", sanitize.Log(baseName))
 				AbortFeatureDisabled(c)
 				return
 			}
@@ -104,7 +113,7 @@ func PhotoUnstack(router *gin.RouterGroup) {
 			destName := fmt.Sprintf("%s.%s%s", unstackFile.AbsPrefix(false), unstackFile.Checksum(), unstackFile.Extension())
 
 			if err := unstackFile.Move(destName); err != nil {
-				log.Errorf("photo: can't rename %s to %s (unstack)", sanitize.Log(unstackFile.BaseName()), sanitize.Log(filepath.Base(destName)))
+				log.Errorf("photo: cannot rename %s to %s (unstack)", sanitize.Log(unstackFile.BaseName()), sanitize.Log(filepath.Base(destName)))
 				AbortUnexpected(c)
 				return
 			}
@@ -115,6 +124,7 @@ func PhotoUnstack(router *gin.RouterGroup) {
 			files = related.Files
 		}
 
+		// Create new photo, also flagged as unstacked / not stackable.
 		newPhoto := entity.NewPhoto(false)
 		newPhoto.PhotoPath = unstackFile.RootRelPath()
 		newPhoto.PhotoName = unstackFile.BasePrefix(false)

@@ -189,7 +189,7 @@ func TestFile_Save(t *testing.T) {
 			t.Fatalf("file id should be 0: %d", file.ID)
 		}
 
-		assert.Equal(t, "file 123: can't save file with empty photo id", err.Error())
+		assert.Equal(t, "file 123: cannot save file with empty photo id", err.Error())
 	})
 	t.Run("success", func(t *testing.T) {
 		photo := &Photo{TakenAtLocal: time.Date(2019, 01, 15, 0, 0, 0, 0, time.UTC), PhotoTitle: "Berlin / Morning Mood"}
@@ -332,7 +332,8 @@ func TestFile_SetProjection(t *testing.T) {
 	t.Run("Sanitize", func(t *testing.T) {
 		m := &File{}
 		m.SetProjection(" 幸福 Hanzi are logograms developed for the writing of Chinese! ")
-		assert.Equal(t, "hanzi are logograms developed for the writing of chinese", m.FileProjection)
+		assert.Equal(t, "hanzi are logograms developed for the wr", m.FileProjection)
+		assert.Equal(t, TrimTypeString, len(m.FileProjection))
 	})
 }
 
@@ -627,6 +628,20 @@ func TestFile_ReplaceHash(t *testing.T) {
 	})
 }
 
+func TestFile_SetHDR(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		m := FileFixtures.Get("exampleFileName.jpg")
+
+		assert.Equal(t, false, m.IsHDR())
+		m.SetHDR(false)
+		assert.Equal(t, false, m.IsHDR())
+		m.SetHDR(true)
+		assert.Equal(t, true, m.IsHDR())
+		m.ResetHDR()
+		assert.Equal(t, false, m.IsHDR())
+	})
+}
+
 func TestFile_SetColorProfile(t *testing.T) {
 	t.Run("DisplayP3", func(t *testing.T) {
 		m := FileFixtures.Get("exampleFileName.jpg")
@@ -642,6 +657,12 @@ func TestFile_SetColorProfile(t *testing.T) {
 		assert.True(t, m.HasColorProfile(colors.ProfileDisplayP3))
 
 		m.SetColorProfile("")
+
+		assert.Equal(t, "Display P3", m.ColorProfile())
+		assert.False(t, m.HasColorProfile(colors.Default))
+		assert.True(t, m.HasColorProfile(colors.ProfileDisplayP3))
+
+		m.ResetColorProfile()
 
 		assert.Equal(t, "", m.ColorProfile())
 		assert.True(t, m.HasColorProfile(colors.Default))

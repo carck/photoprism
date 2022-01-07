@@ -109,7 +109,7 @@ func TestPhoto_SaveLabels(t *testing.T) {
 
 		err := photo.SaveLabels()
 
-		assert.EqualError(t, err, "photo: can't save to database, id is empty")
+		assert.EqualError(t, err, "photo: cannot save to database, id is empty")
 	})
 
 	t.Run("existing photo", func(t *testing.T) {
@@ -542,6 +542,23 @@ func TestPhoto_SetFavorite(t *testing.T) {
 		}
 
 		assert.Equal(t, true, photo.PhotoFavorite)
+	})
+}
+
+func TestPhoto_SetStack(t *testing.T) {
+	t.Run("Ignore", func(t *testing.T) {
+		m := PhotoFixtures.Get("Photo27")
+		assert.Equal(t, IsStackable, m.PhotoStack)
+		m.SetStack(IsStackable)
+		assert.Equal(t, IsStackable, m.PhotoStack)
+	})
+	t.Run("Update", func(t *testing.T) {
+		m := PhotoFixtures.Get("Photo27")
+		assert.Equal(t, IsStackable, m.PhotoStack)
+		m.SetStack(IsUnstacked)
+		assert.Equal(t, IsUnstacked, m.PhotoStack)
+		m.SetStack(IsStackable)
+		assert.Equal(t, IsStackable, m.PhotoStack)
 	})
 }
 

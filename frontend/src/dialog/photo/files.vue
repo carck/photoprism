@@ -126,6 +126,14 @@
                             <translate>Yes</translate>
                           </td>
                         </tr>
+                        <tr v-if="file.HDR">
+                          <td>
+                            <translate>High Dynamic Range (HDR)</translate>
+                          </td>
+                          <td>
+                            <translate>Yes</translate>
+                          </td>
+                        </tr>
                         <tr v-if="file.Portrait">
                           <td>
                             <translate>Portrait</translate>

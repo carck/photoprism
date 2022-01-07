@@ -2,7 +2,7 @@
 
 Package search performs common index search queries.
 
-Copyright (c) 2018 - 2021 Michael Mayer <hello@photoprism.org>
+Copyright (c) 2018 - 2022 Michael Mayer <hello@photoprism.org>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published
@@ -41,7 +41,7 @@ import (
 var log = event.Log
 
 // MaxResults is max result limit for queries.
-const MaxResults = 10000
+const MaxResults = 25000
 
 // Radius is about 1 km.
 const Radius = 0.009

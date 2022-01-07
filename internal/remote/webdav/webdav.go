@@ -2,7 +2,7 @@
 
 Package webdav implements sharing with WebDAV servers.
 
-Copyright (c) 2018 - 2021 Michael Mayer <hello@photoprism.org>
+Copyright (c) 2018 - 2022 Michael Mayer <hello@photoprism.org>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published
@@ -166,7 +166,7 @@ func (c Client) Download(from, to string, force bool) (err error) {
 	if err != nil {
 		// Create directory
 		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-			return fmt.Errorf("webdav: can't create %s (%s)", dir, err)
+			return fmt.Errorf("webdav: cannot create %s (%s)", dir, err)
 		}
 	} else if !dirInfo.IsDir() {
 		return fmt.Errorf("webdav: %s is not a folder", dir)
