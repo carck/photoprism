@@ -132,7 +132,7 @@ func Geo(f form.SearchGeo) (results GeoResults, err error) {
 
 	// Search for one or more keywords?
 	if f.Keywords != "" {
-		for _, where := range LikeAnyKeyword("k.keyword", f.Keywords) {
+		for _, where := range LikeAnyWord("k.keyword", f.Keywords) {
 			s = s.Where("photos.id IN (SELECT pk.photo_id FROM keywords k JOIN photos_keywords pk ON k.id = pk.keyword_id WHERE (?))", gorm.Expr(where))
 		}
 	}
@@ -186,8 +186,14 @@ func Geo(f form.SearchGeo) (results GeoResults, err error) {
 
 	// Filter by album?
 	if rnd.IsPPID(f.Album, 'a') {
-		s = s.Joins("JOIN photos_albums ON photos_albums.photo_uid = photos.photo_uid").
-			Where("photos_albums.hidden = 0 AND photos_albums.album_uid = ?", f.Album)
+		if f.Filter != "" {
+			s = s.Where("photos.photo_uid NOT IN (SELECT photo_uid FROM photos_albums pa WHERE pa.hidden = 1 AND pa.album_uid = ?)", f.Album)
+		} else {
+			s = s.Joins("JOIN photos_albums ON photos_albums.photo_uid = photos.photo_uid").
+				Where("photos_albums.hidden = 0 AND photos_albums.album_uid = ?", f.Album)
+		}
+	} else if f.Unsorted && f.Filter == "" {
+		s = s.Where("photos.photo_uid NOT IN (SELECT photo_uid FROM photos_albums pa WHERE pa.hidden = 0)")
 	} else if f.Albums != "" || f.Album != "" {
 		if f.Albums == "" {
 			f.Albums = f.Album

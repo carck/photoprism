@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/dustin/go-humanize/english"
@@ -29,6 +30,8 @@ const (
 )
 
 type Files []File
+
+var primaryFileMutex = sync.Mutex{}
 
 // File represents an image or sidecar file that belongs to a photo.
 type File struct {
@@ -55,9 +58,10 @@ type File struct {
 	FileWidth        int           `json:"Width" yaml:"Width,omitempty"`
 	FileHeight       int           `json:"Height" yaml:"Height,omitempty"`
 	FileOrientation  int           `json:"Orientation" yaml:"Orientation,omitempty"`
-	FileProjection   string        `gorm:"type:VARBINARY(32);" json:"Projection,omitempty" yaml:"Projection,omitempty"`
+	FileProjection   string        `gorm:"type:VARBINARY(40);" json:"Projection,omitempty" yaml:"Projection,omitempty"`
 	FileAspectRatio  float32       `gorm:"type:FLOAT;" json:"AspectRatio" yaml:"AspectRatio,omitempty"`
-	FileColorProfile string        `gorm:"type:VARBINARY(32);" json:"ColorProfile,omitempty" yaml:"ColorProfile,omitempty"`
+	FileHDR          bool          `gorm:"column:file_hdr;"  json:"IsHDR" yaml:"IsHDR,omitempty"`
+	FileColorProfile string        `gorm:"type:VARBINARY(40);" json:"ColorProfile,omitempty" yaml:"ColorProfile,omitempty"`
 	FileMainColor    string        `gorm:"type:VARBINARY(16);index;" json:"MainColor" yaml:"MainColor,omitempty"`
 	FileColors       string        `gorm:"type:VARBINARY(9);" json:"Colors" yaml:"Colors,omitempty"`
 	FileLuminance    string        `gorm:"type:VARBINARY(9);" json:"Luminance" yaml:"Luminance,omitempty"`
@@ -318,7 +322,7 @@ func (m *File) AllFilesMissing() bool {
 // Create inserts a new row to the database.
 func (m *File) Create() error {
 	if m.PhotoID == 0 {
-		return fmt.Errorf("file: can't create file with empty photo id")
+		return fmt.Errorf("file: cannot create file with empty photo id")
 	}
 
 	if err := UnscopedDb().Create(m).Error; err != nil {
@@ -331,11 +335,14 @@ func (m *File) Create() error {
 		return err
 	}
 
-	return nil
+	return m.ResolvePrimary()
 }
 
-// ResolvePrimary ensures there is only one primary file for a photo..
+// ResolvePrimary ensures there is only one primary file for a photo.
 func (m *File) ResolvePrimary() error {
+	primaryFileMutex.Lock()
+	defer primaryFileMutex.Unlock()
+
 	if m.FilePrimary {
 		return UnscopedDb().Exec("UPDATE `files` SET file_primary = (id = ?) WHERE photo_id = ?", m.ID, m.PhotoID).Error
 	}
@@ -346,7 +353,7 @@ func (m *File) ResolvePrimary() error {
 // Save stores the file in the database.
 func (m *File) Save() error {
 	if m.PhotoID == 0 {
-		return fmt.Errorf("file %s: can't save file with empty photo id", m.FileUID)
+		return fmt.Errorf("file %s: cannot save file with empty photo id", m.FileUID)
 	}
 
 	if err := UnscopedDb().Save(m).Error; err != nil {
@@ -479,6 +486,23 @@ func (m *File) SetProjection(name string) {
 	m.FileProjection = SanitizeTypeString(name)
 }
 
+// IsHDR returns true if it is a high dynamic range file.
+func (m *File) IsHDR() bool {
+	return m.FileHDR
+}
+
+// SetHDR sets the high dynamic range flag.
+func (m *File) SetHDR(isHdr bool) {
+	if isHdr {
+		m.FileHDR = true
+	}
+}
+
+// ResetHDR removes the high dynamic range flag.
+func (m *File) ResetHDR() {
+	m.FileHDR = false
+}
+
 // ColorProfile returns the ICC color profile name if any.
 func (m *File) ColorProfile() string {
 	return SanitizeTypeCaseSensitive(m.FileColorProfile)
@@ -491,7 +515,14 @@ func (m *File) HasColorProfile(profile colors.Profile) bool {
 
 // SetColorProfile sets the ICC color profile name such as "Display P3".
 func (m *File) SetColorProfile(name string) {
-	m.FileColorProfile = SanitizeTypeCaseSensitive(name)
+	if name = SanitizeTypeCaseSensitive(name); name != "" {
+		m.FileColorProfile = SanitizeTypeCaseSensitive(name)
+	}
+}
+
+// ResetColorProfile removes the ICC color profile name.
+func (m *File) ResetColorProfile() {
+	m.FileColorProfile = ""
 }
 
 // AddFaces adds face markers to the file.

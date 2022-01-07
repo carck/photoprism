@@ -65,6 +65,12 @@ var GlobalFlags = []cli.Flag{
 		EnvVar: "PHOTOPRISM_EXPERIMENTAL",
 	},
 	cli.StringFlag{
+		Name:   "partner-id",
+		Hidden: true,
+		Usage:  "hosting partner id",
+		EnvVar: "PHOTOPRISM_PARTNER_ID",
+	},
+	cli.StringFlag{
 		Name:   "config-file, c",
 		Usage:  "load config options from `FILENAME`",
 		EnvVar: "PHOTOPRISM_CONFIG_FILE",
@@ -161,7 +167,7 @@ var GlobalFlags = []cli.Flag{
 	},
 	cli.BoolFlag{
 		Name:   "disable-backups",
-		Usage:  "disable creating YAML metadata backup files",
+		Usage:  "disable creating YAML metadata files",
 		EnvVar: "PHOTOPRISM_DISABLE_BACKUPS",
 	},
 	cli.BoolFlag{

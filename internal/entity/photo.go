@@ -146,7 +146,7 @@ func SavePhotoForm(model Photo, form form.Photo) error {
 	}
 
 	if !model.HasID() {
-		return errors.New("can't save form when photo id is missing")
+		return errors.New("cannot save form when photo id is missing")
 	}
 
 	// Update time fields.
@@ -300,7 +300,7 @@ func (m *Photo) Find() error {
 // SaveLabels updates the photo after labels have changed.
 func (m *Photo) SaveLabels() error {
 	if !m.HasID() {
-		return errors.New("photo: can't save to database, id is empty")
+		return errors.New("photo: cannot save to database, id is empty")
 	}
 
 	labels := m.ClassifyLabels()
@@ -788,7 +788,7 @@ func (m *Photo) Updates(values interface{}) error {
 	return UnscopedDb().Model(m).UpdateColumns(values).Error
 }
 
-// SetFavorite updates the favorite status of a photo.
+// SetFavorite updates the favorite flag of a photo.
 func (m *Photo) SetFavorite(favorite bool) error {
 	changed := m.PhotoFavorite != favorite
 	m.PhotoFavorite = favorite
@@ -812,6 +812,14 @@ func (m *Photo) SetFavorite(favorite bool) error {
 	}
 
 	return nil
+}
+
+// SetStack updates the stack flag of a photo.
+func (m *Photo) SetStack(stack int8) {
+	if m.PhotoStack != stack {
+		m.PhotoStack = stack
+		Log("photo", "update stack flag", m.Update("PhotoStack", m.PhotoStack))
+	}
 }
 
 // Approve approves a photo in review.
@@ -863,7 +871,7 @@ func (m *Photo) SetPrimary(fileUID string) error {
 		// Do nothing.
 	} else if err := Db().Model(File{}).
 		Where("photo_uid = ? AND file_type = 'jpg' AND file_missing = 0 AND file_error = ''", m.PhotoUID).
-		Order("file_width DESC").Limit(1).
+		Order("file_width DESC, file_hdr DESC").Limit(1).
 		Pluck("file_uid", &files).Error; err != nil {
 		return err
 	} else if len(files) == 0 {

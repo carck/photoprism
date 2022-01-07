@@ -226,7 +226,7 @@ func Photos(f form.SearchPhotos) (results PhotoResults, count int, err error) {
 
 	// Search for one or more keywords?
 	if f.Keywords != "" {
-		for _, where := range LikeAnyKeyword("k.keyword", f.Keywords) {
+		for _, where := range LikeAnyWord("k.keyword", f.Keywords) {
 			s = s.Where("photos.id IN (SELECT pk.photo_id FROM keywords k JOIN photos_keywords pk ON k.id = pk.keyword_id WHERE (?))", gorm.Expr(where))
 		}
 	}
@@ -504,7 +504,7 @@ func Photos(f form.SearchPhotos) (results PhotoResults, count int, err error) {
 		}
 
 		for _, where := range LikeAnyWord("a.album_title", f.Albums) {
-			s = s.Where("photos.photo_uid IN (SELECT pa.photo_uid FROM photos_albums pa JOIN albums a ON a.album_uid = pa.album_uid WHERE (?))", gorm.Expr(where))
+			s = s.Where("photos.photo_uid IN (SELECT pa.photo_uid FROM photos_albums pa JOIN albums a ON a.album_uid = pa.album_uid AND pa.hidden = 0 WHERE (?))", gorm.Expr(where))
 		}
 	}
 

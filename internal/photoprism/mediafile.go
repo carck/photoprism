@@ -14,10 +14,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dustin/go-humanize/english"
-
 	"github.com/disintegration/imaging"
 	"github.com/djherbis/times"
+	"github.com/dustin/go-humanize/english"
+	"github.com/mandykoh/prism/meta/autometa"
 
 	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/meta"
@@ -30,23 +30,25 @@ import (
 
 // MediaFile represents a single photo, video or sidecar file.
 type MediaFile struct {
-	fileName     string
-	fileRoot     string
-	statErr      error
-	modTime      time.Time
-	fileSize     int64
-	fileType     fs.FileFormat
-	mimeType     string
-	takenAt      time.Time
-	takenAtSrc   string
-	hash         string
-	checksum     string
-	hasJpeg      bool
-	width        int
-	height       int
-	metaData     meta.Data
-	metaDataOnce sync.Once
-	location     *entity.Cell
+	fileName       string
+	fileRoot       string
+	statErr        error
+	modTime        time.Time
+	fileSize       int64
+	fileType       fs.FileFormat
+	mimeType       string
+	takenAt        time.Time
+	takenAtSrc     string
+	hash           string
+	checksum       string
+	hasJpeg        bool
+	noColorProfile bool
+	colorProfile   string
+	width          int
+	height         int
+	metaData       meta.Data
+	metaDataOnce   sync.Once
+	location       *entity.Cell
 }
 
 // NewMediaFile returns a new media file.
@@ -276,14 +278,26 @@ func (m *MediaFile) EditedName() string {
 
 // RelatedFiles returns files which are related to this file.
 func (m *MediaFile) RelatedFiles(stripSequence bool) (result RelatedFiles, err error) {
-	var prefix string
+	// File path and name without any extensions.
+	prefix := m.AbsPrefix(stripSequence)
 
+	// Storage folder path prefixes.
+	sidecarPrefix := Config().SidecarPath() + "/"
+	originalsPrefix := Config().OriginalsPath() + "/"
+
+	// Replace sidecar with originals path in search prefix.
+	if len(sidecarPrefix) > 1 && sidecarPrefix != originalsPrefix && strings.HasPrefix(prefix, sidecarPrefix) {
+		prefix = strings.Replace(prefix, sidecarPrefix, originalsPrefix, 1)
+		log.Debugf("media: replaced sidecar with originals path in related file matching pattern")
+	}
+
+	// Quote path for glob.
 	if stripSequence {
 		// Strip common name sequences like "copy 2" and escape meta characters.
-		prefix = regexp.QuoteMeta(m.AbsPrefix(true))
+		prefix = regexp.QuoteMeta(prefix)
 	} else {
 		// Use strict file name matching and escape meta characters.
-		prefix = regexp.QuoteMeta(m.AbsPrefix(false) + ".")
+		prefix = regexp.QuoteMeta(prefix + ".")
 	}
 
 	// Find related files.
@@ -296,6 +310,8 @@ func (m *MediaFile) RelatedFiles(stripSequence bool) (result RelatedFiles, err e
 	if name := m.EditedName(); name != "" {
 		matches = append(matches, name)
 	}
+
+	isHEIF := false
 
 	for _, fileName := range matches {
 		f, err := NewMediaFile(fileName)
@@ -315,10 +331,11 @@ func (m *MediaFile) RelatedFiles(stripSequence bool) (result RelatedFiles, err e
 		} else if f.IsRaw() {
 			result.Main = f
 		} else if f.IsHEIF() {
+			isHEIF = true
 			result.Main = f
 		} else if f.IsImageOther() {
 			result.Main = f
-		} else if f.IsVideo() {
+		} else if f.IsVideo() && !isHEIF {
 			result.Main = f
 		} else if result.Main != nil && f.IsJpeg() {
 			if result.Main.IsJpeg() && len(result.Main.FileName()) > len(f.FileName()) {
@@ -737,6 +754,19 @@ func (m *MediaFile) IsPhoto() bool {
 	return m.IsJpeg() || m.IsRaw() || m.IsHEIF() || m.IsImageOther()
 }
 
+// IsLive returns true if this is a live photo.
+func (m *MediaFile) IsLive() bool {
+	if m.IsHEIF() {
+		return fs.FormatMov.FindFirst(m.FileName(), []string{}, Config().OriginalsPath(), false) != ""
+	}
+
+	if m.IsVideo() {
+		return fs.FormatHEIF.FindFirst(m.FileName(), []string{}, Config().OriginalsPath(), false) != ""
+	}
+
+	return false
+}
+
 // ExifSupported returns true if parsing exif metadata is supported for the media file type.
 func (m *MediaFile) ExifSupported() bool {
 	return m.IsJpeg() || m.IsRaw() || m.IsHEIF() || m.IsPng() || m.IsTiff()
@@ -747,7 +777,7 @@ func (m *MediaFile) IsMedia() bool {
 	return m.IsJpeg() || m.IsVideo() || m.IsRaw() || m.IsHEIF() || m.IsImageOther()
 }
 
-// Jpeg returns a the JPEG version of the media file (if exists).
+// Jpeg returns the JPEG version of the media file (if exists).
 func (m *MediaFile) Jpeg() (*MediaFile, error) {
 	if m.IsJpeg() {
 		if !fs.FileExists(m.FileName()) {
@@ -766,7 +796,7 @@ func (m *MediaFile) Jpeg() (*MediaFile, error) {
 	return NewMediaFile(jpegFilename)
 }
 
-// ContainsJpeg returns true if this file has or is a jpeg media file.
+// HasJpeg returns true if the file has or is a jpeg media file.
 func (m *MediaFile) HasJpeg() bool {
 	if m.hasJpeg {
 		return true
@@ -1059,4 +1089,45 @@ func (m *MediaFile) RemoveSidecars() (err error) {
 	}
 
 	return nil
+}
+
+// ColorProfile returns the ICC color profile name.
+func (m *MediaFile) ColorProfile() string {
+	if !m.IsJpeg() || m.colorProfile != "" || m.noColorProfile {
+		return m.colorProfile
+	}
+
+	start := time.Now()
+	logName := sanitize.Log(m.BaseName())
+
+	// Open file.
+	fileReader, err := os.Open(m.FileName())
+
+	if err != nil {
+		m.noColorProfile = true
+		return ""
+	}
+
+	defer fileReader.Close()
+
+	// Read color metadata.
+	md, _, err := autometa.Load(fileReader)
+
+	if err != nil || md == nil {
+		m.noColorProfile = true
+		return ""
+	}
+
+	// Read ICC profile and convert colors if possible.
+	if iccProfile, err := md.ICCProfile(); err != nil || iccProfile == nil {
+		// Do nothing.
+	} else if profile, err := iccProfile.Description(); err == nil && profile != "" {
+		log.Debugf("media: %s has color profile %s [%s]", logName, sanitize.Log(profile), time.Since(start))
+		m.colorProfile = profile
+		return m.colorProfile
+	}
+
+	log.Tracef("media: %s has no color profile [%s]", logName, time.Since(start))
+	m.noColorProfile = true
+	return ""
 }

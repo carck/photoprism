@@ -130,7 +130,7 @@ func (data *Data) Exiftool(jsonData []byte, originalName string) (err error) {
 
 				fieldValue.SetBool(jsonValue.Bool())
 			default:
-				log.Warnf("metadata: can't assign value of type %s to %s (exiftool)", t, tagValue)
+				log.Warnf("metadata: cannot assign value of type %s to %s (exiftool)", t, tagValue)
 			}
 		}
 	}
@@ -272,8 +272,12 @@ func (data *Data) Exiftool(jsonData []byte, originalName string) (err error) {
 		data.AddKeywords(KeywordPanorama)
 	}
 
+	if data.Description != "" {
+		data.AutoAddKeywords(data.Description)
+		data.Description = SanitizeDescription(data.Description)
+	}
+
 	data.Title = SanitizeTitle(data.Title)
-	data.Description = SanitizeDescription(data.Description)
 	data.Subject = SanitizeMeta(data.Subject)
 	data.Artist = SanitizeMeta(data.Artist)
 

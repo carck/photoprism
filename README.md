@@ -1,13 +1,13 @@
 PhotoPrism: Browse Your Life in Pictures
 ========================================
 
-[![License: AGPL](https://img.shields.io/badge/license-AGPL-blue.svg)][license]
-![Build Status](https://dl.photoprism.app/img/badges/badge-build-success.svg)
-[![GitHub contributors](https://img.shields.io/github/contributors/photoprism/photoprism.svg)](https://github.com/photoprism/photoprism/graphs/contributors/)
-[![Documentation](https://img.shields.io/badge/read-the%20docs-4aa087.svg)][docs]
-[![Community Chat](https://img.shields.io/badge/chat-on%20gitter-4aa087.svg)][chat]
-[![GitHub Discussions](https://img.shields.io/badge/ask-%20on%20github-4d6a91.svg)][ask]
-[![Twitter](https://img.shields.io/badge/follow-@photoprism_app-00acee.svg)][twitter]
+[![License: AGPL](https://img.shields.io/badge/license-AGPL-blue.svg)](https://docs.photoprism.app/license/)
+[![GitHub contributors](https://img.shields.io/github/contributors/photoprism/photoprism.svg)](https://photoprism.app/team)
+[![Documentation](https://img.shields.io/badge/read-the%20docs-4aa087.svg)](https://docs.photoprism.app/)
+[![Community Chat](https://img.shields.io/badge/chat-on%20gitter-4aa087.svg)](https://gitter.im/browseyourlife/community)
+[![GitHub Discussions](https://img.shields.io/badge/ask-%20on%20github-4d6a91.svg)](https://github.com/photoprism/photoprism/discussions)
+[![Twitter](https://img.shields.io/badge/follow-@photoprism_app-00acee.svg)](https://twitter.com/photoprism_app)
+[![Reddit](https://img.shields.io/badge/join-/r/photoprism-EC5800.svg)](https://www.reddit.com/r/photoprism/)
 
 PhotoPrism® is an AI-powered app for browsing, organizing & sharing your photo collection.
 It makes use of the latest technologies to tag and find pictures automatically without getting in your way.
@@ -52,9 +52,10 @@ after going through a short list of [requirements](https://docs.photoprism.app/g
 Existing users are advised to update their `docker-compose.yml` config based on our examples
 available at [dl.photoprism.app/docker](https://dl.photoprism.app/docker/).
 
-##  Back us on [Patreon](https://www.patreon.com/photoprism) or [GitHub Sponsors](https://github.com/sponsors/photoprism) 🎄 ##
+## Back us on [Patreon](https://www.patreon.com/photoprism) or [GitHub Sponsors](https://github.com/sponsors/photoprism) 🎄 ##
 
-Your continued support helps us provide services like world maps and develop [new features](https://github.com/photoprism/photoprism/projects/5).
+Your continued support helps us provide [regular updates](https://docs.photoprism.app/release-notes/)
+and services like [world maps](https://demo.photoprism.app/places).
 Sponsors get access to [additional features](https://github.com/photoprism/photoprism/issues?q=label%3Asponsor-feature),
 receive direct [technical support](https://photoprism.app/contact) via email, and can join our private chat room 
 on [matrix.org](https://matrix.org/).
@@ -64,7 +65,7 @@ We currently have the following sponsorship options:
 - [GitHub Sponsors](https://github.com/sponsors/photoprism) is priced in USD and also offers [one-time donations](https://github.com/sponsors/photoprism?frequency=one-time)
 - [Patreon](https://www.patreon.com/photoprism) is priced in Euro and also offers yearly payments
 - Stripe will be available in early 2022, so you can sign up directly in the app without having a Patreon or GitHub account
-- You're welcome to [contact us](https://photoprism.app/contact) for other options
+- You're welcome to [contact us](https://photoprism.app/contact) for [other options](SPONSORS.md#crypto-wallets)
 
 Also, please [leave a star](https://github.com/photoprism/photoprism/stargazers) on GitHub if you like this project.
 It provides additional motivation to keep going.
@@ -80,8 +81,8 @@ before reporting problems. If this doesn't help, or you have other questions:
 In addition, [sponsors](https://github.com/photoprism/photoprism/blob/develop/SPONSORS.md) receive direct
 [technical support](https://photoprism.app/contact) via email.
 
-We'll do our best to answer all your questions. In return, we ask you to back us on [Patreon](https://www.patreon.com/photoprism)
-or [GitHub Sponsors](https://github.com/sponsors/photoprism).
+We'll do our best to answer all your questions. In return, we ask you to [back us](https://docs.photoprism.app/funding/) 
+on [Patreon](https://www.patreon.com/photoprism) or [GitHub Sponsors](https://github.com/sponsors/photoprism).
 Think of "free software" as in "free speech," not as in "free beer". Thank you! 💜
 
 *When reporting a problem, always include the version you are using and information
@@ -121,7 +122,7 @@ Issues labeled [help wanted](https://github.com/photoprism/photoprism/labels/hel
 [easy](https://github.com/photoprism/photoprism/labels/easy) can be good (first) contributions.
 
 Because we want to create the best possible product for our users,
-we have a set of [guidelines](https://docs.photoprism.app/developer-guide/pull-requests)
+we have a [set of guidelines](https://docs.photoprism.app/developer-guide/pull-requests)
 to ensure that all source code submissions are acceptable.
 They include step-by-step instructions for submitting new features,
 bug fixes, and documentation improvements.
@@ -131,25 +132,7 @@ on our side. If it's not just a small fix, it can take several months.**
 
 ## PhotoPrism® Trademark ##
 
-Our [trademark and brand guidelines](https://photoprism.app/trademark), which may be updated 
+Our [Trademark and Brand Guidelines](https://photoprism.app/trademark), which may be updated 
 from time to time, describe how our Brand Assets may be used. It is important to us that any 
 permitted use of our Brand Assets is fair and meets the highest standards. To ensure this, 
 we reserve the right to object to any use or misuse in any jurisdiction worldwide.
-
-[wiki:classification]: https://github.com/photoprism/photoprism/wiki/Image-Classification
-[wiki:xmp]: https://github.com/photoprism/photoprism/wiki/XMP
-[wiki:geocoding]: https://github.com/photoprism/photoprism/wiki/Geocoding
-[wiki:raw]: https://github.com/photoprism/photoprism/wiki/Converting-RAW-to-JPEG
-[license]: https://github.com/photoprism/photoprism/blob/develop/LICENSE
-[patreon]: https://www.patreon.com/photoprism
-[paypal]: https://www.paypal.me/photoprism
-[goreport]: https://goreportcard.com/report/github.com/photoprism/photoprism
-[coverage]: https://codecov.io/gh/photoprism/photoprism
-[ci]: https://drone.photoprism.app/photoprism/photoprism
-[docs]: https://docs.photoprism.app/
-[issuehunt]: https://issuehunt.io/repos/119160553
-[chat]: https://gitter.im/browseyourlife/community
-[ask]: https://github.com/photoprism/photoprism/discussions
-[twitter]: https://twitter.com/photoprism_app
-[unfunded issues]: https://github.com/photoprism/photoprism/issues?q=is%3Aissue+is%3Aopen+label%3Aunfunded
-[sponsored issues]: https://github.com/photoprism/photoprism/issues?q=is%3Aissue+is%3Aopen+label%3Asponsor
