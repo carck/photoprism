@@ -223,6 +223,9 @@ docker-local:
 	scripts/docker/build.sh photoprism
 docker-pull:
 	docker pull photoprism/photoprism:preview photoprism/photoprism:latest
+docker-ddns:
+	docker pull golang:alpine
+	scripts/docker/multiarch.sh ddns linux/amd64,linux/arm64 $(DOCKER_TAG)
 docker-goproxy:
 	docker pull golang:alpine
 	scripts/docker/multiarch.sh goproxy linux/amd64,linux/arm64 $(DOCKER_TAG)
@@ -252,6 +255,7 @@ fmt-js:
 	(cd frontend &&	npm run fmt)
 fmt-go:
 	go fmt ./pkg/... ./internal/... ./cmd/...
+	gofmt -w -s pkg internal cmd
 	goimports -w pkg internal cmd
 tidy:
 	go mod tidy
