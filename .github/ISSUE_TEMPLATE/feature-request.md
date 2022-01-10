@@ -1,19 +1,21 @@
 ---
 name: Feature Request
 about: Suggest a new feature or improvement
-title: " "
+title: 'Category: Short Description'
 labels: idea
 assignees: ''
 
 ---
 
-ONLY CREATE AN ISSUE AFTER YOU HAVE VERIFIED THAT NO SIMILAR IDEA EXISTS
+ONLY CREATE A NEW FEATURE REQUEST AFTER YOU HAVE VERIFIED THAT NO SIMILAR IDEA ALREADY EXISTS:
 
-Roadmap: https://github.com/photoprism/photoprism/projects/5
+- Roadmap: https://github.com/photoprism/photoprism/projects/5
+- Open Issues: https://github.com/photoprism/photoprism/issues
 
-Open Issues: https://github.com/photoprism/photoprism/issues
+Never use GitHub Issues if you are unsure, have a general question, or need assistance. Thank you! 🙃
 
-THANK YOU! 🙃
+You are welcome to use GitHub Discussions instead:
+https://github.com/photoprism/photoprism/discussions
 
 **Is your feature request related to a problem? Please describe.**
 
