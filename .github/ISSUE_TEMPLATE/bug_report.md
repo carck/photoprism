@@ -7,10 +7,10 @@ assignees: ''
 
 ---
 
-ONLY CREATE A NEW ISSUE AFTER YOU HAVE VERIFIED THAT NO SIMILAR OR RELATED ISSUE ALREADY EXISTS:
-https://github.com/photoprism/photoprism/issues
+## ONLY CREATE A NEW ISSUE AFTER YOU HAVE VERIFIED THAT NO SIMILAR OR RELATED ISSUE ALREADY EXISTS ##
+Existing Issues: https://github.com/photoprism/photoprism/issues
 
-Never use GitHub Issues if you are unsure, have a general question, or need assistance. Thank you! 💐
+Never use GitHub Issues if you have a general question, need help, or an issue has not (yet) been clearly identified. Thank you! 💐
 
 You are welcome to use GitHub Discussions instead:
 https://github.com/photoprism/photoprism/discussions
@@ -32,7 +32,7 @@ Steps to reproduce the behavior:
 3. Scroll down to '....'
 4. See error
 
-If reporting a performance or indexing issue, please include the number and type of pictures in your library,
+If reporting an Import, Indexing, or Performance issue, please include the number and type of pictures in your library,
 as well as any configuration options you have changed e.g. for thumbnail quality.
 
 **What behavior do you expect?**
@@ -41,7 +41,7 @@ A clear and concise description of what you expected to happen.
 
 **What could be the cause of your problem?**
 
-Before reporting a bug, try to determine the cause of your problem:
+Try to determine the cause of your problem before submitting a bug report:
 https://docs.photoprism.app/getting-started/troubleshooting/
 
 **Can you provide us with example files for testing, error logs, or screenshots?**
@@ -53,33 +53,40 @@ https://photoprism.app/contact
 Learn how to diagnose frontend issues:
 https://docs.photoprism.app/getting-started/troubleshooting/browsers/
 
-Always provide a sample file if it is a file, import or index issue, otherwise we will not be able to process your report.
+IMPORTANT: Always provide a sample file and logs if it is an Import, Indexing, or Metadata issue, otherwise we will not be able to process your report.
 
 **Which software versions do you use?**
 
-Your app version / build number can be found in *Settings* when you scroll to the bottom.
-
-- PhotoPrism Architecture & Build Number
-- Database Type & Version (MySQL or SQLite)
+- PhotoPrism Architecture & Build Number (AMD64, ARM64, ARMv7,...)
+- Database Type & Version (MariaDB, MySQL, SQLite,...)
 - Operating System Types & Versions (Linux, Windows, Android,...)
 - Browser Types & Versions (Firefox, Chrome, Safari on iPhone,...)
-- Browser Plugins (if any)
+- Browser Plugins & Ad Blockers (if any)
 
-Always provide PhotoPrism, Database, and Operating System details if it is a server, file, import or index issue, otherwise we will not be able to process your report.
+NOTE: The app version / build number can be found in *Settings* when you scroll to the bottom. MySQL 8 is not officially supported anymore, see FAQs and Release Notes.
 
-**What device is the backend running on?**
+IMPORTANT:
+1. Always provide database and operating system details if it is a Backend, Import, or Indexing issue.
+2. Always provide web browser and operating system details if it is a Frontend issue.
+3. If it is a Performance problem, you must provide ALL information.
 
-This is especially important if you are reporting a performance, timing, or indexing problem. You can skip this if you are reporting a problem found on our public demo, or if it is a completely unrelated issue, such as a broken page layout.
+**On what kind of device is PhotoPrism installed?**
 
-- Device / Processor Type (Raspberry Pi 4, AMD Ryzen, Intel,...)
-- Physical Memory incl Swap Space (in GB)
+This is especially important if you are reporting a Performance, Import, or Indexing problem. You can skip this if you are reporting a problem found on our public demo, or if it is a completely unrelated issue, such as a broken page layout.
+
+- Device / Processor Type (Raspberry Pi 4, Intel Core i7-3770, AMD Ryzen 7 3800X,...)
+- Physical Memory & Swap Space (in GB)
 - Storage Type (HDD, SSD, RAID, USB, Network Storage,...) 
 - anything else that might be helpful
 
-Always provide Device, Memory, and Storage details if it is a server, file, import or index issue, otherwise we will not be able to process your report.
+IMPORTANT: Always provide device, memory, and storage details when you have a Backend, Performance, Import, or Indexing issue.
 
-**Do you use a proxy, load balancer, firewall, VPN, or CDN?**
+**Do you use a Reverse Proxy, Firewall, VPN, or CDN?**
 
 If yes, please specify type and version. You can skip this if you are reporting a completely unrelated issue.
 
-NOTE THAT INCOMPLETE REPORTS CANNOT BE PROCESSED
+IMPORTANT:
+1. Always provide this information when you have a Reliability, Performance, or Frontend problem, such as failed uploads, connection errors, broken thumbnails, or video playback issues.
+2. If you are using NGINX, also provide its configuration and/or consider asking the NGINX community for advice as we do not specialize in supporting their product: https://docs.photoprism.app/getting-started/proxies/nginx/
+
+# INCOMPLETE REPORTS CANNOT BE PROCESSED ☹️ #

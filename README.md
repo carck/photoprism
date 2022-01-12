@@ -72,7 +72,7 @@ It provides additional motivation to keep going.
 
 ## Getting Support ##
 
-Before reporting a bug, please use our [Troubleshooting Checklists](https://docs.photoprism.app/getting-started/troubleshooting/)
+Before submitting a support request, please use our [Troubleshooting Checklists](https://docs.photoprism.app/getting-started/troubleshooting/)
 to determine the cause of your problem. If this doesn't help, or you have other questions:
 
 - you are welcome to ask in our [Community Chat](https://gitter.im/browseyourlife/community)
@@ -111,8 +111,7 @@ Our [Code of Conduct](CODE_OF_CONDUCT.md) explains the "dos and don’ts."
 
 ## Contributions ##
 
-We welcome contributions of any kind, including bug reports, testing, writing documentation, 
-tutorials, blog posts, and pull requests.
+We welcome contributions of any kind, including blog posts, tutorials, testing, writing documentation, and pull requests.
 
 The [Developer Guide](https://docs.photoprism.app/developer-guide/) contains all information
 necessary to get you started.
