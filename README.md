@@ -15,7 +15,7 @@ You can run it at home, on a private server, or in the cloud.
 
 ![](https://dl.photoprism.app/img/ui/desktop-1000px.jpg)
 
-To get a first impression, you're welcome to play with our public demo at [demo.photoprism.app](https://demo.photoprism.app/) 
+To get a first impression, you are welcome to play with our public demo at [demo.photoprism.app](https://demo.photoprism.app/) 
 (also available in [Deutsch](https://demo-de.photoprism.app/), [Français](https://demo-fr.photoprism.app/), and [汉语](https://demo-zh.photoprism.app/)).
 
 ## Feature Overview ##
@@ -65,7 +65,7 @@ We currently have the following sponsorship options:
 - [GitHub Sponsors](https://github.com/sponsors/photoprism) is priced in USD and also offers [one-time donations](https://github.com/sponsors/photoprism?frequency=one-time)
 - [Patreon](https://www.patreon.com/photoprism) is priced in Euro and also offers yearly payments
 - Stripe will be available in early 2022, so you can sign up directly in the app without having a Patreon or GitHub account
-- You're welcome to [contact us](https://photoprism.app/contact) for [other options](SPONSORS.md#crypto-wallets)
+- You are welcome to [contact us](https://photoprism.app/contact) for [other options](SPONSORS.md#crypto-wallets)
 
 Also, please [leave a star](https://github.com/photoprism/photoprism/stargazers) on GitHub if you like this project.
 It provides additional motivation to keep going.
@@ -75,8 +75,9 @@ It provides additional motivation to keep going.
 Before submitting a support request, please use our [Troubleshooting Checklists](https://docs.photoprism.app/getting-started/troubleshooting/)
 to determine the cause of your problem. If this doesn't help, or you have other questions:
 
-- you are welcome to ask in our [Community Chat](https://gitter.im/browseyourlife/community)
-- and post your question in [GitHub Discussions](https://github.com/photoprism/photoprism/discussions)
+- you are welcome to join us on [Reddit](https://www.reddit.com/r/photoprism/)
+- post your question in [GitHub Discussions](https://github.com/photoprism/photoprism/discussions)
+- ask in our [Community Chat](https://gitter.im/browseyourlife/community)
 
 In addition, [sponsors](https://github.com/photoprism/photoprism/blob/develop/SPONSORS.md) receive direct
 [technical support](https://photoprism.app/contact) via email.
@@ -87,7 +88,7 @@ Think of "free software" as in "free speech," not as in "free beer". Thank you! 
 
 **When reporting a problem, always include the software versions you are using and [other information about your environment](https://github.com/photoprism/photoprism/blob/develop/.github/ISSUE_TEMPLATE/bug_report.md) such as [browser](https://docs.photoprism.app/getting-started/troubleshooting/browsers/), browser plugins, operating system, storage type, memory size, and processor.**
 
-## Roadmap ##
+## Upcoming Features and Improvements ##
 
 Our vision is to provide the most user- and privacy-friendly solution to keep your pictures organized and accessible.
 The [roadmap](https://github.com/photoprism/photoprism/projects/5) shows what tasks are in progress, 
@@ -109,23 +110,10 @@ Follow us on [Twitter](https://twitter.com/photoprism_app) or join our [Communit
 to get regular updates, connect with other users, and discuss your ideas.
 Our [Code of Conduct](CODE_OF_CONDUCT.md) explains the "dos and don’ts."
 
-## Contributions ##
+## Every Contribution Makes a Difference ##
 
 We welcome contributions of any kind, including blog posts, tutorials, testing, writing documentation, and pull requests.
-
-The [Developer Guide](https://docs.photoprism.app/developer-guide/) contains all information
-necessary to get you started.
-Issues labeled [help wanted](https://github.com/photoprism/photoprism/labels/help%20wanted) /
-[easy](https://github.com/photoprism/photoprism/labels/easy) can be good (first) contributions.
-
-Because we want to create the best possible product for our users,
-we have a [set of guidelines](https://docs.photoprism.app/developer-guide/pull-requests)
-to ensure that all source code submissions are acceptable.
-They include step-by-step instructions for submitting new features,
-bug fixes, and documentation improvements.
-
-**Reviewing, testing and finally merging pull requests requires significant resources
-on our side. If it's not just a small fix, it can take several months.**
+[The Developer Guide contains all the information necessary for you to get started.](https://docs.photoprism.app/developer-guide/)
 
 ## PhotoPrism® Trademark ##
 
@@ -133,3 +121,8 @@ Our [Trademark and Brand Guidelines](https://photoprism.app/trademark), which ma
 from time to time, describe how our Brand Assets may be used. It is important to us that any 
 permitted use of our Brand Assets is fair and meets the highest standards. To ensure this, 
 we reserve the right to object to any use or misuse in any jurisdiction worldwide.
+
+## We Love Feedback ##
+
+An important part of our journey is to explore new ways in product development and build better software through simplicity
+and consistent use of community feedback. You are always [welcome to share your thoughts](https://photoprism.app/contact) with us.
