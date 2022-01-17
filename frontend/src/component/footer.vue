@@ -2,17 +2,13 @@
   <v-card flat tile class="ma-0 pa-0 application p-about-footer">
     <v-card-actions class="px-4 py-2">
       <v-layout wrap align-top pt-3>
-        <v-flex xs12 sm6 class="px-0 pb-2 body-1">
-          <router-link to="/about">
-            PhotoPrism®
-            {{ $config.get("version") }}
-            <br>© 2018-2022 Michael Mayer
-          </router-link>
+        <v-flex xs12 sm6 class="px-0 pb-2 body-1 text-selectable">
+          PhotoPrism® {{ $config.get("version") }}<br>
+          <router-link to="/about">© 2018-2022 Michael Mayer</router-link>
         </v-flex>
 
         <v-flex xs12 sm6 class="px-0 pb-2 body-1 text-xs-left text-sm-right">
-          <a href="https://docs.photoprism.app/credits/"
-             target="_blank">Thank you</a> to everyone who made this possible!
+          <a href="https://photoprism.app/team/" target="_blank">100% self-funded and independent</a>
           <br>
           <a href="https://raw.githubusercontent.com/photoprism/photoprism/develop/NOTICE"
              target="_blank">
