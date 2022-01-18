@@ -54,7 +54,7 @@ available at [dl.photoprism.app/docker](https://dl.photoprism.app/docker/).
 
 ## Back us on [Patreon](https://www.patreon.com/photoprism) or [GitHub Sponsors](https://github.com/sponsors/photoprism) 💎 ##
 
-Your continued support helps us provide [regular updates](https://docs.photoprism.app/release-notes/)
+**PhotoPrism is 100% self-funded and independent.** Your continued support helps us provide [regular updates](https://docs.photoprism.app/release-notes/)
 and services like [world maps](https://demo.photoprism.app/places).
 Sponsors get access to [additional features](https://github.com/photoprism/photoprism/issues?q=label%3Asponsor-feature),
 receive direct [technical support](https://photoprism.app/contact) via email, and can join our private chat room 
@@ -72,7 +72,7 @@ It provides additional motivation to keep going.
 
 ## Upcoming Features and Improvements ##
 
-Our vision is to provide the most user- and privacy-friendly solution to keep your pictures organized and accessible.
+**Our vision is to provide the most user- and privacy-friendly solution to keep your pictures organized and accessible.**
 The [roadmap](https://github.com/photoprism/photoprism/projects/5) shows what tasks are in progress,
 what needs testing, and which features are going to be implemented next.
 Please give ideas you like a thumbs-up 👍  , so that we know what is most popular.
@@ -104,26 +104,25 @@ Think of "free software" as in "free speech," not as in "free beer". Thank you! 
 
 ### GitHub Issues ###
 
-Don't report a bug unless you are sure you found a new problem that must be fixed directly in the app:
+**We kindly ask you not to report bugs via GitHub Issues unless you are certain to have found a new issue that must be
+fixed directly in the app.** [Contact us](https://photoprism.app/contact) or [a community member](https://github.com/photoprism/photoprism/discussions) if you need help, it could
+be a local configuration problem, or a misunderstanding in how the software works. This gives our team the opportunity
+to [improve the documentation](https://docs.photoprism.app/getting-started/troubleshooting/) and provide best-in-class
+support to you, instead of handling unclear and/or duplicate bug reports.
 
-- Ask for [technical support](https://photoprism.app/contact) if you need help, it could be a local configuration issue, or a misunderstanding in how the software works
-- This gives our team the opportunity to [improve the documentation](https://docs.photoprism.app/getting-started/troubleshooting/) and provide best-in-class support to you, instead of handling incomplete and/or duplicate bug reports
-- When reporting a problem, always include the software versions you are using and other information about your environment such as [browser, browser plugins](https://docs.photoprism.app/getting-started/troubleshooting/browsers/), operating system, storage type, memory size, and processor
-
-## Questions?
+## Join the Community ##
 
 Follow us on [Twitter](https://twitter.com/photoprism_app) and join the [Community Chat](https://gitter.im/browseyourlife/community)
 to get regular updates, connect with other users, and discuss your ideas.
 Our [Code of Conduct](CODE_OF_CONDUCT.md) explains the "dos and don’ts."
 
-An important part of our journey is to explore new ways in product development and build better software through simplicity
-and consistent use of community feedback. Feel free to [share your thoughts](https://photoprism.app/contact) with us at any time.
+An important part of our journey is to explore new ways in product development and build better software through consistent use of community feedback. Feel free to [share your thoughts](https://photoprism.app/contact) with us at any time.
 
 ## Every Contribution Makes a Difference ##
 
-We welcome contributions of any kind, including blog posts, tutorials, testing, writing documentation, and pull requests. Our [Developer Guide](https://docs.photoprism.app/developer-guide/) contains all the information necessary for you to get started.
+We welcome [contributions](CONTRIBUTING.md) of any kind, including blog posts, tutorials, testing, writing documentation, and pull requests. Our [Developer Guide](https://docs.photoprism.app/developer-guide/) contains all the information necessary for you to get started.
 
 ----
 
-*PhotoPrism® is a registered trademark. Our [Trademark and Brand Guidelines](https://photoprism.app/trademark), which may be updated from time to time, describe how our Brand Assets may be used. It is important to us that any permitted use of our Brand Assets is fair and meets the highest standards. To ensure this, we reserve the right to object to any use or misuse in any jurisdiction worldwide.*
+*PhotoPrism® is a registered trademark. Our [Trademark and Brand Guidelines](https://photoprism.app/trademark), which may be updated from time to time, describe how our Brand Assets may be used. It is important to us that any permitted use of our Brand Assets is fair and meets the highest standards.*
 

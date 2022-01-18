@@ -41,7 +41,7 @@
         <translate>Also, please leave a star on GitHub if you like this project. It provides additional motivation to keep going.</translate>
         </a>
       </p>
-      <h2 class="mt-4 mb-2 subheading">
+      <h2 class="mt-4 mb-2 body-2 lh-17">
         <translate>Getting Support</translate>
       </h2>
       <p class="body-1">
@@ -60,8 +60,6 @@
       </p>
       <p class="body-1 pb-2">
         <translate>We'll do our best to answer all your questions. In return, we ask you to back us on Patreon or GitHub Sponsors.</translate>
-        <translate>Think of "free software" as in "free speech," not as in "free beer".</translate>
-        <translate>Thank you!</translate> 💜
       </p>
 
       <p class="text-xs-center pt-2 ma-0 pb-0">
@@ -88,7 +86,6 @@
         PhotoPrism® is a registered trademark. Our Trademark and Brand Guidelines,
         which may be updated from time to time, describe how our Brand Assets may be used.
         It is important to us that any permitted use of our Brand Assets is fair and meets the highest standards.
-        To ensure this, we reserve the right to object to any use or misuse in any jurisdiction worldwide.
         Visit photoprism.app/trademark to learn more.
         </a>
       </p>

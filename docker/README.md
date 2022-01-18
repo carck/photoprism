@@ -18,8 +18,8 @@ can be easily made available to users via Internet. It provides a common standar
 systems and devices, which saves our team a lot of time that we can then spend [more effectively](https://docs.photoprism.app/developer-guide/issues/#effectiveness-efficiency), for example,
 providing support and developing one of the many features that users are waiting for.
 
-Human-readable and versioned Dockerfiles as part of our public source code also help avoid surprises and
-"works for me" moments by enabling us to have the exact same environment everywhere in [development](develop/Dockerfile)
+Human-readable and versioned Dockerfiles as part of our public source code also help avoid "works for me" moments and
+other unwelcome surprises by enabling us to have the exact same environment everywhere in [development](develop/Dockerfile)
 and [production](photoprism/Dockerfile).
 
 Last but not least, virtually all file format parsers have vulnerabilities that just haven't been discovered yet.
@@ -50,15 +50,16 @@ Missing build dependencies must be installed manually as shown in our human-read
 [Dockerfile](https://github.com/photoprism/photoprism/blob/develop/docker/develop/Dockerfile). You often don't
 need to use the exact same versions, so it's possible to replace packages with what is available in your environment.
 
-Note we don't have the resources to provide private users with dependencies and [TensorFlow libraries](https://dl.photoprism.app/tensorflow/) for their personal
-environments. We therefore recommend learning Docker if your operating system supports it. Docker vastly simplifies
-installation and upgrades. It saves our team a lot of time that we can then spend [more effectively](https://docs.photoprism.app/developer-guide/issues/#effectiveness-efficiency).
+Please note that we do not have the resources to provide private users with dependencies and
+[TensorFlow libraries](https://dl.photoprism.app/tensorflow/) for their personal environments. We recommend giving
+Docker a try if you use Linux as it saves developers a lot of time when building, testing, and deploying complex
+applications like PhotoPrism. It also effectively helps avoid "works for me" moments and missing dependencies.
 
 ### Installation Packages ###
 
 Developers are invited to [contribute by building and testing standalone packages](https://docs.photoprism.app/developer-guide/)
-for Linux distributions and other operating systems. New versions are [released several times a month](https://docs.photoprism.app/release-notes/), and testing
-the long list of dependencies in multiple environments would [absorb much of our resources](https://docs.photoprism.app/funding/).
+for Linux distributions and other operating systems. New versions are [released several times a month](https://docs.photoprism.app/release-notes/),
+so maintaining and testing the long list of dependencies in multiple environments would [consume much of our resources](https://docs.photoprism.app/funding/).
 
 ### BSD Ports 😈 ###
 
