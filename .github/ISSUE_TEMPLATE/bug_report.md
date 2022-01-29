@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-## We kindly ask you not to report a bug unless you are certain to have found a new issue that must be fixed directly in the application source code ##
+## We kindly ask you not to report a bug unless you are certain to have found a fully reproducible and previously unreported issue that must be fixed directly in the application source code ##
 
 Contact us or a community member if you need help, it could be a local configuration problem, or a misunderstanding in how the software works.
 
@@ -61,7 +61,8 @@ Learn how to diagnose frontend issues:
 https://docs.photoprism.app/getting-started/troubleshooting/browsers/
 
 NOTE:
-- Always provide a sample file and logs if it is an Import, Indexing, or Metadata issue, otherwise we will not be able to process your report
+- You have to provide sample files and logs if it is an IMPORT, INDEXING, or METADATA issue, otherwise we will not be able to process your report
+- If it is an IMPORT issue, please also provide an archive with affected files before importing them so that it's possible to reproduce your issue
 
 **Which software versions do you use?**
 

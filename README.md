@@ -65,7 +65,7 @@ We currently have the following sponsorship options:
 - [GitHub Sponsors](https://github.com/sponsors/photoprism) is priced in USD and also offers [one-time donations](https://github.com/sponsors/photoprism?frequency=one-time)
 - [Patreon](https://www.patreon.com/photoprism) is priced in Euro and also offers yearly payments
 - Stripe will be available in early 2022, so you can sign up directly in the app without having a Patreon or GitHub account
-- You are welcome to [contact us](https://photoprism.app/contact) for [other options](SPONSORS.md#crypto-wallets)
+- you are welcome to [contact us](https://photoprism.app/contact) for [other options](SPONSORS.md#crypto-wallets)
 
 Also, please [leave a star](https://github.com/photoprism/photoprism/stargazers) on GitHub if you like this project.
 It provides additional motivation to keep going.
@@ -104,9 +104,10 @@ Think of "free software" as in "free speech," not as in "free beer". Thank you! 
 
 ### GitHub Issues ###
 
-We kindly ask you not to report bugs via GitHub Issues unless you are certain to have found a new issue that must be
-fixed directly in the app. [Contact us](https://photoprism.app/contact) or [a community member](https://github.com/photoprism/photoprism/discussions) if you need help, it could
-be a local configuration problem, or a misunderstanding in how the software works. This gives our team the opportunity
+We kindly ask you not to report bugs via GitHub Issues unless you are certain to have found a fully reproducible and
+previously unreported issue that must be fixed directly in the app. [Contact us](https://photoprism.app/contact)
+or [a community member](https://github.com/photoprism/photoprism/discussions) if you need help, it could be a local
+configuration problem, or a misunderstanding in how the software works. This gives our team the opportunity
 to [improve the documentation](https://docs.photoprism.app/getting-started/troubleshooting/) and provide best-in-class
 support to you, instead of handling unclear and/or duplicate bug reports.
 
