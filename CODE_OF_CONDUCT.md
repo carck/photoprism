@@ -1,6 +1,7 @@
 # Code of Conduct
 
 ## Rules ##
+<img align="right" width="25%" src="https://da.photoprism.app/no-trolling/original.svg">
 
 To keep it simple, we only have three basic rules:
 
@@ -13,7 +14,7 @@ To keep it simple, we only have three basic rules:
 The following non-exhaustive list provides specific guidelines and examples:
 
 - be respectful, be responsible, be kind
-- avoid asking for deadlines
+- avoid asking for [deadlines](https://docs.photoprism.app/developer-guide/code-quality/#go-slow-before-you-go-fast)
 - don't feel entitled to free support, advice, or features if you are not a [contributor](https://docs.photoprism.app/developer-guide/), [sponsor](https://docs.photoprism.app/funding/), or paying customer
 - before reporting a bug, try to [determine the cause of your problem](https://docs.photoprism.app/getting-started/troubleshooting/)
 - if you have a [general question](https://github.com/photoprism/photoprism/discussions) or need [technical support](https://docs.photoprism.app/user-guide/#getting-support), don't use GitHub Issues
