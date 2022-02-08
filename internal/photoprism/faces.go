@@ -34,6 +34,24 @@ func (w *Faces) StartDefault() (err error) {
 	})
 }
 
+func (w *Faces) DoMatch(opt FacesOptions) {
+	var start time.Time
+
+	start = time.Now()
+	matches, err := w.Match(opt)
+
+	if err != nil {
+		log.Errorf("faces: %s (match)", err)
+	}
+
+	// Log face matching results.
+	if matches.Updated > 0 {
+		log.Infof("faces: updated %s, recognized %s, %d unknown [%s]", english.Plural(int(matches.Updated), "marker", "markers"), english.Plural(int(matches.Recognized), "face", "faces"), matches.Unknown, time.Since(start))
+	} else {
+		log.Debugf("faces: updated %s, recognized %s, %d unknown [%s]", english.Plural(int(matches.Updated), "marker", "markers"), english.Plural(int(matches.Recognized), "face", "faces"), matches.Unknown, time.Since(start))
+	}
+}
+
 // Start face clustering and matching.
 func (w *Faces) Start(opt FacesOptions) (err error) {
 	defer func() {
@@ -95,6 +113,8 @@ func (w *Faces) Start(opt FacesOptions) (err error) {
 		log.Debugf("faces: found no clusters to be merged [%s]", time.Since(start))
 	}
 
+	w.DoMatch(opt)
+
 	var added entity.Faces
 
 	// Cluster existing face embeddings.
@@ -108,19 +128,7 @@ func (w *Faces) Start(opt FacesOptions) (err error) {
 	}
 
 	// Match markers with faces and subjects.
-	start = time.Now()
-	matches, err := w.Match(opt)
-
-	if err != nil {
-		log.Errorf("faces: %s (match)", err)
-	}
-
-	// Log face matching results.
-	if matches.Updated > 0 {
-		log.Infof("faces: updated %s, recognized %s, %d unknown [%s]", english.Plural(int(matches.Updated), "marker", "markers"), english.Plural(int(matches.Recognized), "face", "faces"), matches.Unknown, time.Since(start))
-	} else {
-		log.Debugf("faces: updated %s, recognized %s, %d unknown [%s]", english.Plural(int(matches.Updated), "marker", "markers"), english.Plural(int(matches.Recognized), "face", "faces"), matches.Unknown, time.Since(start))
-	}
+	w.DoMatch(opt)
 
 	// Remove unused people.
 	start = time.Now()

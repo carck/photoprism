@@ -46,7 +46,7 @@ func (w *Faces) Match(opt FacesOptions) (result FacesMatchResult, err error) {
 	if opt.Force || unmatchedMarkers > 0 {
 		faces, err := query.Faces(false, false, false)
 
-		if err != nil {
+		if err != nil || len(faces) == 0 {
 			return result, err
 		}
 
