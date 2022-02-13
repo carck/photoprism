@@ -42,14 +42,10 @@ fmt: fmt-js fmt-go
 upgrade: dep-upgrade-js dep-upgrade
 clean-local: clean-local-config clean-local-cache
 clean-install: clean-local dep build-js install-bin install-assets
-dev: dev-npm dev-go-amd64
-dev-npm:
-	$(info Upgrading NPM in local dev environment...)
+dev: npm install-go-amd64
+npm:
+	$(info Upgrading NPM version...)
 	sudo npm update -g npm
-dev-go-amd64:
-	$(info Installing Go in local AMD64 dev environment...)
-	sudo docker/scripts/install-go.sh amd64
-	go build -v ./...
 acceptance-restart:
 	cp -f storage/acceptance/backup.db storage/acceptance/index.db
 	cp -f storage/acceptance/config/settingsBackup.yml storage/acceptance/config/settings.yml
@@ -87,6 +83,10 @@ generate:
 	@if [ ${$(shell git diff --shortstat assets/locales/messages.pot):1:45} == $(POT_UNCHANGED) ]; then\
 		git checkout -- assets/locales/messages.pot;\
 	fi
+install-go-amd64:
+	$(info Installing Go (AMD64)...)
+	sudo docker/scripts/install-go.sh amd64
+	go build -v ./...
 install-bin:
 	scripts/build.sh prod ~/.local/bin/$(BINARY_NAME)
 install-assets:
@@ -210,6 +210,10 @@ docker-preview:
 	scripts/docker/multiarch.sh photoprism linux/amd64,linux/arm64
 docker-release:
 	scripts/docker/multiarch.sh photoprism linux/amd64,linux/arm64 $(DOCKER_TAG)
+docker-arm64-preview:
+	scripts/docker/arch.sh photoprism linux/arm64 arm64-preview
+docker-arm64-release:
+	scripts/docker/arch.sh photoprism linux/arm64 arm64
 docker-armv7-develop:
 	docker pull --platform=arm ubuntu:21.10
 	scripts/docker/arch.sh develop linux/arm armv7 /armv7

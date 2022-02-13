@@ -1,5 +1,5 @@
 ##################################################### BUILD STAGE ######################################################
-FROM photoprism/develop:20220202 as build
+FROM photoprism/develop:20220213 as build
 
 ARG TARGETARCH
 ARG TARGETPLATFORM
@@ -12,7 +12,7 @@ WORKDIR "/go/src/github.com/photoprism/photoprism"
 COPY . .
 
 # Build frontend and backend
-RUN make dep build-js install
+RUN make npm dep build-js install
 
 ################################################## PRODUCTION STAGE ####################################################
 FROM ubuntu:21.10
