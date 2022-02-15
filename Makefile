@@ -202,37 +202,56 @@ clean:
 	rm -rf storage/backup
 	rm -rf storage/cache
 	rm -rf frontend/node_modules
-docker-develop:
+docker-develop: docker-develop-impish docker-develop-buster docker-develop-bullseye
+docker-develop-impish:
 	docker pull --platform=amd64 ubuntu:21.10
 	docker pull --platform=arm64 ubuntu:21.10
-	scripts/docker/multiarch.sh develop linux/amd64,linux/arm64 $(DOCKER_TAG)
-docker-preview:
-	scripts/docker/multiarch.sh photoprism linux/amd64,linux/arm64
-docker-release:
-	scripts/docker/multiarch.sh photoprism linux/amd64,linux/arm64 $(DOCKER_TAG)
+	scripts/docker/buildx-multi.sh develop linux/amd64,linux/arm64 $(DOCKER_TAG)
+docker-develop-buster:
+	docker pull --platform=amd64 golang:buster
+	docker pull --platform=arm64 golang:buster
+	scripts/docker/buildx-multi.sh develop linux/amd64,linux/arm64 buster /buster
+docker-develop-bullseye:
+	docker pull --platform=amd64 golang:bullseye
+	docker pull --platform=arm64 golang:bullseye
+	scripts/docker/buildx-multi.sh develop linux/amd64,linux/arm64 bullseye /bullseye
+docker-preview: docker-preview-impish docker-preview-buster docker-preview-bullseye
+docker-preview-impish:
+	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64
+docker-preview-buster:
+	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64 preview-buster /buster
+docker-preview-bullseye:
+	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64 preview-bullseye /bullseye
+docker-release: docker-release-impish docker-release-buster docker-release-bullseye
+docker-release-impish:
+	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64 $(DOCKER_TAG)
+docker-release-buster:
+	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64 buster /buster
+docker-release-bullseye:
+	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64 bullseye /bullseye
 docker-arm64-preview:
-	scripts/docker/arch.sh photoprism linux/arm64 arm64-preview
+	scripts/docker/buildx.sh photoprism linux/arm64 preview-arm64
 docker-arm64-release:
-	scripts/docker/arch.sh photoprism linux/arm64 arm64
+	scripts/docker/buildx.sh photoprism linux/arm64 arm64
 docker-armv7-develop:
 	docker pull --platform=arm ubuntu:21.10
-	scripts/docker/arch.sh develop linux/arm armv7 /armv7
+	scripts/docker/buildx.sh develop linux/arm armv7 /armv7
 docker-armv7-preview:
 	docker pull --platform=arm photoprism/develop:armv7
-	scripts/docker/arch.sh photoprism linux/arm armv7-preview /armv7
+	scripts/docker/buildx.sh photoprism linux/arm preview-armv7 /armv7
 docker-armv7-release:
 	docker pull --platform=arm photoprism/develop:armv7
-	scripts/docker/arch.sh photoprism linux/arm armv7 /armv7
+	scripts/docker/buildx.sh photoprism linux/arm armv7 /armv7
 docker-local:
 	scripts/docker/build.sh photoprism
 docker-pull:
 	docker pull photoprism/photoprism:preview photoprism/photoprism:latest
 docker-ddns:
 	docker pull golang:alpine
-	scripts/docker/multiarch.sh ddns linux/amd64,linux/arm64 $(DOCKER_TAG)
+	scripts/docker/buildx-multi.sh ddns linux/amd64,linux/arm64 $(DOCKER_TAG)
 docker-goproxy:
 	docker pull golang:alpine
-	scripts/docker/multiarch.sh goproxy linux/amd64,linux/arm64 $(DOCKER_TAG)
+	scripts/docker/buildx-multi.sh goproxy linux/amd64,linux/arm64 $(DOCKER_TAG)
 docker-demo:
 	scripts/docker/build.sh demo $(DOCKER_TAG)
 	scripts/docker/push.sh demo $(DOCKER_TAG)
@@ -243,11 +262,11 @@ docker-demo-local:
 docker-dummy-webdav:
 	docker pull --platform=amd64 golang:1
 	docker pull --platform=arm64 golang:1
-	scripts/docker/multiarch.sh dummy-webdav linux/amd64,linux/arm64 $(DOCKER_TAG)
+	scripts/docker/buildx-multi.sh dummy-webdav linux/amd64,linux/arm64 $(DOCKER_TAG)
 docker-dummy-oidc:
 	docker pull --platform=amd64 golang:1
 	docker pull --platform=arm64 golang:1
-	scripts/docker/multiarch.sh dummy-oidc linux/amd64,linux/arm64 $(DOCKER_TAG)
+	scripts/docker/buildx-multi.sh dummy-oidc linux/amd64,linux/arm64 $(DOCKER_TAG)
 packer-digitalocean:
 	$(info Buildinng DigitalOcean marketplace image...)
 	(cd ./docker/examples/cloud && packer build digitalocean.json)

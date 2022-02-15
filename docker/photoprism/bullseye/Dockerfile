@@ -1,5 +1,5 @@
 ##################################################### BUILD STAGE ######################################################
-FROM photoprism/develop:20220215 as build
+FROM photoprism/develop:20220215-bullseye as build
 
 ARG TARGETARCH
 ARG TARGETPLATFORM
@@ -15,7 +15,7 @@ COPY . .
 RUN make npm dep build-js install
 
 ################################################## PRODUCTION STAGE ####################################################
-FROM ubuntu:21.10
+FROM debian:bullseye-slim
 
 LABEL maintainer="Michael Mayer <hello@photoprism.app>"
 
@@ -32,6 +32,9 @@ RUN echo 'Acquire::Retries "10";' > /etc/apt/apt.conf.d/80retry && \
     echo 'APT::Install-Suggests "false";' > /etc/apt/apt.conf.d/80suggests && \
     echo 'APT::Get::Assume-Yes "true";' > /etc/apt/apt.conf.d/80forceyes && \
     echo 'APT::Get::Fix-Missing "true";' > /etc/apt/apt.conf.d/80fixmissing
+
+# copy backports sources
+COPY --chown=root:root --chmod=644 /docker/develop/bullseye/backports.list /etc/apt/sources.list.d/backports.list
 
 # Install additional distribution packages
 RUN apt-get update && apt-get -qq dist-upgrade && apt-get -qq install --no-install-recommends \
@@ -57,7 +60,7 @@ RUN apt-get update && apt-get -qq dist-upgrade && apt-get -qq install --no-insta
     ffmpeg \
     ffmpegthumbnailer \
     libavcodec-extra  && \
-    [ "$TARGETARCH" = "arm" ] || apt-get -y install darktable; \
+    [ "$TARGETARCH" = "arm" ] || apt-get -qq install -t bullseye-backports darktable && \; \
     apt-get -y autoremove && apt-get -y autoclean && apt-get -y clean && rm -rf /var/lib/apt/lists/*
 
 # Set environment variables, see https://docs.photoprism.app/getting-started/config-options/
