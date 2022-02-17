@@ -1,4 +1,5 @@
-FROM ubuntu:21.10
+#### Ubuntu 21.10 (Impish Indri)
+FROM ubuntu:impish
 
 LABEL maintainer="Michael Mayer <hello@photoprism.app>"
 
@@ -8,7 +9,7 @@ ARG BUILD_TAG
 ARG GOPROXY
 ARG GODEBUG
 
-# Set environment variables
+# set environment variables
 ENV DEBIAN_FRONTEND="noninteractive" \
     TMPDIR="/tmp" \
     LD_LIBRARY_PATH="/root/.local/lib:/usr/local/lib:/usr/lib:/lib" \
@@ -20,14 +21,14 @@ ENV DEBIAN_FRONTEND="noninteractive" \
     GO111MODULE="on" \
     CGO_CFLAGS="-g -O2 -Wno-return-local-addr"
 
-# Configure apt
+# configure apt
 RUN echo 'Acquire::Retries "10";' > /etc/apt/apt.conf.d/80retry && \
     echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/80recommends && \
     echo 'APT::Install-Suggests "false";' > /etc/apt/apt.conf.d/80suggests && \
     echo 'APT::Get::Assume-Yes "true";' > /etc/apt/apt.conf.d/80forceyes && \
     echo 'APT::Get::Fix-Missing "true";' > /etc/apt/apt.conf.d/80fixmissing
 
-# Copy scripts to /root/.local/bin
+# copy scripts to /root/.local/bin
 COPY --chown=root:root --chmod=755 /docker/scripts/*.sh /root/.local/bin/
 
 # update image and install build dependencies
@@ -36,6 +37,8 @@ RUN apt-get update && apt-get -qq dist-upgrade && apt-get -qq install --no-insta
     gpg-agent \
     ca-certificates \
     build-essential \
+    g++ \
+    gcc \
     bash \
     make \
     nano \
@@ -43,9 +46,11 @@ RUN apt-get update && apt-get -qq dist-upgrade && apt-get -qq install --no-insta
     curl \
     git \
     gettext \
+    firefox \
     mariadb-client \
     davfs2 \
     chrpath \
+    libc6-dev \
     libssl-dev \
     libxft-dev \
     libfreetype6 \
@@ -65,13 +70,9 @@ RUN apt-get update && apt-get -qq dist-upgrade && apt-get -qq install --no-insta
     rsync \
     unzip \
     zip \
-    g++ \
-    gcc \
-    libc6-dev \
     sqlite3 \
     tzdata \
     gconf-service \
-    firefox \
     libheif-examples \
     exiftool \
     rawtherapee \

@@ -7,40 +7,40 @@ ARG BUILD_TAG
 ARG GOPROXY
 ARG GODEBUG
 
-# Set up project directory
+# set up project directory
 WORKDIR "/go/src/github.com/photoprism/photoprism"
 COPY . .
 
-# Build frontend and backend
+# build frontend and backend
 RUN make npm dep build-js install
 
 ################################################## PRODUCTION STAGE ####################################################
-FROM ubuntu:21.10
+#### Debian 11 (Bullseye)
+FROM debian:bullseye-slim
 
-LABEL maintainer="Michael Mayer <hello@photoprism.org>"
+LABEL maintainer="Michael Mayer <hello@photoprism.app>"
 
 ARG TARGETARCH
 ARG TARGETPLATFORM
 
-# Set environment variables
+# set environment variables
 ENV DEBIAN_FRONTEND="noninteractive" \
     TMPDIR="/tmp"
 
-# Configure apt
+# configure apt
 RUN echo 'Acquire::Retries "10";' > /etc/apt/apt.conf.d/80retry && \
     echo 'APT::Install-Recommends "false";' > /etc/apt/apt.conf.d/80recommends && \
     echo 'APT::Install-Suggests "false";' > /etc/apt/apt.conf.d/80suggests && \
     echo 'APT::Get::Assume-Yes "true";' > /etc/apt/apt.conf.d/80forceyes && \
     echo 'APT::Get::Fix-Missing "true";' > /etc/apt/apt.conf.d/80fixmissing
 
-# Install additional distribution packages
+# install additional distribution packages
 RUN apt-get update && apt-get -qq dist-upgrade && apt-get -qq install --no-install-recommends \
+    ca-certificates \
     gpgv \
     wget \
     curl \
     make \
-    davfs2 \
-    ca-certificates \
     mariadb-client \
     sqlite3 \
     tzdata \
@@ -48,10 +48,6 @@ RUN apt-get update && apt-get -qq dist-upgrade && apt-get -qq install --no-insta
     libatomic1 \
     libheif-examples \
     librsvg2-bin \
-    gnupg \
-    gpg-agent \
-    apt-utils \
-    add-apt-key \
     exiftool \
     rawtherapee \
     ffmpeg \
@@ -59,7 +55,7 @@ RUN apt-get update && apt-get -qq dist-upgrade && apt-get -qq install --no-insta
     libavcodec-extra && \
     apt-get -y autoremove && apt-get -y autoclean && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Set environment variables, see https://docs.photoprism.app/getting-started/config-options/
+# set environment variables, see https://docs.photoprism.app/getting-started/config-options/
 ENV TF_CPP_MIN_LOG_LEVEL="2" \
     PATH="/photoprism/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
     PHOTOPRISM_ASSETS_PATH="/photoprism/assets" \
@@ -108,24 +104,25 @@ ENV TF_CPP_MIN_LOG_LEVEL="2" \
     PHOTOPRISM_AUTO_INDEX=300 \
     PHOTOPRISM_AUTO_IMPORT=300
 
-# Copy dependencies
+# copy dependencies
 COPY --from=build /go/bin/gosu /bin/gosu
 COPY --from=build /usr/lib/libtensorflow.so /usr/lib/libtensorflow.so
 COPY --from=build /usr/lib/libtensorflow_framework.so /usr/lib/libtensorflow_framework.so
 RUN ldconfig
 
-# Set default umask and create photoprism user
+# set default umask and create photoprism user
 RUN umask 0000 && useradd -m -U -u 1000 -d /photoprism photoprism && chmod a+rwx /photoprism
 WORKDIR /photoprism
 
-# Copy additional files to image
+# copy additional files to image
 COPY --from=build /root/.local/bin/photoprism /photoprism/bin/photoprism
 COPY --from=build /root/.photoprism/assets /photoprism/assets
 COPY --chown=root:root /docker/scripts/heif-convert.sh /usr/local/bin/heif-convert
+COPY --chown=root:root /docker/scripts/cleanup.sh /usr/local/bin/cleanup
 COPY --chown=root:root /docker/scripts/Makefile /root/Makefile
 COPY --chown=root:root /docker/photoprism/entrypoint.sh /entrypoint.sh
 
-# Create directories
+# create directories
 RUN mkdir -m 777 -p \
     /var/lib/photoprism \
     /tmp/photoprism \
@@ -135,17 +132,16 @@ RUN mkdir -m 777 -p \
     /photoprism/storage/cache && \
     chown -Rf photoprism:photoprism /photoprism /var/lib/photoprism /tmp/photoprism && \
     chmod -Rf a+rwx /photoprism /var/lib/photoprism /tmp/photoprism && \
-    chmod 755 /usr/local/bin/heif-convert /entrypoint.sh
+    chmod 755 /usr/local/bin/heif-convert /entrypoint.sh && \
+    photoprism -v && \
+    /usr/local/bin/cleanup
 
-# Show photoprism version
-RUN photoprism -v
-
-# Expose http port
+# expose http port
 EXPOSE 2342
 
-# Configure entrypoint
+# configure entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
 VOLUME /var/lib/photoprism
 
-# Run server
+# run server
 CMD ["photoprism", "start"]

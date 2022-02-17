@@ -1,11 +1,3 @@
-.PHONY: all build dev npm dep dep-go dep-js dep-list dep-tensorflow dep-upgrade dep-upgrade-js \
-		test test-js test-go install generate fmt fmt-go fmt-js upgrade start stop \
-		terminal root-terminal packer-digitalocean acceptance clean tidy;
-.SILENT: ;               # no need for @
-.ONESHELL: ;             # recipes execute in same shell
-.NOTPARALLEL: ;          # wait for target to finish
-.EXPORT_ALL_VARIABLES: ; # send all vars to shell
-
 export GO111MODULE=on
 export GODEBUG=http2client=0
 
@@ -202,46 +194,79 @@ clean:
 	rm -rf storage/backup
 	rm -rf storage/cache
 	rm -rf frontend/node_modules
-docker-develop: docker-develop-impish docker-develop-buster docker-develop-bullseye
-docker-develop-impish:
-	docker pull --platform=amd64 ubuntu:21.10
-	docker pull --platform=arm64 ubuntu:21.10
-	scripts/docker/buildx-multi.sh develop linux/amd64,linux/arm64 $(DOCKER_TAG)
+docker-develop-all: docker-develop-bullseye docker-develop-buster docker-develop-impish docker-develop-armv7
+docker-develop: docker-develop-bullseye
+docker-develop-bullseye:
+	docker pull --platform=amd64 golang:bullseye
+	docker pull --platform=arm64 golang:bullseye
+	scripts/docker/buildx-multi.sh develop linux/amd64,linux/arm64 bullseye /bullseye "-t photoprism/develop:latest"
 docker-develop-buster:
 	docker pull --platform=amd64 golang:buster
 	docker pull --platform=arm64 golang:buster
 	scripts/docker/buildx-multi.sh develop linux/amd64,linux/arm64 buster /buster
-docker-develop-bullseye:
-	docker pull --platform=amd64 golang:bullseye
-	docker pull --platform=arm64 golang:bullseye
-	scripts/docker/buildx-multi.sh develop linux/amd64,linux/arm64 bullseye /bullseye
-docker-preview: docker-preview-impish docker-preview-buster docker-preview-bullseye
-docker-preview-impish:
-	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64
-docker-preview-buster:
-	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64 preview-buster /buster
-docker-preview-bullseye:
-	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64 preview-bullseye /bullseye
-docker-release: docker-release-impish docker-release-buster docker-release-bullseye
-docker-release-impish:
-	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64 $(DOCKER_TAG)
-docker-release-buster:
-	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64 buster /buster
-docker-release-bullseye:
-	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64 bullseye /bullseye
-docker-arm64-preview:
-	scripts/docker/buildx.sh photoprism linux/arm64 preview-arm64
-docker-arm64-release:
-	scripts/docker/buildx.sh photoprism linux/arm64 arm64
-docker-armv7-develop:
-	docker pull --platform=arm ubuntu:21.10
+docker-develop-impish:
+	docker pull --platform=amd64 ubuntu:impish
+	docker pull --platform=arm64 ubuntu:impish
+	scripts/docker/buildx-multi.sh develop linux/amd64,linux/arm64 impish /impish
+docker-develop-armv7:
+	docker pull --platform=arm golang:bullseye
 	scripts/docker/buildx.sh develop linux/arm armv7 /armv7
-docker-armv7-preview:
+docker-preview-all: docker-preview-bullseye docker-preview-buster docker-preview-impish
+docker-preview: docker-preview-bullseye
+docker-preview-bullseye:
+	docker pull --platform=amd64 photoprism/develop:bullseye
+	docker pull --platform=arm64 photoprism/develop:bullseye
+	docker pull --platform=amd64 debian:bullseye-slim
+	docker pull --platform=arm64 debian:bullseye-slim
+	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64 preview /bullseye
+docker-preview-arm64:
+	docker pull --platform=arm64 photoprism/develop:bullseye
+	docker pull --platform=arm64 debian:bullseye-slim
+	scripts/docker/buildx.sh photoprism linux/arm64 preview-arm64 /bullseye
+docker-preview-armv7:
 	docker pull --platform=arm photoprism/develop:armv7
+	docker pull --platform=arm debian:bullseye-slim
 	scripts/docker/buildx.sh photoprism linux/arm preview-armv7 /armv7
-docker-armv7-release:
+docker-preview-buster:
+	docker pull --platform=amd64 photoprism/develop:buster
+	docker pull --platform=arm64 photoprism/develop:buster
+	docker pull --platform=amd64 debian:buster-slim
+	docker pull --platform=arm64 debian:buster-slim
+	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64 preview-buster /buster
+docker-preview-impish:
+	docker pull --platform=amd64 photoprism/develop:latest
+	docker pull --platform=arm64 photoprism/develop:latest
+	docker pull --platform=amd64 ubuntu:impish
+	docker pull --platform=arm64 ubuntu:impish
+	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64 preview-impish /impish
+docker-release-all: docker-release-bullseye docker-release-buster docker-release-impish
+docker-release: docker-release-bullseye
+docker-release-bullseye:
+	docker pull --platform=amd64 photoprism/develop:bullseye
+	docker pull --platform=arm64 photoprism/develop:bullseye
+	docker pull --platform=amd64 debian:bullseye-slim
+	docker pull --platform=arm64 debian:bullseye-slim
+	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64 bullseye /bullseye "-t photoprism/photoprism:latest"
+docker-release-arm64:
+	docker pull --platform=arm64 photoprism/develop:bullseye
+	docker pull --platform=arm64 debian:bullseye-slim
+	scripts/docker/buildx.sh photoprism linux/arm64 arm64 /bullseye
+docker-release-armv7:
 	docker pull --platform=arm photoprism/develop:armv7
+	docker pull --platform=arm debian:bullseye-slim
 	scripts/docker/buildx.sh photoprism linux/arm armv7 /armv7
+docker-release-buster:
+	docker pull --platform=amd64 photoprism/develop:buster
+	docker pull --platform=arm64 photoprism/develop:buster
+	docker pull --platform=amd64 debian:buster-slim
+	docker pull --platform=arm64 debian:buster-slim
+	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64 buster /buster
+docker-release-impish:
+	docker pull --platform=amd64 photoprism/develop:impish
+	docker pull --platform=arm64 photoprism/develop:impish
+	docker pull --platform=amd64 ubuntu:impish
+	docker pull --platform=arm64 ubuntu:impish
+	scripts/docker/buildx-multi.sh photoprism linux/amd64,linux/arm64 impish /impish
 docker-local:
 	scripts/docker/build.sh photoprism
 docker-pull:
@@ -253,6 +278,7 @@ docker-goproxy:
 	docker pull golang:alpine
 	scripts/docker/buildx-multi.sh goproxy linux/amd64,linux/arm64 $(DOCKER_TAG)
 docker-demo:
+	docker pull photoprism/photoprism:preview
 	scripts/docker/build.sh demo $(DOCKER_TAG)
 	scripts/docker/push.sh demo $(DOCKER_TAG)
 docker-demo-local:
@@ -282,3 +308,6 @@ fmt-go:
 	goimports -w pkg internal cmd
 tidy:
 	go mod tidy
+
+.PHONY: all build dev npm dep dep-go dep-js dep-list dep-tensorflow dep-upgrade dep-upgrade-js test test-js test-go \
+install generate fmt fmt-go fmt-js upgrade start stop terminal root-terminal packer-digitalocean acceptance clean tidy;
