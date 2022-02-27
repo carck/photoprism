@@ -16,6 +16,38 @@ import (
 	"github.com/photoprism/photoprism/pkg/txt"
 )
 
+func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, err error) {
+	s := UnscopedDb()
+	s = s.Table("photos").
+		Select(`photos.photo_uid, photos.taken_at, files.file_hash ,photos.photo_type `).
+		Joins("JOIN files ON photos.id = files.photo_id AND files.file_missing = 0 AND files.deleted_at IS NULL and files.file_primary = 1").
+		Where("photos.photo_quality >= 3 and photos.photo_private = 0").
+		Order("photos.taken_at DESC, photos.photo_uid")
+
+	if f.Album != "" {
+		if f.Path != "" {
+			s = s.Where("photos.photo_path = ?", f.Path)
+		} else {
+			s = s.Joins("JOIN photos_albums ON photos_albums.photo_uid = photos.photo_uid").
+				Where("photos_albums.hidden = 0 AND photos_albums.album_uid = ?", f.Album)
+		}
+	}
+	if f.Subject != "" {
+		s = s.Where("files.file_uid in (select file_uid from markers m where m.subj_uid = ?)", f.Subject)
+	}
+
+	if f.Count > 0 && f.Count <= MaxResults {
+		s = s.Limit(f.Count).Offset(f.Offset)
+	} else {
+		s = s.Limit(MaxResults).Offset(f.Offset)
+	}
+
+	if err := s.Scan(&results).Error; err != nil {
+		return results, 0, err
+	}
+	return results, len(results), nil
+}
+
 // Photos searches for photos based on a Form and returns PhotoResults ([]Photo).
 func Photos(f form.SearchPhotos) (results PhotoResults, count int, err error) {
 	start := time.Now()

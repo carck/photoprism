@@ -72,6 +72,7 @@ func registerRoutes(router *gin.Engine, conf *config.Config) {
 
 		// Photos.
 		api.SearchPhotos(v1)
+		api.SearchPhotosSlim(v1)
 		api.SearchGeo(v1)
 		api.GetPhoto(v1)
 		api.GetPhotoYaml(v1)

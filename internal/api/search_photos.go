@@ -75,3 +75,48 @@ func SearchPhotos(router *gin.RouterGroup) {
 		c.JSON(http.StatusOK, result)
 	})
 }
+
+// SearchPhotosSlim provide simple & fast search for mobile
+//
+// GET /api/v1/photos/slim
+//
+// Query:
+//   subject:   string 	subject uid
+//   album:     string 	album uid
+//   filter:    string 	folder filter
+//   count:     int    	Max result count (required)
+//   offset:    int    	Result offset
+func SearchPhotosSlim(router *gin.RouterGroup) {
+	router.GET("/photos/slim", func(c *gin.Context) {
+		s := Auth(SessionID(c), acl.ResourcePhotos, acl.ActionSearch)
+
+		if s.Invalid() {
+			AbortUnauthorized(c)
+			return
+		}
+
+		var f form.SearchPhotosSlim
+
+		err := c.MustBindWith(&f, binding.Form)
+
+		if err != nil {
+			AbortBadRequest(c)
+			return
+		}
+
+		result, count, err := search.PhotosSlim(f)
+
+		if err != nil {
+			log.Warnf("search: %s", err)
+			AbortBadRequest(c)
+			return
+		}
+
+		AddCountHeader(c, count)
+		AddLimitHeader(c, f.Count)
+		AddOffsetHeader(c, f.Offset)
+		AddTokenHeaders(c)
+
+		c.JSON(http.StatusOK, result)
+	})
+}

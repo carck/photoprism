@@ -30,7 +30,7 @@ func GetVideo(router *gin.RouterGroup) {
 
 		fileHash := sanitize.Token(c.Param("hash"))
 		typeName := sanitize.Token(c.Param("type"))
-		skipConvert  := txt.No(c.Param("convert"))
+		skipConvert := txt.No(c.Param("convert"))
 
 		videoType, ok := video.Types[typeName]
 
