@@ -124,7 +124,7 @@ var (
 			s, t float32
 		)
 
-		for i, _ := range a {
+		for i := range a {
 			t = a[i] - b[i]
 			s += t * t
 		}

@@ -53,3 +53,40 @@ func SearchAlbums(router *gin.RouterGroup) {
 		c.JSON(http.StatusOK, result)
 	})
 }
+
+// SearchAlbums finds albums and returns them as JSON.
+//
+// GET /api/v1/albums/slim
+func SearchAlbumsSlim(router *gin.RouterGroup) {
+	router.GET("/albums/slim", func(c *gin.Context) {
+		s := Auth(SessionID(c), acl.ResourceAlbums, acl.ActionSearch)
+
+		if s.Invalid() {
+			AbortUnauthorized(c)
+			return
+		}
+
+		var f form.SearchAlbums
+
+		err := c.MustBindWith(&f, binding.Form)
+
+		if err != nil {
+			AbortBadRequest(c)
+			return
+		}
+
+		result, err := search.AlbumsSlim(f)
+
+		if err != nil {
+			c.AbortWithStatusJSON(400, gin.H{"error": txt.UcFirst(err.Error())})
+			return
+		}
+
+		AddCountHeader(c, len(result))
+		AddLimitHeader(c, f.Count)
+		AddOffsetHeader(c, f.Offset)
+		AddTokenHeaders(c)
+
+		c.JSON(http.StatusOK, result)
+	})
+}

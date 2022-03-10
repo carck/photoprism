@@ -98,6 +98,7 @@ func registerRoutes(router *gin.Engine, conf *config.Config) {
 
 		// Albums.
 		api.SearchAlbums(v1)
+		api.SearchAlbumsSlim(v1)
 		api.GetAlbum(v1)
 		api.AlbumCover(v1)
 		api.CreateAlbum(v1)

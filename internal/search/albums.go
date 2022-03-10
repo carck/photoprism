@@ -8,6 +8,36 @@ import (
 	"github.com/photoprism/photoprism/pkg/txt"
 )
 
+// AlbumsSlim searches albums based on their name.
+func AlbumsSlim(f form.SearchAlbums) (results AlbumResultsSlim, err error) {
+	if err := f.ParseQueryString(); err != nil {
+		return results, err
+	}
+
+	// Base query.
+	s := UnscopedDb().Table("albums").
+		Select("album_uid,album_title,album_type,album_path,thumb").
+		Order("albums.album_favorite DESC, albums.album_title ASC, albums.album_uid DESC").
+		Where("albums.deleted_at IS NULL and albums.thumb is not NULL")
+
+	// Limit result count.
+	if f.Count > 0 && f.Count <= MaxResults {
+		s = s.Limit(f.Count).Offset(f.Offset)
+	} else {
+		s = s.Limit(MaxResults).Offset(f.Offset)
+	}
+
+	if f.Type != "" {
+		s = s.Where("albums.album_type IN (?)", strings.Split(f.Type, txt.Or))
+	}
+
+	if result := s.Scan(&results); result.Error != nil {
+		return results, result.Error
+	}
+
+	return results, nil
+}
+
 // Albums searches albums based on their name.
 func Albums(f form.SearchAlbums) (results AlbumResults, err error) {
 	if err := f.ParseQueryString(); err != nil {
