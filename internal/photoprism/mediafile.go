@@ -818,12 +818,27 @@ func (m *MediaFile) HasJpeg() bool {
 	return m.hasJpeg
 }
 
+func (m *MediaFile) NeedsConvert() bool {
+	return m.IsMedia() && !m.HasJpeg() && !m.IsHEIF()
+}
+
+func (m *MediaFile) NeedsThumb() bool {
+	return m.IsJpeg() || m.IsHEIF()
+}
+
+func (m *MediaFile) MediaFileForThumb()(*MediaFile, error) {
+	if m.IsHEIF() {
+		return m, nil
+	}
+	return m.Jpeg()
+}
+
 func (m *MediaFile) decodeDimensions() error {
 	if !m.IsMedia() {
 		return fmt.Errorf("failed decoding dimensions for %s", sanitize.Log(m.BaseName()))
 	}
 
-	if m.IsJpeg() || m.IsPng() || m.IsGif() {
+	if m.IsJpeg() || m.IsPng() || m.IsGif() || m.IsHEIF() {
 		file, err := os.Open(m.FileName())
 
 		if err != nil || file == nil {

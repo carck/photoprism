@@ -35,7 +35,7 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 		// Skip known file.
 		result.Status = IndexSkipped
 		return result
-	} else if o.FacesOnly && !m.IsJpeg() {
+	} else if o.FacesOnly && !m.IsJpeg() && !m.IsHEIF() {
 		// Skip non-jpeg file when indexing faces only.
 		result.Status = IndexSkipped
 		return result
@@ -276,10 +276,10 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 	if !file.FilePrimary {
 		if photoExists {
 			if res := entity.UnscopedDb().Where("photo_id = ? AND file_primary = 1 AND file_type = 'jpg' AND file_error = ''", photo.ID).First(&primaryFile); res.Error != nil {
-				file.FilePrimary = m.IsJpeg()
+				file.FilePrimary = m.IsJpeg() || m.IsHEIF()
 			}
 		} else {
-			file.FilePrimary = m.IsJpeg()
+			file.FilePrimary = m.IsJpeg() || m.IsHEIF()
 		}
 	}
 
@@ -353,6 +353,7 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 	// Handle file types.
 	switch {
 	case m.IsJpeg():
+	case m.IsHEIF():
 		// Color information
 		if p, err := m.Colors(Config().ThumbPath()); err != nil {
 			log.Debugf("%s while detecting colors", err.Error())

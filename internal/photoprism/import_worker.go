@@ -130,7 +130,7 @@ func ImportWorker(jobs <-chan ImportJob) {
 				}
 			}
 
-			if indexOpt.Convert && f.IsMedia() && !f.HasJpeg() {
+			if indexOpt.Convert && f.NeedsConvert() {
 				if jpegFile, err := imp.convert.ToJpeg(f); err != nil {
 					log.Errorf("import: %s in %s (convert to jpeg)", err.Error(), sanitize.Log(fs.RelName(destMainFileName, imp.originalsPath())))
 					continue
@@ -139,7 +139,7 @@ func ImportWorker(jobs <-chan ImportJob) {
 				}
 			}
 
-			if jpg, err := f.Jpeg(); err != nil {
+			if jpg, err := f.MediaFileForThumb(); err != nil {
 				log.Error(err)
 			} else {
 				if err := jpg.ResampleDefault(imp.thumbPath(), false); err != nil {
@@ -215,7 +215,7 @@ func ImportWorker(jobs <-chan ImportJob) {
 
 				res := ind.MediaFile(f, indexOpt, "", photoUID)
 
-				if res.Indexed() && f.IsJpeg() {
+				if res.Indexed() && f.NeedsThumb() {
 					if err := f.ResampleDefault(ind.thumbPath(), false); err != nil {
 						log.Errorf("import: failed creating thumbnails for %s (%s)", sanitize.Log(f.BaseName()), err.Error())
 						query.SetFileError(res.FileUID, err.Error())

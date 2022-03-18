@@ -38,7 +38,7 @@ func IndexMain(related *RelatedFiles, ind *Index, opt IndexOptions) (result Inde
 		}
 	}
 
-	if opt.Convert && f.IsMedia() && !f.HasJpeg() {
+	if opt.Convert && f.NeedsConvert() {
 		if jpegFile, err := ind.convert.ToJpeg(f); err != nil {
 			result.Err = fmt.Errorf("index: failed converting %s to jpeg (%s)", sanitize.Log(f.BaseName()), err.Error())
 			result.Status = IndexFailed
@@ -60,7 +60,7 @@ func IndexMain(related *RelatedFiles, ind *Index, opt IndexOptions) (result Inde
 
 	result = ind.MediaFile(f, opt, "", "")
 
-	if result.Indexed() && f.IsJpeg() {
+	if result.Indexed() && f.NeedsThumb() {
 		if err := f.ResampleDefault(ind.thumbPath(), false); err != nil {
 			log.Errorf("index: failed creating thumbnails for %s (%s)", sanitize.Log(f.BaseName()), err.Error())
 			query.SetFileError(result.FileUID, err.Error())
@@ -135,7 +135,7 @@ func IndexRelated(related RelatedFiles, ind *Index, opt IndexOptions) (result In
 			}
 		}
 
-		if opt.Convert && f.IsMedia() && !f.HasJpeg() {
+		if opt.Convert && f.NeedsConvert() {
 			if jpegFile, err := ind.convert.ToJpeg(f); err != nil {
 				result.Err = fmt.Errorf("index: failed converting %s to jpeg (%s)", sanitize.Log(f.BaseName()), err.Error())
 				result.Status = IndexFailed
@@ -157,7 +157,7 @@ func IndexRelated(related RelatedFiles, ind *Index, opt IndexOptions) (result In
 
 		res := ind.MediaFile(f, opt, "", result.PhotoUID)
 
-		if res.Indexed() && f.IsJpeg() {
+		if res.Indexed() && f.NeedsThumb() {
 			if err := f.ResampleDefault(ind.thumbPath(), false); err != nil {
 				log.Errorf("index: failed creating thumbnails for %s (%s)", sanitize.Log(f.BaseName()), err.Error())
 				query.SetFileError(res.FileUID, err.Error())

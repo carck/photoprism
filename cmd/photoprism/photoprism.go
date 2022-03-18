@@ -37,6 +37,7 @@ import (
 	"github.com/photoprism/photoprism/internal/config"
 	"github.com/photoprism/photoprism/internal/event"
 	"github.com/urfave/cli"
+	"github.com/strukturag/libheif/go/heif"
 )
 
 var version = "development"
@@ -52,6 +53,8 @@ func main() {
 	app.Copyright = "(c) 2018-2022 Michael Mayer <hello@photoprism.app>"
 	app.EnableBashCompletion = true
 	app.Flags = config.GlobalFlags
+
+	log.Debugf("loaded libheif, version=%s", heif.GetVersion())
 
 	app.Commands = []cli.Command{
 		commands.StartCommand,

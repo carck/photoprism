@@ -109,7 +109,7 @@ func Photos(f form.SearchPhotos) (results PhotoResults, count int, err error) {
 
 	// Include hidden files?
 	if !f.Hidden {
-		s = s.Where("files.file_type = 'jpg' OR files.file_video = 1")
+		s = s.Where("files.file_type in ('jpg', 'heif') OR files.file_video = 1")
 
 		if f.Error {
 			s = s.Where("files.file_error <> ''")

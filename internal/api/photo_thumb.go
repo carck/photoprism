@@ -136,7 +136,7 @@ func GetThumb(router *gin.RouterGroup) {
 		}
 
 		// Find fallback if file is not a JPEG image.
-		if f.NoJPEG() {
+		if f.NoApplicableForThumb() {
 			f, err = query.FileByPhotoUID(f.PhotoUID)
 
 			if err != nil {

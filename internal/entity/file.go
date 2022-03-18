@@ -462,6 +462,10 @@ func (m *File) NoJPEG() bool {
 	return m.FileType != string(fs.FormatJpeg)
 }
 
+func (m *File) NoApplicableForThumb() bool {
+	return m.FileType != string(fs.FormatJpeg) && m.FileType != string(fs.FormatHEIF)
+}
+
 // Links returns all share links for this entity.
 func (m *File) Links() Links {
 	return FindLinks("", m.FileUID)
