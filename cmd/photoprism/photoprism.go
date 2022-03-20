@@ -36,8 +36,9 @@ import (
 	"github.com/photoprism/photoprism/internal/commands"
 	"github.com/photoprism/photoprism/internal/config"
 	"github.com/photoprism/photoprism/internal/event"
-	"github.com/urfave/cli"
+	"github.com/photoprism/photoprism/pkg/vips"
 	"github.com/strukturag/libheif/go/heif"
+	"github.com/urfave/cli"
 )
 
 var version = "development"
@@ -55,6 +56,8 @@ func main() {
 	app.Flags = config.GlobalFlags
 
 	log.Debugf("loaded libheif, version=%s", heif.GetVersion())
+	vips.Start()
+	defer vips.Shutdown()
 
 	app.Commands = []cli.Command{
 		commands.StartCommand,

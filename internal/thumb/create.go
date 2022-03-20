@@ -94,6 +94,13 @@ func FromFile(imageFilename, hash, thumbPath string, width, height, orientation 
 		return "", err
 	}
 
+	// Create thumb from image.
+	if _, err := CreateVips(imageFilename, fileName, width, height, opts...); err != nil {
+		return "", err
+	} else {
+		return fileName, nil
+	}
+
 	// Load image from storage.
 	img, err := Open(imageFilename, orientation)
 
@@ -107,6 +114,14 @@ func FromFile(imageFilename, hash, thumbPath string, width, height, orientation 
 		return "", err
 	}
 
+	return fileName, nil
+}
+
+// Resample downscales an image and returns it.
+func CreateVips(source, fileName string, width, height int, opts ...ResampleOption) (res string, err error) {
+	if err := ResampleVips(source, fileName, width, height, opts...); err != nil {
+		return "", err
+	}
 	return fileName, nil
 }
 
