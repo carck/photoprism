@@ -33,11 +33,11 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/carck/libheif/go/heif"
 	"github.com/photoprism/photoprism/internal/commands"
 	"github.com/photoprism/photoprism/internal/config"
 	"github.com/photoprism/photoprism/internal/event"
 	"github.com/urfave/cli"
-	"github.com/strukturag/libheif/go/heif"
 )
 
 var version = "development"

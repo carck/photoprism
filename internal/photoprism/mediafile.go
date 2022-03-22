@@ -826,7 +826,7 @@ func (m *MediaFile) NeedsThumb() bool {
 	return m.IsJpeg() || m.IsHEIF()
 }
 
-func (m *MediaFile) MediaFileForThumb()(*MediaFile, error) {
+func (m *MediaFile) MediaFileForThumb() (*MediaFile, error) {
 	if m.IsHEIF() {
 		return m, nil
 	}
