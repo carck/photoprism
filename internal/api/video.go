@@ -11,7 +11,6 @@ import (
 	"github.com/photoprism/photoprism/internal/photoprism"
 	"github.com/photoprism/photoprism/internal/query"
 	"github.com/photoprism/photoprism/internal/video"
-	"github.com/photoprism/photoprism/pkg/txt"
 )
 
 // GetVideo streams videos.
@@ -30,7 +29,7 @@ func GetVideo(router *gin.RouterGroup) {
 
 		fileHash := sanitize.Token(c.Param("hash"))
 		typeName := sanitize.Token(c.Param("type"))
-		skipConvert := txt.No(c.Param("convert"))
+		skipConvert := true
 
 		videoType, ok := video.Types[typeName]
 
