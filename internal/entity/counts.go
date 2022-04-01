@@ -205,7 +205,7 @@ func DoUpdateCounts() (err error) {
 	if !GetAndClearCount() {
 		return nil
 	}
-	log.Info("index: updating counts")
+	log.Debug("index: updating counts")
 
 	if err = UpdatePlacesCounts(); err != nil {
 		if strings.Contains(err.Error(), "Error 1054") {

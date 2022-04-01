@@ -13,7 +13,7 @@ import (
 
 func TestMain(m *testing.M) {
 	log = logrus.StandardLogger()
-	log.SetLevel(logrus.DebugLevel)
+	log.SetLevel(logrus.TraceLevel)
 
 	c := TestConfig()
 
@@ -148,13 +148,6 @@ func TestConfig_ImportPath(t *testing.T) {
 	assert.True(t, strings.HasSuffix(result, "/storage/testdata/import"))
 }
 
-func TestConfig_ExifToolBin(t *testing.T) {
-	c := NewConfig(CliTestContext())
-
-	bin := c.ExifToolBin()
-	assert.Equal(t, "/usr/bin/exiftool", bin)
-}
-
 func TestConfig_CachePath(t *testing.T) {
 	c := NewConfig(CliTestContext())
 
@@ -248,12 +241,19 @@ func TestConfig_ClientConfig(t *testing.T) {
 	cc := c.UserConfig()
 
 	assert.IsType(t, ClientConfig{}, cc)
+
+	if cc.JsUri == "" {
+		t.Error("the JavaScript asset URI must not be empty, make sure that the frontend has been built")
+	}
+
+	if cc.CssUri == "" {
+		t.Error("the CSS asset URI must not be empty, make sure that the frontend has been built")
+	}
+
 	assert.NotEmpty(t, cc.Name)
 	assert.NotEmpty(t, cc.Version)
 	assert.NotEmpty(t, cc.Copyright)
 	assert.NotEmpty(t, cc.Thumbs)
-	assert.NotEmpty(t, cc.JsUri)
-	assert.NotEmpty(t, cc.CssUri)
 	assert.NotEmpty(t, cc.ManifestUri)
 	assert.Equal(t, true, cc.Debug)
 	assert.Equal(t, false, cc.Demo)

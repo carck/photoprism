@@ -1,7 +1,7 @@
 <template>
   <v-form ref="form" lazy-validation
           dense autocomplete="off" class="p-photo-toolbar p-album-toolbar" accept-charset="UTF-8"
-          @submit.prevent="filterChange">
+          @submit.prevent="updateQuery">
     <v-toolbar flat :dense="$vuetify.breakpoint.smAndDown" class="page-toolbar" color="secondary">
       <v-toolbar-title :title="album.Title">
         {{ album.Title }}
@@ -62,7 +62,7 @@
 
     <p-share-dialog :show="dialog.share" :model="album" @upload="webdavUpload"
                     @close="dialog.share = false"></p-share-dialog>
-    <p-share-upload-dialog :show="dialog.upload" :selection="[album.getId()]" @cancel="dialog.upload = false"
+    <p-share-upload-dialog :show="dialog.upload" :items="{albums: album.getId()}" :model="album" @cancel="dialog.upload = false"
                            @confirm="dialog.upload = false"></p-share-upload-dialog>
     <p-album-edit-dialog :show="dialog.edit" :album="album" @close="dialog.edit = false"></p-album-edit-dialog>
   </v-form>
@@ -75,9 +75,18 @@ import download from "common/download";
 export default {
   name: 'PAlbumToolbar',
   props: {
-    album: Object,
-    filter: Object,
-    settings: Object,
+    album: {
+      type: Object,
+      default: () => {},
+    },
+    filter: {
+      type: Object,
+      default: () => {},
+    },
+    settings: {
+      type: Object,
+      default: () => {},
+    },
     refresh: Function,
     filterChange: Function,
   },
@@ -141,7 +150,7 @@ export default {
       }
     },
     dropdownChange() {
-      this.filterChange();
+      this.updateQuery();
 
       if (window.innerWidth < 600) {
         this.searchExpanded = false;
@@ -154,10 +163,9 @@ export default {
     },
     setView(name) {
       this.settings.view = name;
-      this.filterChange();
+      this.updateQuery();
     },
-    clearQuery() {
-      this.filter.q = '';
+    updateQuery() {
       this.filterChange();
     },
     download() {

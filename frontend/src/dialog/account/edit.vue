@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="show" lazy persistent max-width="500" class="p-account-edit-dialog" @keydown.esc="cancel">
+  <v-dialog :value="show" lazy persistent max-width="500" class="p-account-edit-dialog" @keydown.esc="cancel">
     <v-card raised elevation="24">
       <v-card-title primary-title>
         <v-layout v-if="scope === 'sharing'" row wrap>
@@ -150,7 +150,10 @@
                 :disabled="!model.AccSync || readonly"
                 hide-details
                 color="secondary-dark"
+                on-icon="radio_button_checked"
+                off-icon="radio_button_unchecked"
                 :label="$gettext('Download remote files')"
+                @change="onChangeSync('download')"
             ></v-checkbox>
           </v-flex>
           <v-flex xs12 sm6 class="px-2">
@@ -168,7 +171,10 @@
                 :disabled="!model.AccSync"
                 hide-details
                 color="secondary-dark"
+                on-icon="radio_button_checked"
+                off-icon="radio_button_unchecked"
                 :label="$gettext('Upload local files')"
+                @change="onChangeSync('upload')"
             ></v-checkbox>
           </v-flex>
           <v-flex xs12 sm6 class="px-2">
@@ -249,6 +255,30 @@
                 :items="items.types">
             </v-select>
           </v-flex>
+          <v-flex xs12 sm6 class="px-2">
+            <v-select
+                v-model="model.AccTimeout"
+                :label="$gettext('Timeout')"
+                browser-autocomplete="off"
+                hide-details
+                color="secondary-dark"
+                item-text="text"
+                item-value="value"
+                :items="options.Timeouts()">
+            </v-select>
+          </v-flex>
+          <v-flex xs12 sm6 class="px-2">
+            <v-select
+                v-model="model.RetryLimit"
+                :label="$gettext('Retry Limit')"
+                browser-autocomplete="off"
+                hide-details
+                color="secondary-dark"
+                item-text="text"
+                item-value="value"
+                :items="options.RetryLimits()">
+            </v-select>
+          </v-flex>
         </v-layout>
         <v-layout row wrap>
           <v-flex xs12 text-xs-right class="pt-3 pb-0">
@@ -274,7 +304,11 @@ export default {
   props: {
     show: Boolean,
     scope: String,
-    model: Object,
+    model: {
+      type: Object,
+      default: () => {
+      },
+    },
   },
   data() {
     const thumbs = this.$config.values.thumbs;
@@ -366,7 +400,7 @@ export default {
     },
     sizes(thumbs) {
       const result = [
-        {"text": this.$gettext("Original"), "value": ""}
+        {"text": this.$gettext("Originals"), "value": ""},
       ];
 
       for (let i = 0; i < thumbs.length; i++) {
@@ -377,7 +411,14 @@ export default {
 
       return result;
     },
+    onChangeSync(dir) {
+      switch (dir) {
+        case 'upload': this.model.SyncDownload = !this.model.SyncUpload; break;
+        default: this.model.SyncUpload = !this.model.SyncDownload;
+      }
+    },
     onChange() {
+      this.onChangeSync();
       this.paths = [{"abs": "/"}];
 
       this.loading = true;

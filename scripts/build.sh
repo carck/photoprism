@@ -1,50 +1,40 @@
 #!/usr/bin/env bash
 
-set -e
-
-PHOTOPRISM_DATE=$(date -u +%y%m%d)
-PHOTOPRISM_VERSION=$(git describe --always)
-
 if [[ -z $1 ]] || [[ -z $2 ]]; then
-  echo "Please provide build mode and output file name" 1>&2
+  echo "Usage: ${0##*/} [debug|race|static|prod] [filename]" 1>&2
   exit 1
 fi
 
-if [[ $OS == "Windows_NT" ]]; then
-  PHOTOPRISM_OS=win32
-  if [[ $PROCESSOR_ARCHITEW6432 == "AMD64" ]]; then
-    PHOTOPRISM_ARCH=amd64
-  else
-    if [[ $PROCESSOR_ARCHITECTURE == "AMD64" ]]; then
-      PHOTOPRISM_ARCH=amd64
-    fi
-    if [[ $PROCESSOR_ARCHITECTURE == "x86" ]]; then
-      PHOTOPRISM_ARCH=ia32
-    fi
-  fi
-else
-  PHOTOPRISM_OS=$(uname -s)
-  PHOTOPRISM_ARCH=$(uname -m)
-fi
+set -e
+
+BUILD_OS=$(/bin/uname -s)
+BUILD_ARCH=$("$(/usr/bin/dirname "$0")/dist/arch.sh")
+BUILD_DATE=$(/bin/date -u +%y%m%d)
+BUILD_VERSION=$(git describe --always)
+BUILD_TAG=${BUILD_DATE}-${BUILD_VERSION}
+BUILD_ID=${BUILD_TAG}-${BUILD_OS}-${BUILD_ARCH^^}
+BUILD_NAME=${2:-photoprism}
+GO_BIN=${GO_BIN:-/usr/local/go/bin/go}
+GO_VER=$($GO_BIN version)
+
+echo "Building PhotoPrism ${BUILD_ID} ($1)..."
 
 if [[ $1 == "debug" ]]; then
-  echo "Building development binary..."
-  go build -tags NOTENSORFLOW -ldflags "-X main.version=${PHOTOPRISM_DATE}-${PHOTOPRISM_VERSION}-${PHOTOPRISM_OS}-${PHOTOPRISM_ARCH}-DEBUG" -o $2 cmd/photoprism/photoprism.go
-  du -h $2
-  echo "Done."
+  BUILD_CMD=("$GO_BIN" build -tags NOTENSORFLOW -ldflags "-X main.version=${BUILD_ID}-DEBUG" -o "${BUILD_NAME}" cmd/photoprism/photoprism.go)
 elif [[ $1 == "race" ]]; then
-  echo "Building with data race detector..."
-  go build -race -ldflags "-X main.version=${PHOTOPRISM_DATE}-${PHOTOPRISM_VERSION}-${PHOTOPRISM_OS}-${PHOTOPRISM_ARCH}-DEBUG" -o $2 cmd/photoprism/photoprism.go
-  du -h $2
-  echo "Done."
+  BUILD_CMD=("$GO_BIN" build -tags NOTENSORFLOW -race -ldflags "-X main.version=${BUILD_ID}-DEBUG" -o "${BUILD_NAME}" cmd/photoprism/photoprism.go)
 elif [[ $1 == "static" ]]; then
-  echo "Building static production binary..."
-  go build -a -v -ldflags "-linkmode external -extldflags \"-static -L /usr/lib -ltensorflow\" -s -w -X main.version=${PHOTOPRISM_DATE}-${PHOTOPRISM_VERSION}-${PHOTOPRISM_OS}-${PHOTOPRISM_ARCH}" -o $2 cmd/photoprism/photoprism.go
-  du -h $2
-  echo "Done."
+  BUILD_CMD=("$GO_BIN" build -tags NOTENSORFLOW -a -v -ldflags "-linkmode external -extldflags \"-static -L /usr/lib -ltensorflow\" -s -w -X main.version=${BUILD_ID}" -o "${BUILD_NAME}" cmd/photoprism/photoprism.go)
 else
-  echo "Building production binary..."
-	go build -tags NOTENSORFLOW -ldflags "-s -w -X main.version=${PHOTOPRISM_DATE}-${PHOTOPRISM_VERSION}-${PHOTOPRISM_OS}-${PHOTOPRISM_ARCH}" -o $2 cmd/photoprism/photoprism.go
-	du -h $2
-	echo "Done."
+  BUILD_CMD=("$GO_BIN" build -tags NOTENSORFLOW -ldflags "-extldflags \"-Wl,-rpath -Wl,\$ORIGIN/../lib\" -s -w -X main.version=${BUILD_ID}" -o "${BUILD_NAME}" cmd/photoprism/photoprism.go)
 fi
+
+# build binary
+echo "=> compiling \"$BUILD_NAME\" with \"${GO_VER^}\""
+echo "=> ${BUILD_CMD[*]}"
+"${BUILD_CMD[@]}"
+
+# show size
+/usr/bin/du -h "${BUILD_NAME}"
+
+echo "Done."

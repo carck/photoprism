@@ -3,40 +3,41 @@
 Copyright (c) 2018 - 2022 Michael Mayer <hello@photoprism.app>
 
     This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+    it under Version 3 of the GNU Affero General Public License (the "AGPL"):
+    <https://docs.photoprism.app/license/agpl>
 
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Affero General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
-    PhotoPrism® is a registered trademark of Michael Mayer.  You may use it as required
-    to describe our software, run your own server, for educational purposes, but not for
-    offering commercial goods, products, or services without prior written permission.
-    In other words, please ask.
+    The AGPL is supplemented by our Trademark and Brand Guidelines,
+    which describe how our Brand Assets may be used:
+    <https://photoprism.app/trademark>
 
 Feel free to send an e-mail to hello@photoprism.app if you have questions,
 want to support our work, or just want to say hello.
 
 Additional information can be found in our Developer Guide:
-https://docs.photoprism.app/developer-guide/
+<https://docs.photoprism.app/developer-guide/>
 
 */
 
 const path = require("path");
 const findChrome = require("chrome-finder");
 const chromeBin = findChrome();
+
 if (chromeBin) {
+  // proceed, chrome/chromium was found
   process.env.CHROME_BIN = chromeBin;
+  console.log(`chrome-bin: ${chromeBin}`);
 } else {
-  process.env.CHROME_BIN = require("puppeteer").executablePath();
+  // abort, no chrome binary was found
+  console.error("Chrome/Chromium not found.");
+  process.exit(1);
 }
 
+// test setup
 module.exports = (config) => {
   config.set({
     logLevel: config.LOG_ERROR,
@@ -145,6 +146,7 @@ module.exports = (config) => {
           path.join(__dirname, "node_modules"),
           path.join(__dirname, "tests/unit"),
         ],
+        preferRelative: true,
         alias: {
           vue: "vue/dist/vue.min.js",
         },

@@ -19,7 +19,7 @@ services:
     environment:
       PHOTOPRISM_SITE_URL: "http://localhost:2342/"
       PHOTOPRISM_SITE_TITLE: "PhotoPrism"
-      PHOTOPRISM_SITE_CAPTION: "Browse Your Life"
+      PHOTOPRISM_SITE_CAPTION: "AI-Powered Photos App"
       PHOTOPRISM_SITE_DESCRIPTION: "Open-Source Photo Management"
       PHOTOPRISM_SITE_AUTHOR: "@photoprism_app"
       PHOTOPRISM_DEBUG: "false"
@@ -37,22 +37,21 @@ services:
       PHOTOPRISM_DATABASE_USER: "root"
       PHOTOPRISM_DATABASE_PASSWORD: "photoprism"
       PHOTOPRISM_TEST_DRIVER: "sqlite"
-      PHOTOPRISM_TEST_DSN: ".test.db"
       PHOTOPRISM_ADMIN_PASSWORD: "photoprism" # the initial admin password (min 4 characters)
       PHOTOPRISM_ASSETS_PATH: "/go/src/github.com/photoprism/photoprism/assets"
       PHOTOPRISM_STORAGE_PATH: "/go/src/github.com/photoprism/photoprism/storage"
       PHOTOPRISM_ORIGINALS_PATH: "/go/src/github.com/photoprism/photoprism/storage/originals"
       PHOTOPRISM_IMPORT_PATH: "/go/src/github.com/photoprism/photoprism/storage/import"
       PHOTOPRISM_DISABLE_CHOWN: "true"        # disables storage permission updates on startup
-      PHOTOPRISM_DISABLE_BACKUPS: "false"     # don't backup photo and album metadata to YAML files
+      PHOTOPRISM_DISABLE_BACKUPS: "false"     # disables creating YAML metadata files
       PHOTOPRISM_DISABLE_WEBDAV: "false"      # disables built-in WebDAV server
-      PHOTOPRISM_DISABLE_SETTINGS: "false"    # disables Settings in Web UI
+      PHOTOPRISM_DISABLE_SETTINGS: "false"    # disables settings UI and API
       PHOTOPRISM_DISABLE_PLACES: "false"      # disables reverse geocoding and maps
-      PHOTOPRISM_DISABLE_EXIFTOOL: "false"    # don't create ExifTool JSON files for improved metadata extraction
-      PHOTOPRISM_DISABLE_TENSORFLOW: "false"  # don't use TensorFlow for image classification
+      PHOTOPRISM_DISABLE_EXIFTOOL: "false"    # disables creating JSON metadata sidecar files with ExifTool
+      PHOTOPRISM_DISABLE_TENSORFLOW: "false"  # disables all features depending on TensorFlow
       PHOTOPRISM_DETECT_NSFW: "false"         # flag photos as private that MAY be offensive (requires TensorFlow)
       PHOTOPRISM_UPLOAD_NSFW: "false"         # allow uploads that may be offensive
-      PHOTOPRISM_DARKTABLE_PRESETS: "false"   # enables Darktable presets and disables concurrent RAW conversion
+      PHOTOPRISM_RAW_PRESETS: "false"         # enables RAW file converter presets (may reduce performance)
       PHOTOPRISM_THUMB_FILTER: "lanczos"      # resample filter, best to worst: blackman, lanczos, cubic, linear
       PHOTOPRISM_THUMB_UNCACHED: "true"       # enables on-demand thumbnail rendering (high memory and cpu usage)
       PHOTOPRISM_THUMB_SIZE: 2048             # pre-rendered thumbnail size limit (default 2048, min 720, max 7680)
@@ -145,17 +144,19 @@ services:
   ## MariaDB Database Server
   ## Docs: https://mariadb.com/docs/reference/cs10.6/
   mariadb:
-    image: mariadb:10.6
+    image: mariadb:10.7
     command: mysqld --port=4001 --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=120
     expose:
       - "4001" # database port (internal)
     volumes:
       - "./scripts/sql/mariadb-init.sql:/docker-entrypoint-initdb.d/init.sql"
     environment:
-      MYSQL_ROOT_PASSWORD: photoprism
-      MYSQL_USER: photoprism
-      MYSQL_PASSWORD: photoprism
-      MYSQL_DATABASE: photoprism
+      MARIADB_AUTO_UPGRADE: "1"
+      MARIADB_INITDB_SKIP_TZINFO: "1"
+      MARIADB_DATABASE: "photoprism"
+      MARIADB_USER: "photoprism"
+      MARIADB_PASSWORD: "photoprism"
+      MARIADB_ROOT_PASSWORD: "photoprism"
 
   ## Dummy WebDAV Server
   dummy-webdav:

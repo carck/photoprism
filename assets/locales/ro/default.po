@@ -1,0 +1,258 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-12-09 00:51+0000\n"
+"PO-Revision-Date: 2022-03-10 15:48+0000\n"
+"Last-Translator: Lulu195 <bimasakti.ro@gmail.com>\n"
+"Language-Team: Romanian <https://translate.photoprism.app/projects/"
+"photoprism/backend/ro/>\n"
+"Language: ro\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
+"20)) ? 1 : 2;\n"
+"X-Generator: Weblate 4.11.2\n"
+
+msgid "Unexpected error, please try again"
+msgstr "Eroare neașteptată, vă rugăm să încercați din nou"
+
+msgid "Invalid request"
+msgstr "Cerere invalidă"
+
+msgid "Changes could not be saved"
+msgstr "Modificările nu au putut fi salvate"
+
+msgid "Could not be deleted"
+msgstr "Nu a putut fi șters"
+
+#, c-format
+msgid "%s already exists"
+msgstr "%s există deja"
+
+msgid "Not found"
+msgstr "Nu a fost găsit"
+
+msgid "File not found"
+msgstr "Fișierul nu a fost găsit"
+
+msgid "Selection not found"
+msgstr "Selecția nu a fost găsită"
+
+msgid "Entity not found"
+msgstr "Entitatea nu a fost găsită"
+
+msgid "Account not found"
+msgstr "Contul nu a fost găsit"
+
+msgid "User not found"
+msgstr "Utilizatorul nu a fost găsit"
+
+msgid "Label not found"
+msgstr "Eticheta nu a fost găsită"
+
+msgid "Album not found"
+msgstr "Albumul nu a fost găsit"
+
+msgid "Subject not found"
+msgstr "Subiectul nu a fost găsit"
+
+msgid "Person not found"
+msgstr "Persoana nu a fost găsită"
+
+msgid "Face not found"
+msgstr "Fața nu a fost găsită"
+
+msgid "Not available in public mode"
+msgstr "Nu este disponibil în modul public"
+
+msgid "not available in read-only mode"
+msgstr "nu este disponibil în modul doar pentru citire"
+
+msgid "Please log in and try again"
+msgstr "Vă rugăm să vă conectați și să încercați din nou"
+
+msgid "Upload might be offensive"
+msgstr "Încărcarea poate fi ofensatoare"
+
+msgid "No items selected"
+msgstr "Niciun element selectat"
+
+msgid "Failed creating file, please check permissions"
+msgstr "Nu s-a putut crea fișierul, vă rugăm să verificați permisiunile"
+
+msgid "Failed creating folder, please check permissions"
+msgstr "Nu s-a putut crea dosarul, vă rugăm să verificați permisiunile"
+
+msgid "Could not connect, please try again"
+msgstr "Nu s-a putut conecta, vă rugăm să încercați din nou"
+
+msgid "Invalid password, please try again"
+msgstr "Parolă invalidă, vă rugăm să încercați din nou"
+
+msgid "Feature disabled"
+msgstr "Funcție dezactivată"
+
+msgid "No labels selected"
+msgstr "Nu au fost selectate etichete"
+
+msgid "No albums selected"
+msgstr "Niciun album selectat"
+
+msgid "No files available for download"
+msgstr "Nu există fișiere disponibile pentru descărcare"
+
+msgid "Failed to create zip file"
+msgstr "Nu s-a putut crea fișierul zip"
+
+msgid "Invalid credentials"
+msgstr "Acreditări nevalabile"
+
+msgid "Invalid link"
+msgstr "Link invalid"
+
+msgid "Invalid name"
+msgstr "Nume invalid"
+
+msgid "Busy, please try again later"
+msgstr "Ocupat, vă rugăm să încercați din nou mai târziu"
+
+msgid "Changes successfully saved"
+msgstr "Modificările au fost salvate"
+
+msgid "Album created"
+msgstr "Album creat"
+
+msgid "Album saved"
+msgstr "Album salvat"
+
+#, c-format
+msgid "Album %s deleted"
+msgstr "Albumul %s a fost șters"
+
+msgid "Album contents cloned"
+msgstr "Conținutul albumului a fost clonat"
+
+msgid "File removed from stack"
+msgstr "Fișierul a fost eliminat din stivă"
+
+msgid "File deleted"
+msgstr "Fișier șters"
+
+#, c-format
+msgid "Selection added to %s"
+msgstr "Selecție adăugată la %s"
+
+#, c-format
+msgid "One entry added to %s"
+msgstr "O intrare adăugată la %s"
+
+#, c-format
+msgid "%d entries added to %s"
+msgstr "%d intrări adăugate la %s"
+
+#, c-format
+msgid "One entry removed from %s"
+msgstr "O intrare eliminată din %s"
+
+#, c-format
+msgid "%d entries removed from %s"
+msgstr "%d intrări eliminate din %s"
+
+msgid "Account created"
+msgstr "Cont creat"
+
+msgid "Account saved"
+msgstr "Cont salvat"
+
+msgid "Account deleted"
+msgstr "Contul a fost șters"
+
+msgid "Settings saved"
+msgstr "Setări salvate"
+
+msgid "Password changed"
+msgstr "Parola a fost schimbată"
+
+#, c-format
+msgid "Import completed in %d s"
+msgstr "Import finalizat în %d s"
+
+msgid "Import canceled"
+msgstr "Importul a fost anulat"
+
+#, c-format
+msgid "Indexing completed in %d s"
+msgstr "Indexare finalizată în %d s"
+
+msgid "Indexing originals..."
+msgstr "Indexarea originalelor..."
+
+#, c-format
+msgid "Indexing files in %s"
+msgstr "Indexarea fișierelor în %s"
+
+msgid "Indexing canceled"
+msgstr "Indexarea a fost anulată"
+
+#, c-format
+msgid "Removed %d files and %d photos"
+msgstr "S-au eliminat %d fișiere și %d fotografii"
+
+#, c-format
+msgid "Moving files from %s"
+msgstr "Se mută fișiere din %s"
+
+#, c-format
+msgid "Copying files from %s"
+msgstr "Se copie fișiere din %s"
+
+msgid "Labels deleted"
+msgstr "Etichete șterse"
+
+msgid "Label saved"
+msgstr "Etichetă salvată"
+
+msgid "Subject saved"
+msgstr "Subiect salvat"
+
+msgid "Subject deleted"
+msgstr "Subiectul a fost șters"
+
+msgid "Person saved"
+msgstr "Persoană salvată"
+
+msgid "Person deleted"
+msgstr "Persoana a fost ștearsă"
+
+#, c-format
+msgid "%d files uploaded in %d s"
+msgstr "%d fișiere încărcate în %d s"
+
+msgid "Selection approved"
+msgstr "Selecție aprobată"
+
+msgid "Selection archived"
+msgstr "Selecție arhivată"
+
+msgid "Selection restored"
+msgstr "Selecție restabilită"
+
+msgid "Selection marked as private"
+msgstr "Selecția a fost marcată ca privată"
+
+msgid "Albums deleted"
+msgstr "Albume șterse"
+
+#, c-format
+msgid "Zip created in %d s"
+msgstr "Zip creat în %d s"
+
+msgid "Permanently deleted"
+msgstr "Șterse definitiv"

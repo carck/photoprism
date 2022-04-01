@@ -92,17 +92,26 @@
 </template>
 <script>
 import download from "common/download";
-import Notify from "../../common/notify";
+import Notify from "common/notify";
 
 export default {
   name: 'PPhotoList',
   props: {
-    photos: Array,
+    photos: {
+      type: Array,
+      default: () => [],
+    },
     openPhoto: Function,
     editPhoto: Function,
     openLocation: Function,
-    album: Object,
-    filter: Object,
+    album: {
+      type: Object,
+      default: () => {},
+    },
+    filter: {
+      type: Object,
+      default: () => {},
+    },
     context: String,
     selectMode: Boolean,
   },

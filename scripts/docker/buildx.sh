@@ -4,31 +4,32 @@
 export DOCKER_BUILDKIT=1
 
 if [[ -z $1 ]] || [[ -z $2 ]]; then
-    echo "usage: scripts/docker/buildx.sh [image] linux/[amd64|arm64|arm] [tag] [/subimage]" 1>&2
+    echo "Usage: ${0##*/} [name] linux/[amd64|arm64|arm] [tag] [/subimage]" 1>&2
     exit 1
 fi
 
 NUMERIC='^[0-9]+$'
-GOPROXY=${GOPROXY:-'https://proxy.golang.org,direct'}
-DOCKER_TAG=$(date -u +%Y%m%d)
+BUILD_DATE=$(/bin/date -u +%y%m%d)
+
+echo "Starting 'photoprism/$1' build from docker/${1/-//}$4/Dockerfile..."
+echo "Build Arch: $2"
 
 if [[ $1 ]] && [[ $2 ]] && [[ -z $3 || $3 == "preview" ]]; then
-    echo "docker/buildx: building photoprism/$1:preview from docker/${1/-//}$4/Dockerfile..."
+    echo "Build Tags: preview"
+
     docker buildx build \
       --platform $2 \
       --pull \
       --no-cache \
-      --build-arg BUILD_TAG=$DOCKER_TAG \
-      --build-arg GOPROXY \
-      --build-arg GODEBUG \
+      --build-arg BUILD_TAG=$BUILD_DATE \
       -f docker/${1/-//}$4/Dockerfile \
       -t photoprism/$1:preview \
       --push .
 elif [[ $3 =~ $NUMERIC ]]; then
-    echo "docker/buildx: building photoprism/$1:$3,$1:latest from docker/${1/-//}$4/Dockerfile..."
+    echo "Build Tags: $3, latest"
 
     if [[ $5 ]]; then
-      echo "extra params: $5"
+      echo "Build Params: $5"
     fi
 
     docker buildx build \
@@ -36,47 +37,41 @@ elif [[ $3 =~ $NUMERIC ]]; then
       --pull \
       --no-cache \
       --build-arg BUILD_TAG=$3 \
-      --build-arg GOPROXY \
-      --build-arg GODEBUG \
       -f docker/${1/-//}$4/Dockerfile \
       -t photoprism/$1:latest \
       -t photoprism/$1:$3 $5 \
       --push .
 elif [[ $4 ]] && [[ $3 == *"preview"* ]]; then
-    echo "docker/buildx: building photoprism/$1:$3 from docker/${1/-//}$4/Dockerfile..."
+    echo "Build Tags: $3"
 
     if [[ $5 ]]; then
-      echo "extra params: $5"
+      echo "Build Params: $5"
     fi
 
     docker buildx build \
       --platform $2 \
       --pull \
       --no-cache \
-      --build-arg BUILD_TAG=$DOCKER_TAG \
-      --build-arg GOPROXY \
-      --build-arg GODEBUG \
+      --build-arg BUILD_TAG=$BUILD_DATE \
       -f docker/${1/-//}$4/Dockerfile \
       -t photoprism/$1:$3 $5 \
       --push .
 else
-    echo "docker/buildx: building photoprism/$1:$3,$1:$DOCKER_TAG-$3 from docker/${1/-//}$4/Dockerfile..."
+    echo "Build Tags: $BUILD_DATE-$3, $3"
 
     if [[ $5 ]]; then
-      echo "extra params: $5"
+      echo "Build Params: $5"
     fi
 
     docker buildx build \
       --platform $2 \
       --pull \
       --no-cache \
-      --build-arg BUILD_TAG=$DOCKER_TAG \
-      --build-arg GOPROXY \
-      --build-arg GODEBUG \
+      --build-arg BUILD_TAG=$BUILD_DATE-$3 \
       -f docker/${1/-//}$4/Dockerfile \
       -t photoprism/$1:$3 \
-      -t photoprism/$1:$DOCKER_TAG-$3 $5 \
+      -t photoprism/$1:$BUILD_DATE-$3 $5 \
       --push .
 fi
 
-echo "docker/buildx: done"
+echo "Done."

@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="show" lazy persistent max-width="500" class="p-share-dialog" @keydown.esc="close">
+  <v-dialog :value="show" lazy persistent max-width="500" class="p-share-dialog" @keydown.esc="close">
     <v-card raised elevation="24">
       <v-card-title primary-title class="pb-0">
         <v-layout row wrap>
@@ -36,7 +36,10 @@
                       <v-text-field
                           :value="link.url()"
                           :label="$gettext('URL')"
-                          browser-autocomplete="off" hide-details
+                          autocorrect="off"
+                          autocapitalize="none"
+                          browser-autocomplete="off"
+                          hide-details
                           readonly
                           color="secondary-dark"
                           class="input-url"
@@ -61,6 +64,8 @@
                       <v-text-field
                           v-model="link.Token" hide-details
                           required
+                          autocorrect="off"
+                          autocapitalize="none"
                           browser-autocomplete="off"
                           :label="$gettext('Secret')"
                           :placeholder="$gettext('Token')"
@@ -128,13 +133,16 @@
 </template>
 <script>
 import * as options from "options/options";
-import Util from "../common/util";
+import Util from "common/util";
 
 export default {
   name: 'PShareDialog',
   props: {
     show: Boolean,
-    model: Object,
+    model: {
+      type: Object,
+      default: () => {},
+    },
   },
   data() {
     return {
@@ -181,9 +189,9 @@ export default {
       try {
         const url = link.url();
         await Util.copyToMachineClipboard(url);
-        this.$notify.success(this.$gettext("Copied to clipboard"))
+        this.$notify.success(this.$gettext("Copied to clipboard"));
       } catch (error) {
-        this.$notify.error(this.$gettext("Failed copying to clipboard"))
+        this.$notify.error(this.$gettext("Failed copying to clipboard"));
       }
     },
     expires(link) {

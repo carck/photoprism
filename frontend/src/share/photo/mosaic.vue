@@ -34,9 +34,9 @@
                  :transition="false"
                  aspect-ratio="1"
                  class="accent lighten-2 clickable"
-                 @touchstart="input.touchStart($event, index)"
-                 @touchend.prevent="onClick($event, index)"
-                 @mousedown="input.mouseDown($event, index)"
+                 @touchstart.passive="input.touchStart($event, index)"
+                 @touchend.stop.prevent="onClick($event, index)"
+                 @mousedown.stop.prevent="input.mouseDown($event, index)"
                  @click.stop.prevent="onClick($event, index)"
                  @mouseover="playLive(photo)"
                  @mouseleave="pauseLive(photo)"
@@ -100,11 +100,20 @@ import {Input, InputInvalid, ClickShort, ClickLong} from "common/input";
 export default {
   name: 'PPhotoMosaic',
   props: {
-    photos: Array,
+    photos: {
+      type: Array,
+      default: () => [],
+    },
     openPhoto: Function,
     editPhoto: Function,
-    album: Object,
-    filter: Object,
+    album: {
+      type: Object,
+      default: () => {},
+    },
+    filter: {
+      type: Object,
+      default: () => {},
+    },
     context: String,
     selectMode: Boolean,
   },

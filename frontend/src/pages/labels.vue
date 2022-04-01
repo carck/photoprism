@@ -1,20 +1,22 @@
 <template>
   <div v-infinite-scroll="loadMore" class="p-page p-page-labels" style="user-select: none"
-       :infinite-scroll-disabled="scrollDisabled" :infinite-scroll-distance="1200"
+       :infinite-scroll-disabled="scrollDisabled" :infinite-scroll-distance="1600"
        :infinite-scroll-listen-for-event="'scrollRefresh'">
 
-    <v-form ref="form" class="p-labels-search" lazy-validation dense @submit.prevent="updateQuery">
+    <v-form ref="form" class="p-labels-search" lazy-validation dense @submit.stop.prevent>
       <v-toolbar flat :dense="$vuetify.breakpoint.smAndDown" class="page-toolbar" color="secondary">
-        <v-text-field id="search"
-                      v-model="filter.q"
-                      class="input-search  background-inherit elevation-0"
-                      solo hide-details clearable overflow
+        <v-text-field :value="filter.q"
+                      solo hide-details clearable overflow single-line validate-on-blur
+                      class="input-search background-inherit elevation-0"
                       :label="$gettext('Search')"
                       prepend-inner-icon="search"
                       browser-autocomplete="off"
+                      autocorrect="off"
+                      autocapitalize="none"
                       color="secondary-dark"
-                      @click:clear="clearQuery"
+                      @input="onChangeQuery"
                       @keyup.enter.native="updateQuery"
+                      @click:clear="clearQuery"
         ></v-text-field>
 
         <v-btn icon class="action-reload" :title="$gettext('Reload')" @click.stop="refresh">
@@ -22,10 +24,10 @@
         </v-btn>
 
         <v-btn v-if="!filter.all" icon class="action-show-all" :title="$gettext('Show more')" @click.stop="showAll">
-          <v-icon>visibility</v-icon>
+          <v-icon>unfold_more</v-icon>
         </v-btn>
         <v-btn v-else icon class="action-show-important" :title="$gettext('Show less')" @click.stop="showImportant">
-          <v-icon>visibility_off</v-icon>
+          <v-icon>unfold_less</v-icon>
         </v-btn>
       </v-toolbar>
     </v-form>
@@ -74,9 +76,9 @@
                   aspect-ratio="1"
                   style="user-select: none"
                   class="accent lighten-2 clickable"
-                  @touchstart="input.touchStart($event, index)"
-                  @touchend.prevent="onClick($event, index)"
-                  @mousedown="input.mouseDown($event, index)"
+                  @touchstart.passive="input.touchStart($event, index)"
+                  @touchend.stop.prevent="onClick($event, index)"
+                  @mousedown.stop.prevent="input.mouseDown($event, index)"
                   @click.stop.prevent="onClick($event, index)"
               >
                 <v-btn :ripple="false"
@@ -165,7 +167,7 @@ export default {
     const routeName = this.$route.name;
     const q = query['q'] ? query['q'] : '';
     const all = query['all'] ? query['all'] : '';
-    const filter = {q: q, all: all};
+    const filter = {"q": String(q), all: String(all)};
     const settings = {};
 
     return {
@@ -182,6 +184,7 @@ export default {
       page: 0,
       selection: [],
       settings: settings,
+      q: q,
       filter: filter,
       lastFilter: {},
       routeName: routeName,
@@ -194,12 +197,14 @@ export default {
     '$route'() {
       const query = this.$route.query;
 
-      this.filter.q = query['q'] ? query['q'] : '';
-      this.filter.all = query['all'] ? query['all'] : '';
-      this.lastFilter = {};
       this.routeName = this.$route.name;
+      this.lastFilter = {};
+      this.q = query['q'] ? query['q'] : '';
+      this.filter.q = this.q;
+      this.filter.all = query['all'] ? query['all'] : '';
+
       this.search();
-    }
+    },
   },
   created() {
     this.search();
@@ -320,10 +325,6 @@ export default {
       this.filter.all = "";
       this.updateQuery();
     },
-    clearQuery() {
-      this.filter.q = '';
-      this.updateQuery();
-    },
     addSelection(uid) {
       const pos = this.selection.indexOf(uid);
 
@@ -413,8 +414,17 @@ export default {
         this.listen = true;
       });
     },
+    onChangeQuery(val) {
+      this.q = val ? String(val) : '';
+    },
+    clearQuery() {
+      this.q = '';
+      this.updateQuery();
+    },
     updateQuery() {
-      this.filter.q = this.filter.q.trim();
+      this.filter.q = this.q.trim();
+
+      if (this.loading) return;
 
       const query = {
         view: this.settings.view

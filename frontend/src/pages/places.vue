@@ -3,16 +3,14 @@
     <div id="map" style="width: 100%; height: 100%;">
       <div class="map-control">
         <div class="maplibregl-ctrl maplibregl-ctrl-group">
-          <v-text-field v-model="filter.q"
-                        class="pa-0 ma-0 input-search"
-                        single-line
-                        solo
-                        flat
+          <v-text-field v-model.lazy.trim="filter.q"
+                        solo hide-details clearable flat single-line validate-on-blur
+                        class="input-search pa-0 ma-0"
                         :label="$gettext('Search')"
                         prepend-inner-icon="search"
-                        clearable
-                        hide-details
                         browser-autocomplete="off"
+                        autocorrect="off"
+                        autocapitalize="none"
                         color="secondary-dark"
                         @click:clear="clearQuery"
                         @keyup.enter.native="formChange"
@@ -52,6 +50,7 @@ export default {
     '$route'() {
       this.filter.q = this.query();
       this.lastFilter = {};
+
       this.search();
     }
   },
@@ -79,11 +78,11 @@ export default {
         const settings = this.$config.settings();
 
         if (settings && settings.features.private) {
-          filter.public = true;
+          filter.public = "true";
         }
 
         if (settings && settings.features.review && (!this.staticFilter || !("quality" in this.staticFilter))) {
-          filter.quality = 3;
+          filter.quality = "3";
         }
 
         let mapFont = ['Roboto', 'sans-serif'];
@@ -196,7 +195,7 @@ export default {
       });
     },
     query: function () {
-      return this.$route.params.q ? this.$route.params.q : "";
+      return this.$route.params.q ? this.$route.params.q : '';
     },
     openPhoto(uid) {
       // Abort if uid is empty or results aren't loaded.
@@ -228,6 +227,7 @@ export default {
       });
     },
     formChange() {
+      if (this.loading) return;
       this.search();
     },
     clearQuery() {

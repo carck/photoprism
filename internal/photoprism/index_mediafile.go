@@ -221,6 +221,7 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 	if photoExists && (file.PhotoID != photo.ID || file.PhotoUID != photo.PhotoUID) {
 		file.PhotoID = photo.ID
 		file.PhotoUID = photo.PhotoUID
+		file.PhotoTakenAt = photo.TakenAtLocal
 	}
 
 	// Skip unchanged files.
@@ -563,7 +564,7 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 	// Set taken date based on file mod time or name if other metadata is missing.
 	if m.IsMedia() && entity.SrcPriority[photo.TakenSrc] <= entity.SrcPriority[entity.SrcName] {
 		// Try to extract time from original file name first.
-		if taken := txt.Time(photo.OriginalName); !taken.IsZero() {
+		if taken := txt.DateFromFilePath(photo.OriginalName); !taken.IsZero() {
 			photo.SetTakenAt(taken, taken, "", entity.SrcName)
 		} else if taken, takenSrc := m.TakenAt(); takenSrc == entity.SrcName {
 			photo.SetTakenAt(taken, taken, "", entity.SrcName)
@@ -734,7 +735,7 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 		details.Keywords = strings.Join(txt.UniqueWords(w), ", ")
 
 		if details.Keywords != "" {
-			log.Tracef("index: using keywords %s for %s", details.Keywords, logName)
+			log.Tracef("index: %s has keywords %s", logName, details.Keywords)
 		} else {
 			log.Tracef("index: found no keywords for %s", logName)
 		}

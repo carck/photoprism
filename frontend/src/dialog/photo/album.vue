@@ -45,6 +45,9 @@
 <script>
 import Album from "model/album";
 
+// Todo: Handle cases where users have more than 10000 albums.
+const MaxResults = 10000;
+
 export default {
   name: 'PPhotoAlbumDialog',
   props: {
@@ -107,7 +110,7 @@ export default {
 
       const params = {
         q: q,
-        count: 1000,
+        count: MaxResults,
         offset: 0,
         type: "album"
       };

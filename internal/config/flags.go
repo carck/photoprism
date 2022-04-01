@@ -81,7 +81,7 @@ var GlobalFlags = []cli.Flag{
 		EnvVar: "PHOTOPRISM_CONFIG_PATH",
 	},
 	cli.StringFlag{
-		Name:   "originals-path",
+		Name:   "originals-path, o",
 		Usage:  "storage `PATH` of your original media files (photos and videos)",
 		EnvVar: "PHOTOPRISM_ORIGINALS_PATH",
 	},
@@ -92,7 +92,7 @@ var GlobalFlags = []cli.Flag{
 		EnvVar: "PHOTOPRISM_ORIGINALS_LIMIT",
 	},
 	cli.StringFlag{
-		Name:   "storage-path",
+		Name:   "storage-path, t",
 		Usage:  "writable storage `PATH` for cache, database, and sidecar files",
 		EnvVar: "PHOTOPRISM_STORAGE_PATH",
 	},
@@ -117,12 +117,12 @@ var GlobalFlags = []cli.Flag{
 		EnvVar: "PHOTOPRISM_TEMP_PATH",
 	},
 	cli.StringFlag{
-		Name:   "backup-path",
+		Name:   "backup-path, b",
 		Usage:  "custom backup `PATH` for index backup files (optional)",
 		EnvVar: "PHOTOPRISM_BACKUP_PATH",
 	},
 	cli.StringFlag{
-		Name:   "assets-path",
+		Name:   "assets-path, a",
 		Usage:  "assets `PATH` containing static resources like icons, models, and translations",
 		EnvVar: "PHOTOPRISM_ASSETS_PATH",
 	},
@@ -133,7 +133,7 @@ var GlobalFlags = []cli.Flag{
 		Value:  cpuid.CPU.PhysicalCores / 2,
 	},
 	cli.IntFlag{
-		Name:   "wakeup-interval",
+		Name:   "wakeup-interval, i",
 		Usage:  "metadata, share & sync background worker wakeup interval in `SECONDS` (1-604800)",
 		Value:  DefaultWakeupIntervalSeconds,
 		EnvVar: "PHOTOPRISM_WAKEUP_INTERVAL",
@@ -171,16 +171,6 @@ var GlobalFlags = []cli.Flag{
 		EnvVar: "PHOTOPRISM_DISABLE_BACKUPS",
 	},
 	cli.BoolFlag{
-		Name:   "disable-exiftool",
-		Usage:  "disable creating JSON metadata sidecar files with ExifTool",
-		EnvVar: "PHOTOPRISM_DISABLE_EXIFTOOL",
-	},
-	cli.BoolFlag{
-		Name:   "disable-ffmpeg",
-		Usage:  "disable video transcoding and thumbnail extraction with FFmpeg",
-		EnvVar: "PHOTOPRISM_DISABLE_FFMPEG",
-	},
-	cli.BoolFlag{
 		Name:   "disable-darktable",
 		Usage:  "disable converting RAW files with Darktable",
 		EnvVar: "PHOTOPRISM_DISABLE_DARKTABLE",
@@ -214,6 +204,26 @@ var GlobalFlags = []cli.Flag{
 		Name:   "disable-classification",
 		Usage:  "disable image classification",
 		EnvVar: "PHOTOPRISM_DISABLE_CLASSIFICATION",
+	},
+	cli.BoolFlag{
+		Name:   "disable-ffmpeg",
+		Usage:  "disable video transcoding and thumbnail extraction with FFmpeg",
+		EnvVar: "PHOTOPRISM_DISABLE_FFMPEG",
+	},
+	cli.BoolFlag{
+		Name:   "disable-exiftool",
+		Usage:  "disable creating JSON metadata sidecar files with ExifTool",
+		EnvVar: "PHOTOPRISM_DISABLE_EXIFTOOL",
+	},
+	cli.BoolFlag{
+		Name:   "exif-bruteforce",
+		Usage:  "always perform a brute-force search if no Exif headers were found",
+		EnvVar: "PHOTOPRISM_EXIF_BRUTEFORCE",
+	},
+	cli.BoolFlag{
+		Name:   "raw-presets",
+		Usage:  "enable RAW file converter presets (may reduce performance)",
+		EnvVar: "PHOTOPRISM_RAW_PRESETS",
 	},
 	cli.BoolFlag{
 		Name:   "detect-nsfw",
@@ -279,7 +289,7 @@ var GlobalFlags = []cli.Flag{
 	cli.StringFlag{
 		Name:   "site-caption",
 		Usage:  "site `CAPTION`",
-		Value:  "Browse Your Life",
+		Value:  "AI-Powered Photos App",
 		EnvVar: "PHOTOPRISM_SITE_CAPTION",
 	},
 	cli.StringFlag{
@@ -326,35 +336,35 @@ var GlobalFlags = []cli.Flag{
 		EnvVar: "PHOTOPRISM_HTTP_COMPRESSION",
 	},
 	cli.StringFlag{
-		Name:   "database-driver",
-		Usage:  "database `DRIVER` (sqlite or mysql)",
+		Name:   "database-driver, db",
+		Usage:  "database `DRIVER` (sqlite, mysql)",
 		Value:  "sqlite",
 		EnvVar: "PHOTOPRISM_DATABASE_DRIVER",
 	},
 	cli.StringFlag{
-		Name:   "database-dsn",
-		Usage:  "sqlite file name, providing a `DSN` is optional for other drivers",
+		Name:   "database-dsn, dsn",
+		Usage:  "database connection `DSN` (sqlite filename, optional for mysql)",
 		EnvVar: "PHOTOPRISM_DATABASE_DSN",
 	},
 	cli.StringFlag{
-		Name:   "database-server",
-		Usage:  "database server `HOST` with optional port e.g. mariadb:3306",
+		Name:   "database-server, db-server",
+		Usage:  "database `HOST` incl. port e.g. \"mariadb:3306\" (or socket path)",
 		EnvVar: "PHOTOPRISM_DATABASE_SERVER",
 	},
 	cli.StringFlag{
-		Name:   "database-name",
+		Name:   "database-name, db-name",
 		Value:  "photoprism",
 		Usage:  "database schema `NAME`",
 		EnvVar: "PHOTOPRISM_DATABASE_NAME",
 	},
 	cli.StringFlag{
-		Name:   "database-user",
+		Name:   "database-user, db-user",
 		Value:  "photoprism",
 		Usage:  "database user `NAME`",
 		EnvVar: "PHOTOPRISM_DATABASE_USER",
 	},
 	cli.StringFlag{
-		Name:   "database-password",
+		Name:   "database-password, db-pass",
 		Usage:  "database user `PASSWORD`",
 		EnvVar: "PHOTOPRISM_DATABASE_PASSWORD",
 	},
@@ -368,11 +378,6 @@ var GlobalFlags = []cli.Flag{
 		Usage:  "maximum `NUMBER` of idle database connections",
 		EnvVar: "PHOTOPRISM_DATABASE_CONNS_IDLE",
 	},
-	cli.BoolFlag{
-		Name:   "raw-presets",
-		Usage:  "enable RAW file converter presets (may reduce performance)",
-		EnvVar: "PHOTOPRISM_RAW_PRESETS",
-	},
 	cli.StringFlag{
 		Name:   "darktable-bin",
 		Usage:  "Darktable CLI `COMMAND` for RAW image conversion",
@@ -382,7 +387,7 @@ var GlobalFlags = []cli.Flag{
 	cli.StringFlag{
 		Name:   "darktable-blacklist",
 		Usage:  "file `EXTENSIONS` incompatible with Darktable",
-		Value:  "cr3,dng",
+		Value:  "dng,cr3",
 		EnvVar: "PHOTOPRISM_DARKTABLE_BLACKLIST",
 	},
 	cli.StringFlag{
@@ -486,49 +491,49 @@ var GlobalFlags = []cli.Flag{
 	},
 	cli.IntFlag{
 		Name:   "face-size",
-		Usage:  "minimum face size in `PIXELS`",
+		Usage:  "minimum face size in `PIXELS` (20-10000)",
 		Value:  face.SizeThreshold,
 		EnvVar: "PHOTOPRISM_FACE_SIZE",
 	},
 	cli.Float64Flag{
 		Name:   "face-score",
-		Usage:  "minimum face `QUALITY` score",
+		Usage:  "minimum face `QUALITY` score (1-100)",
 		Value:  face.ScoreThreshold,
 		EnvVar: "PHOTOPRISM_FACE_SCORE",
 	},
 	cli.IntFlag{
 		Name:   "face-overlap",
-		Usage:  "face area overlap threshold in `PERCENT`",
+		Usage:  "face area overlap threshold in `PERCENT` (1-100)",
 		Value:  face.OverlapThreshold,
 		EnvVar: "PHOTOPRISM_FACE_OVERLAP",
 	},
 	cli.IntFlag{
 		Name:   "face-cluster-size",
-		Usage:  "minimum size of automatically clustered faces in `PIXELS`",
+		Usage:  "minimum size of automatically clustered faces in `PIXELS` (20-10000)",
 		Value:  face.ClusterSizeThreshold,
 		EnvVar: "PHOTOPRISM_FACE_CLUSTER_SIZE",
 	},
 	cli.IntFlag{
 		Name:   "face-cluster-score",
-		Usage:  "minimum `QUALITY` score of automatically clustered faces",
+		Usage:  "minimum `QUALITY` score of automatically clustered faces (1-100)",
 		Value:  face.ClusterScoreThreshold,
 		EnvVar: "PHOTOPRISM_FACE_CLUSTER_SCORE",
 	},
 	cli.IntFlag{
 		Name:   "face-cluster-core",
-		Usage:  "`NUMBER` of faces forming a cluster core",
+		Usage:  "`NUMBER` of faces forming a cluster core (1-100)",
 		Value:  face.ClusterCore,
 		EnvVar: "PHOTOPRISM_FACE_CLUSTER_CORE",
 	},
 	cli.Float64Flag{
 		Name:   "face-cluster-dist",
-		Usage:  "similarity `DISTANCE` of faces forming a cluster core",
+		Usage:  "similarity `DISTANCE` of faces forming a cluster core (0.1-1.5)",
 		Value:  face.ClusterDist,
 		EnvVar: "PHOTOPRISM_FACE_CLUSTER_DIST",
 	},
 	cli.Float64Flag{
 		Name:   "face-match-dist",
-		Usage:  "similarity `OFFSET` for matching faces with existing clusters",
+		Usage:  "similarity `OFFSET` for matching faces with existing clusters (0.1-1.5)",
 		Value:  face.MatchDist,
 		EnvVar: "PHOTOPRISM_FACE_MATCH_DIST",
 	},

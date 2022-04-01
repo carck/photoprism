@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="show" lazy persistent max-width="500" class="p-account-create-dialog" @keydown.esc="cancel">
+  <v-dialog :value="show" lazy persistent max-width="500" class="p-account-create-dialog" @keydown.esc="cancel">
     <v-card raised elevation="24">
       <v-card-title primary-title>
         <div>
@@ -17,23 +17,27 @@
                 :label="$gettext('Service URL')"
                 placeholder="https://www.example.com/"
                 color="secondary-dark"
+                autocorrect="off"
+                autocapitalize="none"
             ></v-text-field>
           </v-flex>
           <v-flex xs12 sm6 class="pa-2">
             <v-text-field
                 v-model="model.AccUser"
                 hide-details
-                browser-autocomplete="off"
                 :label="$gettext('Username')"
                 placeholder="optional"
                 color="secondary-dark"
+                autocorrect="off"
+                autocapitalize="none"
             ></v-text-field>
           </v-flex>
           <v-flex xs12 sm6 class="pa-2">
             <v-text-field
                 v-model="model.AccPass"
                 hide-details
-                browser-autocomplete="off"
+                autocorrect="off"
+                autocapitalize="none"
                 :label="$gettext('Password')"
                 placeholder="optional"
                 color="secondary-dark"
@@ -63,6 +67,7 @@
 </template>
 <script>
 import Account from "model/account";
+import * as options from "options/options";
 
 export default {
   name: 'PAccountCreateDialog',
@@ -71,6 +76,7 @@ export default {
   },
   data() {
     return {
+      options: options,
       showPassword: false,
       loading: false,
       search: null,

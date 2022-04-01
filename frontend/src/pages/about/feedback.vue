@@ -7,6 +7,10 @@
       <v-toolbar-title v-else>
         <translate>Contact Us</translate>
       </v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn icon>
+        <v-icon size="26">feedback</v-icon>
+      </v-btn>
     </v-toolbar>
     <v-container v-if="sent" fluid class="pa-4">
       <p class="body-1">We'll get back to you as soon as possible!</p>
@@ -46,7 +50,8 @@
 
         <v-flex xs12 sm6 class="pa-2">
           <v-text-field v-model="form.UserEmail" flat solo hide-details required
-                        browser-autocomplete="off" color="secondary-dark"
+                        autocapitalize="none"
+                        color="secondary-dark"
                         :rules="[v => !!v || $gettext('Required')]"
                         background-color="secondary-light" :label="$gettext('E-Mail')" type="email">
           </v-text-field>
@@ -73,7 +78,7 @@
 
 <script>
 import * as options from "options/options";
-import Api from "../../common/api";
+import Api from "common/api";
 
 export default {
   name: 'PPageSupport',
