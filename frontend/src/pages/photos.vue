@@ -1,6 +1,6 @@
 <template>
   <div v-infinite-scroll="loadMore" class="p-page p-page-photos" style="user-select: none"
-       :infinite-scroll-disabled="scrollDisabled" :infinite-scroll-distance="settings.prefetchDist"
+       :infinite-scroll-disabled="scrollDisabled" :infinite-scroll-distance="scrollDistance"
        :infinite-scroll-listen-for-event="'scrollRefresh'">
 
     <p-photo-toolbar :settings="settings" :filter="filter" :filter-change="updateQuery" :dirty="dirty"
@@ -44,8 +44,8 @@
 <script>
 import {Photo, TypeLive, TypeRaw, TypeVideo} from "model/photo";
 import Thumb from "model/thumb";
+import Viewer from "common/viewer";
 import Event from "pubsub-js";
-import Api from "common/api";
 
 export default {
   name: 'PPagePhotos',
@@ -79,8 +79,6 @@ export default {
 
     const settings = this.$config.settings();
 
-    let prefetchDist = 1600;
-
     if (settings) {
       if (settings.features.private) {
         filter.public = "true";
@@ -88,10 +86,6 @@ export default {
 
       if (settings.features.review && (!this.staticFilter || !("quality" in this.staticFilter))) {
         filter.quality = "3";
-      }
-
-      if (settings.search.prefetchDist > 0) {
-        prefetchDist = settings.search.prefetchDist;
       }
     }
 
@@ -104,13 +98,13 @@ export default {
       complete: false,
       results: [],
       scrollDisabled: true,
+      scrollDistance: window.innerHeight*2,
       batchSize: batchSize,
       offset: 0,
       page: 0,
       selection: this.$clipboard.selection,
       settings: {
         view,
-        prefetchDist
       },
       filter: filter,
       lastFilter: {},
@@ -119,7 +113,8 @@ export default {
       viewer: {
         results: [],
         loading: false,
-        complete: true,
+        complete: false,
+        dirty: false,
         batchSize: batchSize > 160 ? 480 : batchSize * 3
       },
     };
@@ -226,7 +221,7 @@ export default {
       Event.publish("dialog.edit", {selection: selection, album: null, index: index});
     },
     openPhoto(index, showMerged) {
-      if (this.loading || this.viewer.loading || !this.results[index]) {
+      if (this.loading || !this.listen || this.viewer.loading || !this.results[index]) {
         return false;
       }
 
@@ -246,61 +241,18 @@ export default {
       } else if (showMerged) {
         this.$viewer.show(Thumb.fromFiles([selected]), 0);
       } else {
-        if (this.viewer.results && this.viewer.results.length > 0) {
-          // Reuse existing viewer result if possible.
-          const i = this.viewer.results.findIndex(p => p.uid === selected.UID);
-          if (i > -1 && (
-            (this.complete && this.viewer.results.length === this.results.length) ||
-            (this.viewer.complete && this.viewer.results.length > this.results.length) ||
-            (this.viewer.results.length - i < this.viewer.batchSize))
-          ) {
-            this.$viewer.show(this.viewer.results, i);
-            return;
-          }
-        }
-
-        // Fetch photos from server API.
-        this.viewer.loading = true;
-
-        const params = this.searchParams();
-        params.count = this.complete ? params.offset : params.offset + this.viewer.batchSize;
-        params.offset = 0;
-
-        // Fetch viewer results from API.
-        return Api.get("photos/view", {params}).then((response) => {
-          let count = response && response.data ? response.data.length : 0;
-          if (count > 0) {
-            // Process response.
-            if (response.headers && response.headers["x-count"]) {
-              count = parseInt(response.headers["x-count"]);
-            }
-            this.viewer.results = Thumb.wrap(response.data);
-            this.viewer.complete = (count < this.batchSize);
-            const i = this.viewer.results.findIndex(p => p.uid === selected.UID);
-
-            // Show photos.
-            this.$viewer.show(this.viewer.results, i);
-          } else {
-            // Don't open viewer if nothing was found.
-            this.viewer.results = [];
-            this.viewer.complete = false;
-            this.$notify.warn(this.$gettext("No pictures found"));
-          }
-        }).catch(() => {
-          // Reset results in case of an error.
-          this.viewer.results = [];
-          this.viewer.complete = false;
-        }).finally(() => {
-          // Unblock.
-          this.viewer.loading = false;
-        });
+        Viewer.show(this, index);
       }
     },
     loadMore() {
-      if (this.scrollDisabled) return;
+      if (this.scrollDisabled || this.$scrollbar.disabled()) return;
 
       this.scrollDisabled = true;
       this.listen = false;
+
+      if (this.dirty) {
+        this.viewer.dirty = true;
+      }
 
       const count = this.dirty ? (this.page + 2) * this.batchSize : this.batchSize;
       const offset = this.dirty ? 0 : this.offset;

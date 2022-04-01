@@ -31,6 +31,8 @@ import { $gettext } from "common/vm";
 import * as src from "common/src";
 import Api from "common/api";
 
+export let BatchSize = 24;
+
 export class Face extends RestModel {
   constructor(values) {
     super(values);
@@ -149,7 +151,14 @@ export class Face extends RestModel {
   }
 
   static batchSize() {
-    return 24;
+    return BatchSize;
+  }
+
+  static setBatchSize(count) {
+    const s = parseInt(count);
+    if (!isNaN(s) && s >= 24) {
+      BatchSize = s;
+    }
   }
 
   static getCollectionResource() {

@@ -168,6 +168,7 @@ export default {
       dirty: false,
       results: [],
       scrollDisabled: true,
+      scrollDistance: window.innerHeight*2,
       loading: true,
       busy: false,
       batchSize: 999,
