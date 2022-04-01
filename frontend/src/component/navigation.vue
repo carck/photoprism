@@ -1,24 +1,28 @@
 <template>
   <div id="p-navigation">
-    <template v-if="visible && ($vuetify.breakpoint.smAndDown || !auth)">
-      <v-toolbar dark fixed flat scroll-off-screen :dense="$vuetify.breakpoint.smAndDown"  color="navigation darken-1" class="nav-small"
+    <template v-if="visible && $vuetify.breakpoint.smAndDown">
+      <v-toolbar dark fixed flat scroll-off-screen dense color="navigation darken-1" class="nav-small"
                   @click.stop="showNavigation()">
-        <v-toolbar-side-icon v-if="auth" class="nav-show"></v-toolbar-side-icon>
-
+        <v-avatar tile :size="28" :class="{'clickable': auth}">
+          <img :src="$config.appIcon()" :alt="config.name">
+        </v-avatar>
         <v-toolbar-title class="nav-title">
-          <v-avatar v-if="$route.meta.icon" tile :size="28">
-            <img :src="$config.staticUri + '/img/logo-white.svg'" :alt="config.name">
-          </v-avatar>
-          <template v-else>{{ page.title }}</template>
+          {{ page.title }}
         </v-toolbar-title>
-
         <v-btn v-if="auth && !config.readonly && $config.feature('upload')" icon class="action-upload"
                :title="$gettext('Upload')" @click.stop="openUpload()">
           <v-icon>cloud_upload</v-icon>
         </v-btn>
-
       </v-toolbar>
-      <v-toolbar dark flat :dense="$vuetify.breakpoint.smAndDown" color="#fafafa">
+    </template>
+    <template v-else-if="visible && !auth">
+      <v-toolbar dark flat scroll-off-screen dense color="navigation darken-1" class="nav-small">
+        <v-avatar tile :size="28">
+          <img :src="$config.appIcon()" :alt="config.name">
+        </v-avatar>
+        <v-toolbar-title class="nav-title">
+          {{ page.title }}
+        </v-toolbar-title>
       </v-toolbar>
     </template>
     <v-navigation-drawer
@@ -40,7 +44,7 @@
             </v-list-tile-avatar>
             <v-list-tile-content>
               <v-list-tile-title class="title">
-                PhotoPrism
+                {{ config.name }}
               </v-list-tile-title>
             </v-list-tile-content>
             <v-list-tile-action class="hidden-sm-and-down" :title="$gettext('Minimize')">
@@ -478,14 +482,14 @@
             <v-list-tile-sub-title>{{ accountInfo }}</v-list-tile-sub-title>
           </v-list-tile-content>
 
-          <v-list-tile-action :title="$gettext('Logout')" @click.stop="">
-            <v-btn icon @click="logout">
+          <v-list-tile-action :title="$gettext('Logout')">
+            <v-btn icon @click.stop.prevent="logout">
               <v-icon>power_settings_new</v-icon>
             </v-btn>
           </v-list-tile-action>
         </v-list-tile>
 
-        <v-list-tile v-show="isMini && auth && !isPublic" class="nav-logout" @click="logout">
+        <v-list-tile v-show="isMini && auth && !isPublic" class="nav-logout" @click.stop.prevent="logout">
           <v-list-tile-action :title="$gettext('Logout')">
             <v-icon>power_settings_new</v-icon>
           </v-list-tile-action>
@@ -500,7 +504,7 @@
 
     </v-navigation-drawer>
 
-    <div v-if="config.imprint" id="imprint">
+    <div v-if="config.imprint && visible" id="imprint">
       <a v-if="config.imprintUrl" :href="config.imprintUrl" target="_blank">{{ config.imprint }}</a>
       <span v-else>{{ config.imprint }}</span>
     </div>
@@ -518,6 +522,17 @@ import Event from "pubsub-js";
 
 export default {
   name: "PNavigation",
+  filters: {
+    abbreviateCount: (val) => {
+      const value = Number.parseInt(val);
+      // TODO: make abbreviation configurable by userprofile settings or env var before enabling it.
+      // if (value >= 1000) {
+      //   const digits = value % 1000 <= 50 ? 0 : 1;
+      //   return (value/1000).toFixed(digits).toString()+'k';
+      // }
+      return value;
+    }
+  },
   data() {
     return {
       drawer: null,
@@ -611,17 +626,6 @@ export default {
     logout() {
       this.$session.logout();
     },
-  },
-  filters: {
-    abbreviateCount: (val) => {
-      const value = Number.parseInt(val);
-      // TODO: make abbreviation configurable by userprofile settings or env var before enabling it.
-      // if (value >= 1000) {
-      //   const digits = value % 1000 <= 50 ? 0 : 1;
-      //   return (value/1000).toFixed(digits).toString()+'k';
-      // }
-      return value;
-    }
   },
 };
 </script>

@@ -1,21 +1,22 @@
 <template>
   <div v-infinite-scroll="loadMore" class="p-page p-page-subjects" style="user-select: none"
-       :infinite-scroll-disabled="scrollDisabled" :infinite-scroll-distance="1200"
+       :infinite-scroll-disabled="scrollDisabled" :infinite-scroll-distance="1600"
        :infinite-scroll-listen-for-event="'scrollRefresh'">
 
     <v-form ref="form" class="p-people-search" lazy-validation dense @submit.prevent="updateQuery">
       <v-toolbar dense flat class="page-toolbar" color="secondary-light pa-0">
-        <v-text-field id="search"
-                      v-model="filter.q"
+        <v-text-field :value="filter.q"
+                      solo hide-details clearable overflow single-line validate-on-blur
                       class="input-search background-inherit elevation-0"
-                      solo hide-details
                       :label="$gettext('Search')"
                       prepend-inner-icon="search"
                       browser-autocomplete="off"
-                      clearable overflow
+                      autocorrect="off"
+                      autocapitalize="none"
                       color="secondary-dark"
-                      @click:clear="clearQuery"
+                      @input="onChangeQuery"
                       @keyup.enter.native="updateQuery"
+                      @click:clear="clearQuery"
         ></v-text-field>
 
         <v-divider vertical></v-divider>
@@ -79,9 +80,9 @@
                   aspect-ratio="1"
                   style="user-select: none"
                   class="accent lighten-2 clickable"
-                  @touchstart="input.touchStart($event, index)"
-                  @touchend.prevent="onClick($event, index)"
-                  @mousedown="input.mouseDown($event, index)"
+                  @touchstart.passive="input.touchStart($event, index)"
+                  @touchend.stop.prevent="onClick($event, index)"
+                  @mousedown.stop.prevent="input.mouseDown($event, index)"
                   @click.stop.prevent="onClick($event, index)"
               >
                 <v-btn :ripple="false" :depressed="false" class="input-hidden"
@@ -180,7 +181,10 @@ import {ClickLong, ClickShort, Input, InputInvalid} from "common/input";
 export default {
   name: 'PPageSubjects',
   props: {
-    staticFilter: Object,
+    staticFilter: {
+      type: Object,
+      default: () => {},
+    },
     active: Boolean,
   },
   data() {
@@ -206,6 +210,7 @@ export default {
       page: 0,
       selection: [],
       settings: settings,
+      q: q,
       filter: filter,
       lastFilter: {},
       routeName: routeName,
@@ -237,10 +242,11 @@ export default {
 
       const query = this.$route.query;
 
-      this.filter.q = query["q"] ? query["q"] : "";
+      this.routeName = this.$route.name;
+      this.q = query["q"] ? query["q"] : "";
+      this.filter.q = this.q;
       this.filter.hidden = query["hidden"] ? query["hidden"] : "";
       this.filter.order = this.sortOrder();
-      this.routeName = this.$route.name;
 
       this.search();
     }
@@ -429,10 +435,6 @@ export default {
         this.busy = false;
       });
     },
-    clearQuery() {
-      this.filter.q = '';
-      this.updateQuery();
-    },
     addSelection(uid) {
       const pos = this.selection.indexOf(uid);
 
@@ -524,8 +526,19 @@ export default {
         this.listen = true;
       });
     },
+    onChangeQuery(val) {
+      this.q = val ? String(val) : '';
+    },
+    clearQuery() {
+      this.q = '';
+      this.updateQuery();
+    },
     updateQuery() {
-      this.filter.q = this.filter.q.trim();
+      this.filter.q = this.q.trim();
+
+      if (this.loading || !this.active) {
+        return;
+      }
 
       const query = {
         view: this.settings.view

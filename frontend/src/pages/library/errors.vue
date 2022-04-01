@@ -1,34 +1,37 @@
 <template>
   <div v-infinite-scroll="loadMore" class="p-page p-page-errors" :infinite-scroll-disabled="scrollDisabled"
-       :infinite-scroll-distance="1200" :infinite-scroll-listen-for-event="'scrollRefresh'">
+       :infinite-scroll-distance="1600" :infinite-scroll-listen-for-event="'scrollRefresh'">
     <v-toolbar flat :dense="$vuetify.breakpoint.smAndDown" class="page-toolbar" color="secondary">
-      <v-text-field v-model="filter.q"
+      <v-text-field :value="filter.q"
+                    solo hide-details clearable overflow single-line validate-on-blur
                     class="input-search background-inherit elevation-0"
                     browser-autocomplete="off"
-                    solo hide-details clearable overflow
+                    autocorrect="off"
+                    autocapitalize="none"
                     :label="$gettext('Search')"
                     prepend-inner-icon="search"
                     color="secondary-dark"
-                    @click:clear="clearQuery"
+                    @input="onChangeQuery"
                     @keyup.enter.native="updateQuery"
+                    @click:clear="clearQuery"
       ></v-text-field>
-
+      <v-spacer></v-spacer>
       <v-btn icon class="action-reload" :title="$gettext('Reload')" @click.stop="reload">
         <v-icon>refresh</v-icon>
       </v-btn>
-
-      <v-btn icon href="https://github.com/photoprism/photoprism/issues" target="_blank" class="action-bug-report"
-             :title="$gettext('Report Bug')">
+      <v-btn icon href="https://docs.photoprism.app/getting-started/troubleshooting/" target="_blank" class="action-bug-report"
+             :title="$gettext('Troubleshooting Checklists')">
         <v-icon>bug_report</v-icon>
       </v-btn>
     </v-toolbar>
     <v-container v-if="loading" fluid class="pa-4">
       <v-progress-linear color="secondary-dark" :indeterminate="true"></v-progress-linear>
     </v-container>
-    <v-list v-else-if="errors.length > 0" dense two-line class="transparent">
+    <v-list v-else-if="errors.length > 0" dense two-line class="transparent pa-1">
       <v-list-tile
           v-for="err in errors" :key="err.ID"
           avatar
+          class="rounded-4"
           @click="showDetails(err)"
       >
         <v-list-tile-avatar>
@@ -100,6 +103,7 @@ export default {
       dirty: false,
       loading: false,
       scrollDisabled: false,
+      q: q,
       filter: {q},
       batchSize: 100,
       offset: 0,
@@ -115,7 +119,10 @@ export default {
   watch: {
     '$route'() {
       const query = this.$route.query;
-      this.filter.q = query['q'] ? query['q'] : '';
+
+      this.q = query['q'] ? query['q'] : '';
+      this.filter.q = this.q;
+
       this.reload();
     }
   },
@@ -123,8 +130,17 @@ export default {
     this.loadMore();
   },
   methods: {
+    onChangeQuery(val) {
+      this.q = val ? String(val) : '';
+    },
+    clearQuery() {
+      this.q = '';
+      this.updateQuery();
+    },
     updateQuery() {
-      this.filter.q = this.filter.q.trim();
+      this.filter.q = this.q.trim();
+
+      if (this.loading) return;
 
       const query = {};
 
@@ -141,10 +157,6 @@ export default {
       }
 
       this.$router.replace({query});
-    },
-    clearQuery() {
-      this.filter.q = "";
-      this.updateQuery();
     },
     showDetails(err) {
       this.details.err = err;

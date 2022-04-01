@@ -11,7 +11,7 @@ services:
   ## Includes Let's Encrypt certs for local dev domain "localssl.dev" (all records point to 127.0.0.1)
   ## Docs: https://doc.traefik.io/traefik/
   traefik:
-    image: photoprism/traefik:20220208
+    image: photoprism/traefik:20220221
     ports:
       # - "80:80" # HTTP (redirects to HTTPS)
       - "443:443" # HTTPS (required)
@@ -51,20 +51,19 @@ services:
       - "traefik.enable=true"
       - "traefik.http.services.photoprism.loadbalancer.server.port=2342"
       - "traefik.http.routers.photoprism.entrypoints=websecure"
-      - "traefik.http.routers.photoprism.rule=Host(`localssl.dev`, `app.localssl.dev`)"
+      - "traefik.http.routers.photoprism.rule=Host(`localssl.dev`, `app.localssl.dev`, `photoprism.localssl.dev`)"
       - "traefik.http.routers.photoprism.tls.domains[0].main=localssl.dev"
       - "traefik.http.routers.photoprism.tls.domains[0].sans=*.localssl.dev"
       - "traefik.http.routers.photoprism.tls=true"
     environment:
-      GOPROXY: "https://proxy.golang.org,direct"
       PHOTOPRISM_UID: ${UID:-1000}                   # user id, should match your host user id
       PHOTOPRISM_GID: ${GID:-1000}                   # group id
       PHOTOPRISM_ADMIN_PASSWORD: "photoprism"        # "admin" password (min 4 characters)
       ## External development server URL incl http:// or https:// and /path, :port is optional
       PHOTOPRISM_SITE_URL: "https://app.localssl.dev/"
       PHOTOPRISM_SITE_TITLE: "PhotoPrism"
-      PHOTOPRISM_SITE_CAPTION: "Browse Your Life"
-      PHOTOPRISM_SITE_DESCRIPTION: "AI-Powered Photos App. Tags and finds pictures without getting in your way!"
+      PHOTOPRISM_SITE_CAPTION: "AI-Powered Photos App"
+      PHOTOPRISM_SITE_DESCRIPTION: "Tags and finds pictures without getting in your way!"
       PHOTOPRISM_SITE_AUTHOR: "@photoprism_app"
       PHOTOPRISM_DEBUG: "true"
       PHOTOPRISM_READONLY: "false"
@@ -80,22 +79,21 @@ services:
       PHOTOPRISM_DATABASE_USER: "root"
       PHOTOPRISM_DATABASE_PASSWORD: "photoprism"
       PHOTOPRISM_TEST_DRIVER: "sqlite"
-      PHOTOPRISM_TEST_DSN: ".test.db"
       # PHOTOPRISM_TEST_DSN_MYSQL8: "root:photoprism@tcp(mysql:4001)/photoprism?charset=utf8mb4,utf8&collation=utf8mb4_unicode_ci&parseTime=true"
       PHOTOPRISM_ASSETS_PATH: "/go/src/github.com/photoprism/photoprism/assets"
       PHOTOPRISM_STORAGE_PATH: "/go/src/github.com/photoprism/photoprism/storage"
       PHOTOPRISM_ORIGINALS_PATH: "/go/src/github.com/photoprism/photoprism/storage/originals"
       PHOTOPRISM_IMPORT_PATH: "/go/src/github.com/photoprism/photoprism/storage/import"
       PHOTOPRISM_DISABLE_CHOWN: "false"              # disables storage permission updates on startup
-      PHOTOPRISM_DISABLE_BACKUPS: "false"            # don't backup photo and album metadata to YAML files
+      PHOTOPRISM_DISABLE_BACKUPS: "false"            # disables creating YAML metadata files
       PHOTOPRISM_DISABLE_WEBDAV: "false"             # disables built-in WebDAV server
-      PHOTOPRISM_DISABLE_SETTINGS: "false"           # disables Settings in Web UI
+      PHOTOPRISM_DISABLE_SETTINGS: "false"           # disables settings UI and API
       PHOTOPRISM_DISABLE_PLACES: "false"             # disables reverse geocoding and maps
-      PHOTOPRISM_DISABLE_EXIFTOOL: "false"           # don't create ExifTool JSON files for improved metadata extraction
-      PHOTOPRISM_DISABLE_TENSORFLOW: "false"         # don't use TensorFlow for image classification
+      PHOTOPRISM_DISABLE_EXIFTOOL: "false"           # disables creating JSON metadata sidecar files with ExifTool
+      PHOTOPRISM_DISABLE_TENSORFLOW: "false"         # disables all features depending on TensorFlow
       PHOTOPRISM_DETECT_NSFW: "false"                # flag photos as private that MAY be offensive (requires TensorFlow)
       PHOTOPRISM_UPLOAD_NSFW: "false"                # allows uploads that may be offensive
-      PHOTOPRISM_DARKTABLE_PRESETS: "false"          # enables Darktable presets and disables concurrent RAW conversion
+      PHOTOPRISM_RAW_PRESETS: "false"                # enables RAW file converter presets (may reduce performance)
       PHOTOPRISM_THUMB_FILTER: "lanczos"             # resample filter, best to worst: blackman, lanczos, cubic, linear
       PHOTOPRISM_THUMB_UNCACHED: "true"              # enables on-demand thumbnail rendering (high memory and cpu usage)
       PHOTOPRISM_THUMB_SIZE: 2048                    # pre-rendered thumbnail size limit (default 2048, min 720, max 7680)
@@ -108,29 +106,31 @@ services:
       PHOTOPRISM_OIDC_ISSUER_URL: "https://keycloak.localssl.dev/auth/realms/master"
       PHOTOPRISM_OIDC_CLIENT_ID: "photoprism-develop"
       PHOTOPRISM_OIDC_CLIENT_SECRET: "9d8351a0-ca01-4556-9c37-85eb634869b9"
-      ## Enable TensorFlow AVX2 support for modern Intel CPUs (requires starting the container as root):
-      # PHOTOPRISM_INIT: "tensorflow-amd64-avx2"
+      ## Run/install on first startup (options: update, gpu, tensorflow, davfs, clitools, clean):
+      # PHOTOPRISM_INIT: "gpu tensorflow"
       ## Hardware video transcoding config (optional):
-      # PHOTOPRISM_FFMPEG_BUFFERS: "64"              # FFmpeg capture buffers (default: 32)
-      # PHOTOPRISM_FFMPEG_BITRATE: "32"              # FFmpeg encoding bitrate limit in Mbit/s (default: 50)
-      # PHOTOPRISM_FFMPEG_ENCODER: "h264_v4l2m2m"    # use Video4Linux for AVC transcoding (default: libx264)
-      # PHOTOPRISM_FFMPEG_ENCODER: "h264_qsv"        # use Intel Quick Sync Video for AVC transcoding (default: libx264)
-      # PHOTOPRISM_INIT: "intel-graphics tensorflow-amd64-avx2" # Enable TensorFlow AVX2 & Intel Graphics support
-      # PHOTOPRISM_INIT: "install-updates"           # installs general operating system updates
-    ## Hardware devices for video transcoding and machine learning (optional):
+      # PHOTOPRISM_FFMPEG_ENCODER: "nvidia" # FFmpeg Encoders ("software", "intel", "nvidia", "apple", "v4l2", "vaapi")
+      # PHOTOPRISM_FFMPEG_BUFFERS: "64"    # FFmpeg capture buffers (default: 32)
+      # PHOTOPRISM_FFMPEG_BITRATE: "32"    # FFmpeg encoding bitrate limit in Mbit/s (default: 50)
+    ## Share hardware devices with FFmpeg and TensorFlow (optional):
     # devices:
-    #  - "/dev/video11:/dev/video11" # Video4Linux (h264_v4l2m2m)
-    #  - "/dev/dri/renderD128:/dev/dri/renderD128"   # Intel GPU
-    #  - "/dev/dri/card0:/dev/dri/card0"
+    #  - "/dev/dri:/dev/dri"                         # Intel (h264_qsv)
+    #  - "/dev/nvidia0:/dev/nvidia0"                 # Nvidia (h264_nvenc)
+    #  - "/dev/nvidiactl:/dev/nvidiactl"
+    #  - "/dev/nvidia-modeset:/dev/nvidia-modeset"
+    #  - "/dev/nvidia-nvswitchctl:/dev/nvidia-nvswitchctl"
+    #  - "/dev/nvidia-uvm:/dev/nvidia-uvm"
+    #  - "/dev/nvidia-uvm-tools:/dev/nvidia-uvm-tools"
+    #  - "/dev/video11:/dev/video11"                 # Video4Linux (h264_v4l2m2m)
     working_dir: "/go/src/github.com/photoprism/photoprism"
     volumes:
       - ".:/go/src/github.com/photoprism/photoprism"
       - "go-mod:/go/pkg/mod"
 
   ## MariaDB Database Server
-  ## Docs: https://mariadb.com/docs/reference/cs10.6/
+  ## Docs: https://mariadb.com/docs/reference/
   mariadb:
-    image: mariadb:10.6
+    image: mariadb:10.7
     command: mysqld --port=4001 --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=120
     expose:
       - "4001"
@@ -139,17 +139,19 @@ services:
     volumes:
       - "./scripts/sql/mariadb-init.sql:/docker-entrypoint-initdb.d/init.sql"
     environment:
-      MYSQL_ROOT_PASSWORD: photoprism
-      MYSQL_USER: photoprism
-      MYSQL_PASSWORD: photoprism
-      MYSQL_DATABASE: photoprism
+      MARIADB_AUTO_UPGRADE: "1"
+      MARIADB_INITDB_SKIP_TZINFO: "1"
+      MARIADB_DATABASE: "photoprism"
+      MARIADB_USER: "photoprism"
+      MARIADB_PASSWORD: "photoprism"
+      MARIADB_ROOT_PASSWORD: "photoprism"
 
   ## Keycloak OpenID Connect Provider
   ## Admin Account: admin / photoprism
   ## User Account: user / photoprism
   keycloak:
     image: quay.io/keycloak/keycloak:17.0.0
-    command: "start-dev" # development mode, don't use this in production!
+    command: "start-dev" # development mode, do not use this in production!
     links:
       - "traefik:app.localssl.dev"
     labels:

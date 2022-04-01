@@ -1,6 +1,6 @@
 <template>
   <div v-infinite-scroll="loadMore" class="p-page p-page-albums" style="user-select: none"
-       :infinite-scroll-disabled="scrollDisabled" :infinite-scroll-distance="1200"
+       :infinite-scroll-disabled="scrollDisabled" :infinite-scroll-distance="1600"
        :infinite-scroll-listen-for-event="'scrollRefresh'">
     <v-toolbar flat color="secondary" :dense="$vuetify.breakpoint.smAndDown">
       <v-toolbar-title>
@@ -50,9 +50,9 @@
                   aspect-ratio="1"
                   style="user-select: none"
                   class="accent lighten-2 clickable"
-                  @touchstart="input.touchStart($event, index)"
-                  @touchend.prevent="onClick($event, index)"
-                  @mousedown="input.mouseDown($event, index)"
+                  @touchstart.passive="input.touchStart($event, index)"
+                  @touchend.stop.prevent="onClick($event, index)"
+                  @mousedown.stop.prevent="input.mouseDown($event, index)"
                   @click.stop.prevent="onClick($event, index)"
               >
                 <v-btn :ripple="false"
@@ -111,14 +111,17 @@ import Album from "model/album";
 import {DateTime} from "luxon";
 import Event from "pubsub-js";
 import RestModel from "model/rest";
-import {MaxItems} from "../common/clipboard";
-import Notify from "../common/notify";
+import {MaxItems} from "common/clipboard";
+import Notify from "common/notify";
 import {Input, InputInvalid, ClickShort, ClickLong} from "common/input";
 
 export default {
   name: 'PPageAlbums',
   props: {
-    staticFilter: Object,
+    staticFilter: {
+      type: Object,
+      default: () => {},
+    },
     view: String,
   },
   data() {

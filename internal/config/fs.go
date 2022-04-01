@@ -35,7 +35,7 @@ func (c *Config) CreateDirectories() error {
 		if fs.FileExists(path) {
 			result = fmt.Errorf("%s is a file, not a folder: please check your configuration", sanitize.Log(path))
 		} else {
-			result = fmt.Errorf("cannot create %s: please check configuration and permissions", sanitize.Log(path))
+			result = fmt.Errorf("cannot create %s, check config and permissions", sanitize.Log(path))
 		}
 
 		log.Debug(err)
@@ -214,21 +214,6 @@ func (c *Config) ImportPath() string {
 	}
 
 	return fs.Abs(c.options.ImportPath)
-}
-
-// ExifToolBin returns the exiftool executable file name.
-func (c *Config) ExifToolBin() string {
-	return findExecutable(c.options.ExifToolBin, "exiftool")
-}
-
-// ExifToolJson tests if creating JSON metadata sidecar files with Exiftool is enabled.
-func (c *Config) ExifToolJson() bool {
-	return !c.DisableExifTool()
-}
-
-// BackupYaml tests if creating YAML files is enabled.
-func (c *Config) BackupYaml() bool {
-	return !c.DisableBackups()
 }
 
 // SidecarPath returns the storage path for generated sidecar files (relative or absolute).

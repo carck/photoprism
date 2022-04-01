@@ -15,12 +15,14 @@ import (
 	"github.com/photoprism/photoprism/pkg/fs"
 )
 
-// Database drivers (sql dialects).
+// SQL Databases.
 const (
-	MySQL    = "mysql"
-	MariaDB  = "mariadb"
-	SQLite3  = "sqlite3"
-	Postgres = "postgres" // TODO: Requires GORM 2.0 for generic column data types
+	MySQL           = "mysql"
+	MariaDB         = "mariadb"
+	Postgres        = "postgres" // TODO: Requires GORM 2.0 for generic column data types
+	SQLite3         = "sqlite3"
+	SQLiteTestDB    = ".test.db"
+	SQLiteMemoryDSN = ":memory:"
 )
 
 // Options provides a struct in which application configuration is stored.
@@ -65,8 +67,6 @@ type Options struct {
 	DisableBackups        bool    `yaml:"DisableBackups" json:"DisableBackups" flag:"disable-backups"`
 	DisableSettings       bool    `yaml:"DisableSettings" json:"-" flag:"disable-settings"`
 	DisablePlaces         bool    `yaml:"DisablePlaces" json:"DisablePlaces" flag:"disable-places"`
-	DisableExifTool       bool    `yaml:"DisableExifTool" json:"DisableExifTool" flag:"disable-exiftool"`
-	DisableFFmpeg         bool    `yaml:"DisableFFmpeg" json:"DisableFFmpeg" flag:"disable-ffmpeg"`
 	DisableDarktable      bool    `yaml:"DisableDarktable" json:"DisableDarktable" flag:"disable-darktable"`
 	DisableRawtherapee    bool    `yaml:"DisableRawtherapee" json:"DisableRawtherapee" flag:"disable-rawtherapee"`
 	DisableSips           bool    `yaml:"DisableSips" json:"DisableSips" flag:"disable-sips"`
@@ -74,6 +74,10 @@ type Options struct {
 	DisableTensorFlow     bool    `yaml:"DisableTensorFlow" json:"DisableTensorFlow" flag:"disable-tensorflow"`
 	DisableFaces          bool    `yaml:"DisableFaces" json:"DisableFaces" flag:"disable-faces"`
 	DisableClassification bool    `yaml:"DisableClassification" json:"DisableClassification" flag:"disable-classification"`
+	DisableFFmpeg         bool    `yaml:"DisableFFmpeg" json:"DisableFFmpeg" flag:"disable-ffmpeg"`
+	DisableExifTool       bool    `yaml:"DisableExifTool" json:"DisableExifTool" flag:"disable-exiftool"`
+	ExifBruteForce        bool    `yaml:"ExifBruteForce" json:"ExifBruteForce" flag:"exif-bruteforce"`
+	RawPresets            bool    `yaml:"RawPresets" json:"RawPresets" flag:"raw-presets"`
 	DetectNSFW            bool    `yaml:"DetectNSFW" json:"DetectNSFW" flag:"detect-nsfw"`
 	UploadNSFW            bool    `yaml:"UploadNSFW" json:"-" flag:"upload-nsfw"`
 	DefaultTheme          string  `yaml:"DefaultTheme" json:"DefaultTheme" flag:"default-theme"`
@@ -102,7 +106,6 @@ type Options struct {
 	HttpPort              int     `yaml:"HttpPort" json:"-" flag:"http-port"`
 	HttpMode              string  `yaml:"HttpMode" json:"-" flag:"http-mode"`
 	HttpCompression       string  `yaml:"HttpCompression" json:"-" flag:"http-compression"`
-	RawPresets            bool    `yaml:"RawPresets" json:"RawPresets" flag:"raw-presets"`
 	DarktableBin          string  `yaml:"DarktableBin" json:"-" flag:"darktable-bin"`
 	DarktableBlacklist    string  `yaml:"DarktableBlacklist" json:"-" flag:"darktable-blacklist"`
 	RawtherapeeBin        string  `yaml:"RawtherapeeBin" json:"-" flag:"rawtherapee-bin"`

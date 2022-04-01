@@ -1,17 +1,19 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: ci@photoprism.app\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
-"Last-Translator: Michael Mayer <michael@photoprism.org>\n"
-"Language-Team: \n"
+"PO-Revision-Date: 2022-03-18 10:07+0000\n"
+"Last-Translator: Admin <hello@photoprism.app>\n"
+"Language-Team: Chinese (Traditional) <https://translate.photoprism.app/"
+"projects/photoprism/frontend/zh_Hant/>\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 4.11.2\n"
 "Generated-By: easygettext\n"
-"X-Generator: Poedit 3.0.1\n"
 
 #: src/dialog/photo/files.vue:140 src/dialog/photo/files.vue:137
 #, fuzzy
@@ -172,7 +174,7 @@ msgstr "相簿"
 
 #: src/component/album/clipboard.vue:74
 msgid "Albums deleted"
-msgstr "已刪除相簿"
+msgstr "已删除的专辑"
 
 #: src/pages/albums.vue:257 src/share/albums.vue:215
 msgid "All %{n} albums loaded"
@@ -231,9 +233,8 @@ msgstr "所有年份"
 msgid ""
 "Also, please leave a star on GitHub if you like this project. It provides "
 "additional motivation to keep going."
-msgstr ""
-"另外，如果你喜歡這個項目，請在 GitHub 上留下星星。它提供了繼續前進的額外動"
-"力。"
+msgstr "另外，如果你喜歡這個項目，請在 GitHub "
+"上留下星星。它提供了繼續前進的額外動力。"
 
 #: src/dialog/share.vue:75
 msgid ""
@@ -263,7 +264,7 @@ msgstr "所有私人相片跟影片都會保持私人，不會被分享。"
 
 #: src/dialog/account/edit.vue:472
 msgid "API Key"
-msgstr "API Key"
+msgstr "API密钥"
 
 #: src/dialog/photo/details.vue:117
 msgid "Apply"
@@ -1185,7 +1186,7 @@ msgstr "標籤"
 
 #: src/component/label/clipboard.vue:42
 msgid "Labels deleted"
-msgstr "標籤已刪除"
+msgstr "删除的标签"
 
 #: src/options/options.js:384
 msgid "Lanczos: Detail Preservation, Minimal Artifacts"
@@ -1504,8 +1505,7 @@ msgstr "注意："
 msgid ""
 "Note: Only WebDAV servers, like Nextcloud or PhotoPrism, can be configured "
 "as remote service for backup and file upload."
-msgstr ""
-"注意：只能將WebDAV服務器（如Nextcloud或PhotoPrism）配置為遠程服務，以進行備份"
+msgstr "注意：只能將WebDAV服務器（如Nextcloud或PhotoPrism）配置為遠程服務，以進行備份"
 "和文件上傳。"
 
 #: src/pages/settings/account.vue:20
@@ -1629,7 +1629,7 @@ msgstr "密碼"
 
 #: src/pages/settings/account.vue:22
 msgid "Password changed"
-msgstr "密碼已更換"
+msgstr "密码已修改"
 
 #: src/component/navigation.vue:199 src/component/navigation.vue:791
 #: src/dialog/photo/edit.vue:52 src/dialog/photo/edit.vue:6
@@ -1850,8 +1850,7 @@ msgstr "從相冊中刪除"
 msgid ""
 "Remove imported files to save storage. Unsupported file types will never be "
 "deleted, they remain in their current location."
-msgstr ""
-"刪除導入的文件以節省存儲空間。不支持的文件類型將永遠不會被刪除，它們會保留在"
+msgstr "刪除導入的文件以節省存儲空間。不支持的文件類型將永遠不會被刪除，它們會保留在"
 "當前位置。"
 
 #: src/pages/library/errors.vue:87
@@ -1934,15 +1933,15 @@ msgstr "選擇或新增相簿"
 
 #: src/component/photo/clipboard.vue:39
 msgid "Selection approved"
-msgstr "已核准選取項目"
+msgstr "选择已批准"
 
 #: src/component/photo/clipboard.vue:55
 msgid "Selection archived"
-msgstr "已封存選取項目"
+msgstr "所选项目已被归档"
 
 #: src/component/photo/clipboard.vue:80
 msgid "Selection restored"
-msgstr "已恢復選取項目"
+msgstr "所选项目已被恢复"
 
 #: src/pages/about/feedback.vue:35
 msgid "Send"
@@ -1967,12 +1966,12 @@ msgstr "服務 URL"
 #: src/routes.js:320 src/routes.js:332 src/routes.js:344 src/routes.js:356
 #: src/routes.js:368
 msgid "Settings"
-msgstr "設定"
+msgstr "设置"
 
 #: src/pages/settings/advanced.vue:39 src/pages/settings/general.vue:103
 #: src/pages/settings/library.vue:50
 msgid "Settings saved"
-msgstr "設定已儲存"
+msgstr "设置已保存"
 
 #: src/dialog/share/upload.vue:32
 msgid "Setup"
@@ -2077,8 +2076,7 @@ msgstr "西班牙文"
 msgid ""
 "Sponsors get access to additional features, receive direct technical support "
 "via email, and can join our private chat room on matrix.org."
-msgstr ""
-"贊助商可以訪問其他功能，通過電子郵件獲得直接的技術支持，並且可以加入我們在 "
+msgstr "贊助商可以訪問其他功能，通過電子郵件獲得直接的技術支持，並且可以加入我們在 "
 "matrix.org 上的私人聊天室。"
 
 #: src/component/photo/cards.vue:235 src/component/photo/mosaic.vue:210
@@ -2120,7 +2118,7 @@ msgstr "開始/停止 幻燈片"
 
 #: src/component/navigation.vue:271
 msgid "States"
-msgstr "狀態"
+msgstr "省"
 
 #: src/pages/settings/advanced.vue:374
 msgid "Static Size Limit: %{n}px"
@@ -2204,8 +2202,7 @@ msgid ""
 "This mounts the originals folder as a network drive and allows you to open, "
 "edit, and delete files from your computer or smartphone as if they were "
 "local."
-msgstr ""
-"這會將原始文件夾安裝為網絡驅動器，並允許您從計算機或智能手機中打開，編輯和刪"
+msgstr "這會將原始文件夾安裝為網絡驅動器，並允許您從計算機或智能手機中打開，編輯和刪"
 "除文件，就像它們是本地文件一樣。"
 
 #: src/pages/settings/advanced.vue:253
@@ -2403,9 +2400,8 @@ msgstr "檢視"
 msgid ""
 "We'll do our best to answer all your questions. In return, we ask you to "
 "back us on Patreon or GitHub Sponsors."
-msgstr ""
-"我們將盡力回答您的所有問題。作為回報，我們要求您在 Patreon 或 GitHub 贊助商上"
-"支持我們。"
+msgstr "我們將盡力回答您的所有問題。作為回報，我們要求您在 Patreon 或 GitHub "
+"贊助商上支持我們。"
 
 #: src/dialog/sponsor.vue:18
 msgid ""
@@ -2421,8 +2417,7 @@ msgstr "WebDAV客戶端可以使用以下URL連接到PhotoPrism："
 msgid ""
 "WebDAV clients, like Microsoft’s Windows Explorer or Apple's Finder, can "
 "connect directly to PhotoPrism."
-msgstr ""
-"WebDAV客戶端（例如Microsoft的Windows資源管理器或Apple的Finder）可以直接連接到"
+msgstr "WebDAV客戶端（例如Microsoft的Windows資源管理器或Apple的Finder）可以直接連接到"
 "PhotoPrism。"
 
 #: src/dialog/share.vue:82 src/dialog/share/upload.vue:7

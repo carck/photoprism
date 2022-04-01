@@ -51,6 +51,7 @@
                       :disabled="busy"
                       :readonly="true"
                       browser-autocomplete="off"
+                      autocorrect="off"
                       class="input-name pa-0 ma-0"
                       hide-details
                       single-line
@@ -104,7 +105,10 @@
 export default {
   name: 'PTabPhotoPeople',
   props: {
-    model: Object,
+    model: {
+      type: Object,
+      default: () => {},
+    },
     uid: String,
   },
   data() {

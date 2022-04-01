@@ -30,7 +30,7 @@ var BackupCommand = cli.Command{
 	Name:        "backup",
 	Description: backupDescription,
 	Usage:       "Creates an index SQL dump and optionally album YAML files organized by type",
-	ArgsUsage:   "[FILENAME | -]",
+	ArgsUsage:   "[filename.sql | -]",
 	Flags:       backupFlags,
 	Action:      backupAction,
 }
@@ -144,6 +144,9 @@ func backupAction(ctx *cli.Context) error {
 		var stderr bytes.Buffer
 		cmd.Stdout = &out
 		cmd.Stderr = &stderr
+
+		// Log exact command for debugging in trace mode.
+		log.Trace(cmd.String())
 
 		// Run backup command.
 		if err := cmd.Run(); err != nil {

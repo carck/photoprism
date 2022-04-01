@@ -16,35 +16,40 @@ import (
 	"strings"
 	"time"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/photoprism/photoprism/internal/hub/places"
 	"github.com/photoprism/photoprism/pkg/fs"
 	"github.com/photoprism/photoprism/pkg/sanitize"
-	"gopkg.in/yaml.v2"
 )
 
 // Config represents backend api credentials for maps & geodata.
 type Config struct {
+	Version   string `json:"version" yaml:"Version"`
+	FileName  string `json:"-" yaml:"-"`
 	Key       string `json:"key" yaml:"Key"`
 	Secret    string `json:"secret" yaml:"Secret"`
 	Session   string `json:"session" yaml:"Session"`
 	Status    string `json:"status" yaml:"Status"`
-	Version   string `json:"version" yaml:"Version"`
 	Serial    string `json:"serial" yaml:"Serial"`
-	FileName  string `json:"-" yaml:"-"`
+	Env       string `json:"-" yaml:"-"`
+	UserAgent string `json:"-" yaml:"-"`
 	PartnerID string `json:"-" yaml:"-"`
 }
 
 // NewConfig creates a new backend api credentials instance.
-func NewConfig(version, fileName, serial, partner string) *Config {
+func NewConfig(version, fileName, serial, env, userAgent, partnerId string) *Config {
 	return &Config{
+		Version:   version,
+		FileName:  fileName,
 		Key:       "",
 		Secret:    "",
 		Session:   "",
 		Status:    "",
-		Version:   version,
 		Serial:    serial,
-		FileName:  fileName,
-		PartnerID: partner,
+		Env:       env,
+		UserAgent: userAgent,
+		PartnerID: partnerId,
 	}
 }
 
@@ -133,7 +138,15 @@ func (c *Config) Refresh() (err error) {
 
 	c.Sanitize()
 
+	// Create new http.Client instance.
+	//
+	// NOTE: Timeout specifies a time limit for requests made by
+	// this Client. The timeout includes connection time, any
+	// redirects, and reading the response body. The timer remains
+	// running after Get, Head, Post, or Do return and will
+	// interrupt reading of the Response.Body.
 	client := &http.Client{Timeout: 60 * time.Second}
+
 	url := ServiceURL
 	method := http.MethodPost
 
@@ -147,16 +160,26 @@ func (c *Config) Refresh() (err error) {
 		log.Debugf("config: requesting new api key for maps and places")
 	}
 
-	if j, err := json.Marshal(NewRequest(c.Version, c.Serial, c.PartnerID)); err != nil {
+	// Create request.
+	if j, err := json.Marshal(NewRequest(c.Version, c.Serial, c.Env, c.PartnerID)); err != nil {
 		return err
 	} else if req, err = http.NewRequest(method, url, bytes.NewReader(j)); err != nil {
 		return err
 	}
 
+	// Set user agent.
+	if c.UserAgent != "" {
+		req.Header.Set("User-Agent", c.UserAgent)
+	} else {
+		req.Header.Set("User-Agent", "PhotoPrism/Test")
+	}
+
+	// Add Content-Type header.
 	req.Header.Add("Content-Type", "application/json")
 
 	var r *http.Response
 
+	// Send request.
 	for i := 0; i < 3; i++ {
 		r, err = client.Do(req)
 
@@ -165,6 +188,7 @@ func (c *Config) Refresh() (err error) {
 		}
 	}
 
+	// Ok?
 	if err != nil {
 		return err
 	} else if r.StatusCode >= 400 {
@@ -172,6 +196,7 @@ func (c *Config) Refresh() (err error) {
 		return err
 	}
 
+	// Decode JSON response.
 	err = json.NewDecoder(r.Body).Decode(c)
 
 	if err != nil {

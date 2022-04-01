@@ -15,6 +15,8 @@
 
       <v-card-text class="pa-2 body-1">
         <v-text-field
+            autocorrect="off"
+            autocapitalize="none"
             browser-autocomplete="off"
             hide-details readonly
             single-line
@@ -49,7 +51,7 @@
 </template>
 
 <script>
-import Util from "../common/util";
+import Util from "common/util";
 
 export default {
   name: 'PDialogWebdav',
