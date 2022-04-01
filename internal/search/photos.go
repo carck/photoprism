@@ -25,7 +25,7 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 		Select(`photos.photo_uid, photos.taken_at, files.file_hash ,photos.photo_type `).
 		Joins("JOIN files ON photos.id = files.photo_id AND files.file_missing = 0 AND files.deleted_at IS NULL and files.file_primary = 1").
 		Where("photos.photo_quality >= 3 and photos.photo_private = 0").
-		Order("photos.taken_at DESC, photos.photo_uid")
+		Order("photos.taken_at DESC, photos.photo_uid DESC")
 
 	if f.Album != "" {
 		if f.Path != "" {
@@ -85,7 +85,8 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 		Joins("JOIN photos ON files.photo_id = photos.id AND files.media_id IS NOT NULL").
 		Joins("LEFT JOIN cameras ON photos.camera_id = cameras.id").
 		Joins("LEFT JOIN lenses ON photos.lens_id = lenses.id").
-		Joins("LEFT JOIN places ON photos.place_id = places.id")
+		Joins("LEFT JOIN places ON photos.place_id = places.id").
+		Where("files.deleted_at IS NULL")
 
 	// Offset and count.
 	if f.Count > 0 && f.Count <= MaxResults {
