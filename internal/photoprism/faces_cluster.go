@@ -2,6 +2,7 @@ package photoprism
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/carck/onnx-runtime-go"
 	"github.com/dustin/go-humanize/english"
@@ -12,6 +13,8 @@ import (
 	"github.com/photoprism/photoprism/pkg/clusters"
 )
 
+var lastCluster time.Time = time.Unix(0, 0)
+
 // Cluster clusters indexed face embeddings.
 func (w *Faces) Cluster(opt FacesOptions) (added entity.Faces, err error) {
 	if w.Disabled() {
@@ -21,10 +24,12 @@ func (w *Faces) Cluster(opt FacesOptions) (added entity.Faces, err error) {
 	// Skip clustering if index contains no new face markers, and force option isn't set.
 	if opt.Force {
 		log.Infof("faces: enforced clustering")
-	} else if n := query.CountNewFaceMarkers(face.ClusterSizeThreshold, face.ClusterScoreThreshold); n < opt.SampleThreshold() {
+	} else if n := query.CountNewFaceMarkers(face.ClusterSizeThreshold, face.ClusterScoreThreshold, lastCluster); n < opt.SampleThreshold() {
 		log.Debugf("faces: skipped clustering")
 		return added, nil
 	}
+
+	lastCluster = time.Now()
 
 	// Fetch unclustered face embeddings.
 	embeddings, err := query.Embeddings(false, true, face.ClusterSizeThreshold, face.ClusterScoreThreshold)

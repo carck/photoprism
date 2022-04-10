@@ -10,6 +10,8 @@ import (
 	"github.com/photoprism/photoprism/internal/query"
 )
 
+var lastMatch time.Time = time.Unix(0, 0)
+
 // FacesMatchResult represents the outcome of Faces.Match().
 type FacesMatchResult struct {
 	Updated    int64
@@ -30,20 +32,21 @@ func (w *Faces) Match(opt FacesOptions) (result FacesMatchResult, err error) {
 		return result, fmt.Errorf("facial recognition is disabled")
 	}
 
-	var unmatchedMarkers int
+	var runMatch bool
 
 	// Skip matching if index contains no new face markers, and force option isn't set.
 	if opt.Force {
 		log.Infof("faces: updating all markers")
-	} else if unmatchedMarkers = query.CountUnmatchedFaceMarkers(); unmatchedMarkers > 0 {
-		log.Infof("faces: found %s", english.Plural(unmatchedMarkers, "unmatched marker", "unmatched markers"))
+	} else if runMatch = query.ShouldRunFaceMatch(lastMatch); runMatch {
+		log.Infof("faces: run matches")
 	} else {
 		log.Debugf("faces: found no unmatched markers")
 	}
 
+	lastMatch = time.Now()
 	matchedAt := entity.TimePointer()
 
-	if opt.Force || unmatchedMarkers > 0 {
+	if opt.Force || runMatch {
 		faces, err := query.Faces(false, false, false)
 
 		if err != nil || len(faces) == 0 {

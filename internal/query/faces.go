@@ -2,6 +2,7 @@ package query
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/face"
@@ -79,14 +80,32 @@ func RemoveAutoFaceClusters() (removed int64, err error) {
 	return res.RowsAffected, res.Error
 }
 
-// CountNewFaceMarkers counts the number of new face markers in the index.
-func CountNewFaceMarkers(size, score int) (n int) {
-	var f entity.Face
+func ShouldRunFaceMatch(since time.Time) bool {
+	n := 0
+	q := Db().Model(&entity.Markers{}).
+		Where("created_at >= ?", since)
 
-	if err := Db().Where("face_src = ?", entity.SrcAuto).
-		Order("created_at DESC").Limit(1).Take(&f).Error; err != nil {
-		log.Debugf("faces: found no existing clusters")
+	if err := q.Count(&n).Error; err != nil || n > 0 {
+		if err != nil {
+			log.Errorf("faces: %s (face match)", err)
+		}
+		return true
 	}
+
+	q = Db().Model(&entity.Faces{}).
+		Where("created_at >= ?", since)
+
+	if err := q.Count(&n).Error; err != nil || n > 0 {
+		if err != nil {
+			log.Errorf("faces: %s (face match)", err)
+		}
+		return true
+	}
+	return false
+}
+
+// CountNewFaceMarkers counts the number of new face markers in the index.
+func CountNewFaceMarkers(size, score int, since time.Time) (n int) {
 
 	q := Db().Model(&entity.Markers{}).
 		Where("marker_type = ?", entity.MarkerFace).
@@ -100,8 +119,8 @@ func CountNewFaceMarkers(size, score int) (n int) {
 		q = q.Where("score >= ?", score)
 	}
 
-	if !f.CreatedAt.IsZero() {
-		q = q.Where("created_at > ?", f.CreatedAt)
+	if !since.IsZero() {
+		q = q.Where("created_at > ?", since)
 	}
 
 	if err := q.Count(&n).Error; err != nil {
