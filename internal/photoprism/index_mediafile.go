@@ -361,7 +361,6 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 	// Handle file types.
 	switch {
 	case m.IsJpeg():
-	case m.IsHEIF():
 		// Color information
 		if p, err := m.Colors(Config().ThumbPath()); err != nil {
 			log.Debugf("%s while detecting colors", err.Error())
