@@ -134,6 +134,7 @@ type Options struct {
 	FaceClusterSize       int     `yaml:"-" json:"-" flag:"face-cluster-size"`
 	FaceClusterScore      int     `yaml:"-" json:"-" flag:"face-cluster-score"`
 	FaceClusterCore       int     `yaml:"-" json:"-" flag:"face-cluster-core"`
+	FaceClusterSample     int     `yaml:"-" json:"-" flag:"face-cluster-sample"`
 	FaceClusterDist       float64 `yaml:"-" json:"-" flag:"face-cluster-dist"`
 	FaceMatchDist         float64 `yaml:"-" json:"-" flag:"face-match-dist"`
 	PIDFilename           string  `yaml:"PIDFilename" json:"-" flag:"pid-filename"`

@@ -49,7 +49,7 @@ func (m *Meta) Start(delay, interval time.Duration, force bool) (err error) {
 	// Run faces worker.
 	if w := photoprism.NewFaces(m.conf); w.Disabled() {
 		log.Debugf("metadata: skipping facial recognition")
-	} else if err := w.Start(photoprism.FacesOptions{}); err != nil {
+	} else if err := w.Start(photoprism.FacesOptions{Threshold: m.conf.FaceClusterSample()}); err != nil {
 		log.Warn(err)
 	}
 

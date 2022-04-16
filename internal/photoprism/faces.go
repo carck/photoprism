@@ -30,7 +30,8 @@ func NewFaces(conf *config.Config) *Faces {
 // StartDefault starts face clustering and matching with default options.
 func (w *Faces) StartDefault() (err error) {
 	return w.Start(FacesOptions{
-		Force: false,
+		Force:     false,
+		Threshold: conf.FaceClusterSample(),
 	})
 }
 

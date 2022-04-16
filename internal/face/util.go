@@ -16,7 +16,7 @@ func L2Norm(data []float32, epsilon float64) float64 {
 	return norm
 }
 
-func L2Norm64(data []float64, epsilon float64) (float64, []float32){
+func L2Norm64(data []float64, epsilon float64) (float64, []float32) {
 	var sum float64 = 0
 	for _, v := range data {
 		sum += math.Pow(v, 2)

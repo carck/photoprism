@@ -17,9 +17,9 @@ type Net struct {
 }
 
 type InsightFace struct {
-	Box      []float64   `json:"bbox"`
+	Box       []float64   `json:"bbox"`
 	Kps       [][]float64 `json:"kps"`
-	Score float64     `json:"det_score"`
+	Score     float64     `json:"det_score"`
 	Embedding []float64   `json:"embedding"`
 }
 
@@ -58,7 +58,7 @@ func (t *Net) Detect(fileName string, minSize int, cacheCrop bool, expected int)
 		faces = append(faces, Face{
 			Rows:      imageHeight,
 			Cols:      imageWidth,
-			Score:     int(insightFaces[i].Score*100),
+			Score:     int(insightFaces[i].Score * 100),
 			Area:      faceCoord,
 			Eyes:      make([]Area, 0),
 			Landmarks: make([]Area, 5),

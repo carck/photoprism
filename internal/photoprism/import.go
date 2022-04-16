@@ -248,7 +248,7 @@ func (imp *Import) Start(opt ImportOptions) fs.Done {
 		// Run facial recognition if enabled.
 		if w := NewFaces(imp.conf); w.Disabled() {
 			log.Debugf("import: skipping facial recognition")
-		} else if err := w.Start(FacesOptionsDefault()); err != nil {
+		} else if err := w.Start(FacesOptionsDefault(imp.conf)); err != nil {
 			log.Errorf("import: %s", err)
 		}
 
