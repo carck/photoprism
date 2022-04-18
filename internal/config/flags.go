@@ -538,6 +538,12 @@ var GlobalFlags = []cli.Flag{
 		Value:  face.ClusterCore,
 		EnvVar: "PHOTOPRISM_FACE_CLUSTER_CORE",
 	},
+	cli.IntFlag{
+		Name:   "face-cluster-sample",
+		Usage:  "`NUMBER` of faces samples to start clustering",
+		Value:  face.SampleThreshold,
+		EnvVar: "PHOTOPRISM_FACE_CLUSTER_SAMPLE",
+	},
 	cli.Float64Flag{
 		Name:   "face-cluster-dist",
 		Usage:  "similarity `DISTANCE` of faces forming a cluster core (0.1-1.5)",

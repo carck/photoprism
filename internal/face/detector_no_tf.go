@@ -1,5 +1,5 @@
-//go:build NOTENSORFLOW
-// +build NOTENSORFLOW
+//go:build LIBFACEDETECTION
+// +build LIBFACEDETECTION
 
 package face
 

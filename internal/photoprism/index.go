@@ -252,7 +252,7 @@ func (ind *Index) Start(opt IndexOptions) fs.Done {
 		// Run facial recognition if enabled.
 		if w := NewFaces(ind.conf); w.Disabled() {
 			log.Debugf("index: skipping facial recognition")
-		} else if err := w.Start(FacesOptionsDefault()); err != nil {
+		} else if err := w.Start(FacesOptionsDefault(ind.conf)); err != nil {
 			log.Errorf("index: %s", err)
 		}
 

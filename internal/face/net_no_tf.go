@@ -1,5 +1,5 @@
-//go:build NOTENSORFLOW
-// +build NOTENSORFLOW
+//go:build LIBFACEDETECTION
+// +build LIBFACEDETECTION
 
 package face
 
@@ -98,18 +98,6 @@ func (t *Net) loadModel() error {
 	t.model = model
 
 	return nil
-}
-
-func L2Norm(data []float32, epsilon float64) float64 {
-	var sum float64 = 0
-	for _, v := range data {
-		sum += math.Pow(float64(v), 2)
-	}
-	norm := math.Sqrt(math.Max(sum, epsilon))
-	for i, v := range data {
-		data[i] = float32(float64(v) / norm)
-	}
-	return norm
 }
 
 func (t *Net) getFaceEmbedding(fileName string, f Face) (float64, []float32) {

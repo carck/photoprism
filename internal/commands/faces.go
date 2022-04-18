@@ -301,7 +301,8 @@ func facesUpdateAction(ctx *cli.Context) error {
 	conf.InitDb()
 
 	opt := photoprism.FacesOptions{
-		Force: ctx.Bool("force"),
+		Force:     ctx.Bool("force"),
+		Threshold: conf.FaceClusterSample(),
 	}
 
 	w := service.Faces()

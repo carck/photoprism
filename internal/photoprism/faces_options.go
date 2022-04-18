@@ -1,6 +1,7 @@
 package photoprism
 
 import "github.com/photoprism/photoprism/internal/face"
+import "github.com/photoprism/photoprism/internal/config"
 
 type FacesOptions struct {
 	Force     bool
@@ -18,8 +19,8 @@ func (o FacesOptions) SampleThreshold() int {
 }
 
 // FacesOptionsDefault returns new faces options with default values.
-func FacesOptionsDefault() FacesOptions {
-	result := FacesOptions{}
+func FacesOptionsDefault(conf *config.Config) FacesOptions {
+	result := FacesOptions{Threshold: conf.FaceClusterSample()}
 
 	return result
 }

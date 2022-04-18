@@ -56,6 +56,14 @@ func (c *Config) FaceClusterCore() int {
 	return c.options.FaceClusterCore
 }
 
+func (c *Config) FaceClusterSample() int {
+	if c.options.FaceClusterSample <= 0 {
+		return face.SampleThreshold
+	}
+
+	return c.options.FaceClusterSample
+}
+
 // FaceClusterDist returns the radius of faces forming a cluster core.
 func (c *Config) FaceClusterDist() float64 {
 	if c.options.FaceClusterDist < 0.1 || c.options.FaceClusterDist > 1.5 {
