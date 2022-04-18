@@ -855,7 +855,7 @@ func (m *MediaFile) decodeDimensions() error {
 
 		orientation := m.Orientation()
 
-		if orientation > 4 && orientation <= 8 {
+		if !m.IsHEIF() && orientation > 4 && orientation <= 8 {
 			m.width = size.Height
 			m.height = size.Width
 		} else {
