@@ -37,6 +37,7 @@ func (t *Net) Detect(fileName string, minSize int, cacheCrop bool, expected int)
 		return faces, err
 	}
 
+	defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(&insightFaces)
 	if err != nil {
 		return faces, err
