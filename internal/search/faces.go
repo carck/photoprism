@@ -21,20 +21,20 @@ func Faces(f form.SearchFaces) (results FaceResults, err error) {
 	s := UnscopedDb().Table(facesTable)
 
 	if f.Markers {
-		s = s.Select(fmt.Sprintf(`%s.*, m.marker_uid, m.file_uid, m.marker_name, m.subj_src, m.marker_src, 
+		s = s.Select(fmt.Sprintf(`%s.*, m.marker_uid, m.file_uid, s.subj_name as marker_name, m.subj_src, m.marker_src, 
 			m.marker_type, m.marker_review, m.marker_invalid, m.size, m.score, m.thumb, m.face_dist`, facesTable))
 
 		if txt.Yes(f.Unknown) {
 			s = s.Joins(`JOIN (
 	        SELECT face_id, MIN(marker_uid) AS marker_uid FROM markers
-	        WHERE face_id <> '' AND subj_uid = '' AND marker_name = '' AND marker_type = 'face' AND marker_src = 'image'
+	        WHERE face_id <> '' AND subj_uid = '' AND marker_type = 'face' AND marker_src = 'image'
 	          AND marker_invalid = 0
 	        GROUP BY face_id) fm
 	        ON faces.id = fm.face_id`)
 		} else if txt.No(f.Unknown) {
 			s = s.Joins(`JOIN (
 	        SELECT face_id, MIN(marker_uid) AS marker_uid FROM markers
-	        WHERE face_id <> '' AND subj_uid <> '' AND marker_name <> '' AND marker_type = 'face' AND marker_src = 'image'
+	        WHERE face_id <> '' AND subj_uid <> '' AND marker_type = 'face' AND marker_src = 'image'
 	          AND marker_invalid = 0
 	        GROUP BY face_id) fm
 	        ON faces.id = fm.face_id`)
@@ -47,7 +47,8 @@ func Faces(f form.SearchFaces) (results FaceResults, err error) {
 	        ON faces.id = fm.face_id`)
 		}
 
-		s = s.Joins("JOIN markers m ON m.marker_uid = fm.marker_uid")
+		s = s.Joins("JOIN markers m ON m.marker_uid = fm.marker_uid").
+			Joins("LEFT JOIN subjects s on m.subj_uid = s.subj_uid ")
 	} else {
 		s = s.Select(fmt.Sprintf(`%s.*`, facesTable))
 	}
