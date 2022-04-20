@@ -83,6 +83,7 @@ func RemoveAutoFaceClusters() (removed int64, err error) {
 func ShouldRunFaceMatch(since time.Time) bool {
 	n := 0
 	q := Db().Model(&entity.Markers{}).
+		Where("face_id = ''").
 		Where("created_at >= ?", since)
 
 	if err := q.Count(&n).Error; err != nil || n > 0 {

@@ -50,6 +50,7 @@ func UnmatchedFaceMarkers(limit, offset int, matchedBefore *time.Time) (result e
 		Where("marker_type = ?", entity.MarkerFace).
 		Where("marker_invalid = 0").
 		Where("q >= 16").
+		Where("face_id = ''").
 		Where("embeddings_json <> ''")
 
 	if matchedBefore == nil {
@@ -85,7 +86,6 @@ func Embeddings(single, unclustered bool, size, score int) (result face.Embeddin
 		Where("marker_type = ?", entity.MarkerFace).
 		Where("marker_invalid = 0").
 		Where("embeddings_json <> ''").
-		Where("q >= 17").
 		Order("marker_uid")
 
 	if size > 0 {
@@ -97,7 +97,7 @@ func Embeddings(single, unclustered bool, size, score int) (result face.Embeddin
 	}
 
 	if unclustered {
-		stmt = stmt.Where("face_id = ''")
+		stmt = stmt.Where("face_id = ''").Where("q >= 21")
 	}
 
 	if err := stmt.Pluck("embeddings_json", &col).Error; err != nil {
