@@ -50,7 +50,7 @@ func UnmatchedFaceMarkers(limit, offset int, matchedBefore *time.Time) (result e
 		Where("marker_type = ?", entity.MarkerFace).
 		Where("marker_invalid = 0").
 		Where("q >= 16").
-		Where("face_id = ''").
+		Where("subj_uid = ''").
 		Where("embeddings_json <> ''")
 
 	if matchedBefore == nil {

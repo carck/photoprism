@@ -53,7 +53,7 @@ func (w *Faces) Match(opt FacesOptions) (result FacesMatchResult, err error) {
 			return result, err
 		}
 
-		if r, err := w.MatchFaces(faces, opt.Force, nil); err != nil {
+		if r, err := w.MatchFaces(faces, opt.Force, matchedAt); err != nil {
 			return result, err
 		} else {
 			result.Add(r)
@@ -105,7 +105,6 @@ func (w *Faces) MatchFaces(faces entity.Faces, force bool, matchedBefore *time.T
 		if err != nil {
 			return result, err
 		}
-
 		if len(markers) == 0 {
 			break
 		}
@@ -130,7 +129,7 @@ func (w *Faces) MatchFaces(faces entity.Faces, force bool, matchedBefore *time.T
 
 			// Find the closest face match for marker.
 			for i, m := range faces {
-				if ok, dist := m.Match(marker.Embeddings()); ok && (f == nil || dist < d) {
+				if ok, dist := m.Match(marker.Embeddings()); ok && (f == nil || dist < d && f.FaceSrc == m.FaceSrc) {
 					f = &faces[i]
 					d = dist
 				}

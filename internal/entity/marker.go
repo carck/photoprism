@@ -166,6 +166,11 @@ func (m *Marker) SetName(name, src string) (changed bool, err error) {
 		return false, nil
 	}
 
+	// force create a face if marker is unknown
+	if m.MarkerName == "" {
+		m.FaceID = ""
+		m.face = nil
+	}
 	if m.MarkerName == name {
 		// Name didn't change.
 		return false, nil
@@ -204,7 +209,7 @@ func (m *Marker) SaveForm(f form.Marker) (changed bool, err error) {
 
 // HasFace tests if the marker already has the best matching face.
 func (m *Marker) HasFace(f *Face, dist float64) bool {
-	if m.FaceID == "" {
+	if m.FaceID == "" || m.SubjUID == "" {
 		return false
 	} else if f == nil {
 		return m.FaceID != ""

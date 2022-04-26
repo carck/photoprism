@@ -23,7 +23,7 @@ func Faces(knownOnly, unmatched, hidden bool) (result entity.Faces, err error) {
 	}
 
 	err = stmt.Where("face_hidden = ?", hidden).
-		Order("subj_uid, samples DESC").
+		Order("face_src DESC, subj_uid, samples DESC").
 		Find(&result).Error
 
 	return result, err
@@ -83,7 +83,7 @@ func RemoveAutoFaceClusters() (removed int64, err error) {
 func ShouldRunFaceMatch(since time.Time) bool {
 	n := 0
 	q := Db().Model(&entity.Markers{}).
-		Where("face_id = ''").
+		Where("subj_uid = ''").
 		Where("created_at >= ?", since)
 
 	if err := q.Count(&n).Error; err != nil || n > 0 {

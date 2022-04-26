@@ -227,9 +227,13 @@ func (m *Face) ReviseMatches() (revised Markers, err error) {
 func (m *Face) MatchMarkers(faceIds []string) error {
 	var markers Markers
 
-	err := Db().
-		Where("marker_invalid = 0 AND marker_type = ? AND face_id IN (?)", MarkerFace, faceIds).
-		Find(&markers).Error
+	stmt := Db().Where("marker_invalid = 0 AND marker_type = ?", MarkerFace)
+	if len(faceIds) == 1 && faceIds[0] == "" {
+		stmt = stmt.Where("subj_uid =''")
+	} else {
+		stmt = stmt.Where("face_id IN (?)", faceIds)
+	}
+	err := stmt.Find(&markers).Error
 
 	if err != nil {
 		log.Debugf("faces: %s (match markers)", err)
