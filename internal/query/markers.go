@@ -2,7 +2,6 @@ package query
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/face"
@@ -18,7 +17,7 @@ func MarkerByUID(uid string) (*entity.Marker, error) {
 }
 
 // Markers finds a list of file markers filtered by type, embeddings, and sorted by id.
-func Markers(limit, offset int, markerType string, embeddings, subjects bool, matchedBefore time.Time) (result entity.Markers, err error) {
+func Markers(limit, offset int, markerType string, embeddings, subjects bool) (result entity.Markers, err error) {
 	db := Db()
 
 	if markerType != "" {
@@ -33,11 +32,7 @@ func Markers(limit, offset int, markerType string, embeddings, subjects bool, ma
 		db = db.Where("subj_uid <> ''")
 	}
 
-	if !matchedBefore.IsZero() {
-		db = db.Where("matched_at IS NULL OR matched_at < ?", matchedBefore)
-	}
-
-	db = db.Order("matched_at, marker_uid").Limit(limit).Offset(offset)
+	db = db.Order("marker_uid").Limit(limit).Offset(offset)
 
 	err = db.Find(&result).Error
 
@@ -45,7 +40,7 @@ func Markers(limit, offset int, markerType string, embeddings, subjects bool, ma
 }
 
 // UnmatchedFaceMarkers finds all currently unmatched face markers.
-func UnmatchedFaceMarkers(limit, offset int, matchedBefore *time.Time) (result entity.Markers, err error) {
+func UnmatchedFaceMarkers(limit, offset int) (result entity.Markers, err error) {
 	db := Db().
 		Where("marker_type = ?", entity.MarkerFace).
 		Where("marker_invalid = 0").
@@ -53,13 +48,7 @@ func UnmatchedFaceMarkers(limit, offset int, matchedBefore *time.Time) (result e
 		Where("subj_uid = ''").
 		Where("embeddings_json <> ''")
 
-	if matchedBefore == nil {
-		db = db.Where("matched_at IS NULL")
-	} else if !matchedBefore.IsZero() {
-		db = db.Where("matched_at IS NULL OR matched_at < ?", matchedBefore)
-	}
-
-	db = db.Order("matched_at, marker_uid").Limit(limit).Offset(offset)
+	db = db.Order("marker_uid").Limit(limit).Offset(offset)
 
 	err = db.Find(&result).Error
 

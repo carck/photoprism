@@ -254,8 +254,7 @@ func (m *Marker) SetFace(f *Face, dist float64) (updated bool, err error) {
 	// Skip update if the same face is already set.
 	if m.SubjUID == f.SubjUID && m.FaceID == f.ID {
 		// Update matching timestamp.
-		m.MatchedAt = TimePointer()
-		return false, m.Updates(Values{"MatchedAt": m.MatchedAt})
+		return false, nil
 	}
 
 	// Remember current values for comparison.
@@ -298,10 +297,7 @@ func (m *Marker) SetFace(f *Face, dist float64) (updated bool, err error) {
 
 	updated = m.FaceID != faceID || m.SubjUID != subjUID || m.SubjSrc != subjSrc
 
-	// Update matching timestamp.
-	m.MatchedAt = TimePointer()
-
-	if err := m.Updates(Values{"FaceID": m.FaceID, "FaceDist": m.FaceDist, "SubjUID": m.SubjUID, "SubjSrc": m.SubjSrc, "MarkerReview": false, "MatchedAt": m.MatchedAt}); err != nil {
+	if err := m.Updates(Values{"FaceID": m.FaceID, "FaceDist": m.FaceDist, "SubjUID": m.SubjUID, "SubjSrc": m.SubjSrc, "MarkerReview": false}); err != nil {
 		return false, err
 	} else if !updated {
 		return false, nil
@@ -548,7 +544,7 @@ func (m *Marker) Face() (f *Face) {
 // ClearFace removes an existing face association.
 func (m *Marker) ClearFace() (updated bool, err error) {
 	if m.FaceID == "" {
-		return false, m.Matched()
+		return false, nil
 	}
 
 	updated = true
@@ -556,14 +552,13 @@ func (m *Marker) ClearFace() (updated bool, err error) {
 	// Remove face references.
 	m.face = nil
 	m.FaceID = ""
-	m.MatchedAt = TimePointer()
 
 	// Remove subject if set automatically.
 	if m.SubjSrc == SrcAuto {
 		m.SubjUID = ""
-		err = m.Updates(Values{"FaceID": "", "FaceDist": -1.0, "SubjUID": "", "MatchedAt": m.MatchedAt})
+		err = m.Updates(Values{"FaceID": "", "FaceDist": -1.0, "SubjUID": ""})
 	} else {
-		err = m.Updates(Values{"FaceID": "", "FaceDist": -1.0, "MatchedAt": m.MatchedAt})
+		err = m.Updates(Values{"FaceID": "", "FaceDist": -1.0})
 	}
 
 	return updated, m.RefreshPhotos()
@@ -576,12 +571,6 @@ func (m *Marker) RefreshPhotos() error {
 	}
 	SetPhotoToRefresh(m.MarkerUID, 3)
 	return nil
-}
-
-// Matched updates the match timestamp.
-func (m *Marker) Matched() error {
-	m.MatchedAt = TimePointer()
-	return UnscopedDb().Model(m).UpdateColumns(Values{"MatchedAt": m.MatchedAt}).Error
 }
 
 // Top returns the top Y coordinate as float64.
