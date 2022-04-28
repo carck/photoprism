@@ -77,7 +77,7 @@ func (w *Faces) Cluster(opt FacesOptions) (added entity.Faces, err error) {
 		}
 
 		for _, cluster := range results {
-			if len(cluster) < 5 {
+			if len(cluster) < 10 {
 				continue
 			}
 			if f := entity.NewFace("", entity.SrcAuto, cluster); f == nil {

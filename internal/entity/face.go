@@ -91,12 +91,8 @@ func (m *Face) SetEmbeddings(embeddings face.Embeddings) (err error) {
 }
 
 // Matched updates the match timestamp.
-func (m *Face) Matched(t *time.Time) error {
-	if t != nil {
-		m.MatchedAt = t
-	} else {
-		m.MatchedAt = TimePointer()
-	}
+func (m *Face) Matched() error {
+	m.MatchedAt = TimePointer()
 	return UnscopedDb().Model(m).UpdateColumns(Values{"MatchedAt": m.MatchedAt}).Error
 }
 
@@ -237,8 +233,6 @@ func (m *Face) MatchMarkers(faceIds []string) error {
 	} else {
 		stmt = stmt.Where("face_id IN (?)", faceIds)
 	}
-
-	t := TimePointer()
 	err := stmt.Find(&markers).Error
 
 	if err != nil {
@@ -254,7 +248,7 @@ func (m *Face) MatchMarkers(faceIds []string) error {
 		}
 	}
 
-	return m.Matched(t)
+	return m.Matched()
 }
 
 // SetSubjectUID updates the face's subject uid and related markers.
