@@ -248,7 +248,7 @@ func (m *Face) MatchMarkers(faceIds []string) error {
 		}
 	}
 
-	return m.Matched()
+	return nil
 }
 
 // SetSubjectUID updates the face's subject uid and related markers.

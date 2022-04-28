@@ -44,6 +44,7 @@ func (w *Faces) Match(opt FacesOptions) (result FacesMatchResult, err error) {
 	}
 
 	lastMatch = time.Now()
+	matchedAt := entity.TimePointer()
 
 	if opt.Force || runMatch {
 		faces, err := query.Faces(false, false, false)
@@ -52,15 +53,10 @@ func (w *Faces) Match(opt FacesOptions) (result FacesMatchResult, err error) {
 			return result, err
 		}
 
-		if r, err := w.MatchFaces(faces, opt.Force); err != nil {
+		if r, err := w.MatchFaces(faces, opt.Force, matchedAt); err != nil {
 			return result, err
 		} else {
 			result.Add(r)
-		}
-		for _, m := range faces {
-			if err := m.Matched(); err != nil {
-				log.Warnf("faces: %s (update match timestamp)", err)
-			}
 		}
 	}
 
@@ -68,7 +64,7 @@ func (w *Faces) Match(opt FacesOptions) (result FacesMatchResult, err error) {
 	if unmatchedFaces, err := query.Faces(false, true, false); err != nil {
 		log.Error(err)
 	} else if len(unmatchedFaces) > 0 {
-		if r, err := w.MatchFaces(unmatchedFaces, false); err != nil {
+		if r, err := w.MatchFaces(unmatchedFaces, false, matchedAt); err != nil {
 			return result, err
 		} else {
 			result.Add(r)
@@ -92,7 +88,7 @@ func (w *Faces) Match(opt FacesOptions) (result FacesMatchResult, err error) {
 }
 
 // MatchFaces matches markers against a slice of faces.
-func (w *Faces) MatchFaces(faces entity.Faces, force bool) (result FacesMatchResult, err error) {
+func (w *Faces) MatchFaces(faces entity.Faces, force bool, matchedBefore *time.Time) (result FacesMatchResult, err error) {
 	matched := 0
 	limit := 500
 	max := query.CountMarkers(entity.MarkerFace)
@@ -103,7 +99,7 @@ func (w *Faces) MatchFaces(faces entity.Faces, force bool) (result FacesMatchRes
 		if force {
 			markers, err = query.FaceMarkers(limit, matched)
 		} else {
-			markers, err = query.UnmatchedFaceMarkers(limit, matched)
+			markers, err = query.UnmatchedFaceMarkers(limit, 0, matchedBefore)
 		}
 
 		if err != nil {
@@ -131,24 +127,12 @@ func (w *Faces) MatchFaces(faces entity.Faces, force bool) (result FacesMatchRes
 			// Distance to the matching face.
 			var d float64
 
-			executed := false
-
 			// Find the closest face match for marker.
 			for i, m := range faces {
-				if m.MatchedAt != nil && m.MatchedAt.After(marker.CreatedAt) {
-					continue
-				}
-
-				executed = true
-
 				if ok, dist := m.Match(marker.Embeddings()); ok && (f == nil || dist < d && f.FaceSrc == m.FaceSrc) {
 					f = &faces[i]
 					d = dist
 				}
-			}
-
-			if !executed {
-				continue
 			}
 
 			// Marker already has the best matching face?
@@ -156,6 +140,10 @@ func (w *Faces) MatchFaces(faces entity.Faces, force bool) (result FacesMatchRes
 				// Marker needs a (new) face.
 			} else {
 				log.Debugf("faces: marker %s already has the best matching face %s with dist %f", marker.MarkerUID, marker.FaceID, marker.FaceDist)
+
+				if err := marker.Matched(); err != nil {
+					log.Warnf("faces: %s while updating marker %s match timestamp", err, marker.MarkerUID)
+				}
 
 				continue
 			}
