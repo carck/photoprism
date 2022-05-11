@@ -19,6 +19,8 @@ func (w *Faces) Optimize() (result FacesOptimizeResult, err error) {
 		return result, fmt.Errorf("facial recognition is disabled")
 	}
 
+	return result, nil
+
 	// Iterative merging of manually added face clusters.
 	for i := 0; i <= 10; i++ {
 		var n int
