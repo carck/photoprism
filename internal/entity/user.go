@@ -300,7 +300,9 @@ func (m *User) InvalidPassword(password string) bool {
 		return true
 	}
 
-	time.Sleep(time.Second * 5 * time.Duration(m.LoginAttempts))
+	if (m.LoginAttempts - 5) > 0 {
+	  time.Sleep(time.Second * 5 * time.Duration(m.LoginAttempts - 5))
+        }
 
 	pw := FindPassword(m.UserUID)
 
