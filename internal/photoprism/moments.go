@@ -3,6 +3,7 @@ package photoprism
 import (
 	"fmt"
 	"math"
+	"path/filepath"
 	"runtime/debug"
 	"strconv"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/photoprism/photoprism/internal/form"
 	"github.com/photoprism/photoprism/internal/mutex"
 	"github.com/photoprism/photoprism/internal/query"
+	"github.com/photoprism/photoprism/pkg/fs"
 	"github.com/photoprism/photoprism/pkg/sanitize"
 )
 
@@ -262,7 +264,11 @@ func (w *Moments) Start() (err error) {
 		log.Errorf("moments: %s (update album dates)", err.Error())
 	}
 
-	if count, err := BackupAlbums(w.conf.AlbumsPath(), false); err != nil {
+	// Make sure that the albums have been backed up before, otherwise back up all albums.
+	if fs.PathExists(filepath.Join(w.conf.AlbumsPath(), entity.AlbumDefault)) &&
+		fs.PathExists(filepath.Join(w.conf.AlbumsPath(), entity.AlbumMonth)) {
+		// Skip.
+	} else if count, err := BackupAlbums(w.conf.AlbumsPath(), false); err != nil {
 		log.Errorf("moments: %s (backup albums)", err.Error())
 	} else if count > 0 {
 		log.Debugf("moments: %d albums saved as yaml files", count)
