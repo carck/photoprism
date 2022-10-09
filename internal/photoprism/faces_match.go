@@ -128,6 +128,17 @@ func (w *Faces) MatchFaces(faces entity.Faces, force bool, matchedBefore *time.T
 			var d float64
 
 			// Find the closest face match for marker.
+			if !force && marker.MatchedAt != nil {
+				skip := true
+				for _, m := range faces {
+					if m.CreatedAt.After(*marker.MatchedAt) {
+						skip = false
+					}
+				}
+				if skip {
+					continue
+				}
+			}
 			for i, m := range faces {
 				if ok, dist := m.Match(marker.Embeddings()); ok && (f == nil || dist < d && f.FaceSrc == m.FaceSrc) {
 					f = &faces[i]
