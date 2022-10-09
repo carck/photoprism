@@ -40,7 +40,7 @@ type TensorFlow struct {
 
 // New returns new TensorFlow instance with Nasnet model.
 func New(modelsPath string, disabled bool) *TensorFlow {
-	return &TensorFlow{modelsPath: modelsPath, disabled: disabled, modelName: "nasnet", modelFile: "nasnet_mobile.tflite"}
+	return &TensorFlow{modelsPath: modelsPath, disabled: disabled, modelName: "mobile_ica", modelFile: "mobile_ica.tflite"}
 }
 
 // Init initialises tensorflow models if not disabled
@@ -106,7 +106,7 @@ func (t *TensorFlow) Labels(img []byte) (result Labels, err error) {
 		scores = output.Float32s()
 	} else if output.Type() == tflite.UInt8 {
 		output_size := output.Dim(output.NumDims() - 1)
-		scores := t.outFloats
+		scores = t.outFloats
 		outBytes := output.UInt8s()
 		for i := 0; i < output_size; i++ {
 			scores[i] = float32(float64(outBytes[i]) / 255.0)
@@ -226,29 +226,15 @@ func (t *TensorFlow) bestLabels(probabilities []float32) Labels {
 		}
 
 		// discard labels with low probabilities
-		if p < 0.1 {
+		if p < 0.8 {
 			continue
 		}
 
 		labelText := strings.ToLower(t.labels[i])
 
-		rule, _ := Rules.Find(labelText)
-
-		// discard labels that don't met the threshold
-		if p < rule.Threshold {
-			continue
-		}
-
-		// Get rule label name instead of t.labels name if it exists
-		if rule.Label != "" {
-			labelText = rule.Label
-		}
-
-		labelText = strings.TrimSpace(labelText)
-
 		uncertainty := 100 - int(math.Round(float64(p*100)))
 
-		result = append(result, Label{Name: labelText, Source: SrcImage, Uncertainty: uncertainty, Priority: rule.Priority, Categories: rule.Categories})
+		result = append(result, Label{Name: labelText, Source: SrcImage, Uncertainty: uncertainty, Priority:1})
 	}
 
 	// Sort by probability
