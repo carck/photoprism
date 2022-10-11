@@ -4,7 +4,7 @@ import (
 	"github.com/photoprism/photoprism/internal/entity"
 )
 
-func ResetAllLabels()(err error) {
+func ResetAllLabels() (err error) {
 	res := UnscopedDb().
 		Delete(entity.PhotoLabel{})
 	if res.Error != nil {
@@ -12,7 +12,7 @@ func ResetAllLabels()(err error) {
 	}
 
 	res = UnscopedDb().
-                Delete(entity.Label{})
+		Delete(entity.Label{})
 	return res.Error
 }
 

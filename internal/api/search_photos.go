@@ -119,11 +119,12 @@ func SearchPhotos(router *gin.RouterGroup) {
 // GET /api/v1/photos/slim
 //
 // Query:
-//   subject:   string 	subject uid
-//   album:     string 	album uid
-//   filter:    string 	folder filter
-//   count:     int    	Max result count (required)
-//   offset:    int    	Result offset
+//
+//	subject:   string 	subject uid
+//	album:     string 	album uid
+//	filter:    string 	folder filter
+//	count:     int    	Max result count (required)
+//	offset:    int    	Result offset
 func SearchPhotosSlim(router *gin.RouterGroup) {
 	router.GET("/photos/slim", func(c *gin.Context) {
 		s := Auth(SessionID(c), acl.ResourcePhotos, acl.ActionSearch)

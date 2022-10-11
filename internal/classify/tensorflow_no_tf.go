@@ -234,7 +234,7 @@ func (t *TensorFlow) bestLabels(probabilities []float32) Labels {
 
 		uncertainty := 100 - int(math.Round(float64(p*100)))
 
-		result = append(result, Label{Name: labelText, Source: SrcImage, Uncertainty: uncertainty, Priority:1})
+		result = append(result, Label{Name: labelText, Source: SrcImage, Uncertainty: uncertainty, Priority: 1})
 	}
 
 	// Sort by probability

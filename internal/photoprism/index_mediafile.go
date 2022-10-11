@@ -327,10 +327,10 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 	extraLabels := classify.Labels{}
 
 	if o.LabelsOnly && (!photoExists || !fileExists || !file.FilePrimary || file.FileError != "") {
-                // New and non-primary files can be skipped when updating faces only.
-                result.Status = IndexSkipped
-                return result
-        } else if ind.findLabels && file.FilePrimary {
+		// New and non-primary files can be skipped when updating faces only.
+		result.Status = IndexSkipped
+		return result
+	} else if ind.findLabels && file.FilePrimary {
 		labels = ind.Labels(m)
 		if o.LabelsOnly {
 			photo.AddLabels(labels)

@@ -409,7 +409,7 @@ func (m *Marker) Embeddings() face.Embeddings {
 	return m.embeddings
 }
 
-//  Landmarks returns parsed landmarks
+// Landmarks returns parsed landmarks
 func (m *Marker) Landmarks() crop.Areas {
 	if len(m.LandmarksJSON) == 0 {
 		return crop.Areas{}

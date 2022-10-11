@@ -10,15 +10,15 @@ import (
 
 	"github.com/photoprism/photoprism/internal/config"
 	"github.com/photoprism/photoprism/internal/photoprism"
-	"github.com/photoprism/photoprism/internal/service"
 	"github.com/photoprism/photoprism/internal/query"
+	"github.com/photoprism/photoprism/internal/service"
 	"github.com/photoprism/photoprism/pkg/fs"
 )
 
 // LabelsCommand registers the index cli command.
 var LabelsCommand = cli.Command{
-	Name:      "labels",
-	Usage:     "Run image classify original media files",
+	Name:  "labels",
+	Usage: "Run image classify original media files",
 	Subcommands: []cli.Command{
 		{
 			Name:   "index",
@@ -32,7 +32,6 @@ var LabelsCommand = cli.Command{
 		},
 	},
 }
-
 
 // indexIndexAction indexes all photos in originals directory (photo library)
 func labelIndexAction(ctx *cli.Context) error {
@@ -50,7 +49,6 @@ func labelIndexAction(ctx *cli.Context) error {
 
 	conf.InitDb()
 
-
 	if conf.ReadOnly() {
 		log.Infof("config: read-only mode enabled")
 	}
@@ -61,10 +59,10 @@ func labelIndexAction(ctx *cli.Context) error {
 
 	if w := service.Index(); w != nil {
 		opt := photoprism.IndexOptions{
-			Path:    subPath,
-			Rescan:  true,
-			Convert: conf.Settings().Index.Convert && conf.SidecarWritable(),
-			Stack:   true,
+			Path:       subPath,
+			Rescan:     true,
+			Convert:    conf.Settings().Index.Convert && conf.SidecarWritable(),
+			Stack:      true,
 			LabelsOnly: true,
 		}
 
@@ -84,7 +82,6 @@ func labelIndexAction(ctx *cli.Context) error {
 			log.Infof("purge: removed %s and %s [%s]", english.Plural(len(files), "file", "files"), english.Plural(len(photos), "photo", "photos"), time.Since(purgeStart))
 		}
 	}
-
 
 	elapsed := time.Since(start)
 
