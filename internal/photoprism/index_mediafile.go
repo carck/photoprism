@@ -326,6 +326,19 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 	// Extra labels to ba added when new files have a photo id.
 	extraLabels := classify.Labels{}
 
+	if o.LabelsOnly && (!photoExists || !fileExists || !file.FilePrimary || file.FileError != "") {
+                // New and non-primary files can be skipped when updating faces only.
+                result.Status = IndexSkipped
+                return result
+        } else if ind.findLabels && file.FilePrimary {
+		labels = ind.Labels(m)
+		if o.LabelsOnly {
+			photo.AddLabels(labels)
+			result.Status = IndexSkipped
+			return result
+		}
+	}
+
 	// Detect faces in images?
 	if o.FacesOnly && (!photoExists || !fileExists || !file.FilePrimary || file.FileError != "") {
 		// New and non-primary files can be skipped when updating faces only.
@@ -589,8 +602,6 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 
 		// Classify images with TensorFlow?
 		if ind.findLabels {
-			labels = ind.Labels(m)
-
 			// Append labels from other sources such as face detection.
 			if len(extraLabels) > 0 {
 				labels = append(labels, extraLabels...)

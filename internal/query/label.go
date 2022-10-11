@@ -4,6 +4,18 @@ import (
 	"github.com/photoprism/photoprism/internal/entity"
 )
 
+func ResetAllLabels()(err error) {
+	res := UnscopedDb().
+		Delete(entity.PhotoLabel{})
+	if res.Error != nil {
+		return res.Error
+	}
+
+	res = UnscopedDb().
+                Delete(entity.Label{})
+	return res.Error
+}
+
 // PhotoLabel returns a photo label entity if exists.
 func PhotoLabel(photoID, labelID uint) (label entity.PhotoLabel, err error) {
 	if err := Db().Where("photo_id = ? AND label_id = ?", photoID, labelID).Preload("Photo").Preload("Label").First(&label).Error; err != nil {

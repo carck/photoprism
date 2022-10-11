@@ -83,6 +83,7 @@ func main() {
 		commands.UsersCommand,
 		commands.ConfigCommand,
 		commands.VersionCommand,
+		commands.LabelsCommand,
 	}
 
 	if err := app.Run(os.Args); err != nil {
