@@ -253,14 +253,16 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 			photo.PhotoStack = entity.IsStackable
 		}
 
-		if yamlName := fs.FormatYaml.FindFirst(m.FileName(), []string{Config().SidecarPath(), fs.HiddenPath}, Config().OriginalsPath(), stripSequence); yamlName != "" {
-			if err := photo.LoadFromYaml(yamlName); err != nil {
-				log.Errorf("index: %s in %s (restore from yaml)", err.Error(), logName)
-			} else if err := photo.Find(); err != nil {
-				log.Infof("index: %s restored from %s", sanitize.Log(m.BaseName()), sanitize.Log(filepath.Base(yamlName)))
-			} else {
-				photoExists = true
-				log.Infof("index: uid %s restored from %s", photo.PhotoUID, sanitize.Log(filepath.Base(yamlName)))
+		if Config().BackupYaml() {
+			if yamlName := fs.FormatYaml.FindFirst(m.FileName(), []string{Config().SidecarPath(), fs.HiddenPath}, Config().OriginalsPath(), stripSequence); yamlName != "" {
+				if err := photo.LoadFromYaml(yamlName); err != nil {
+					log.Errorf("index: %s in %s (restore from yaml)", err.Error(), logName)
+				} else if err := photo.Find(); err != nil {
+					log.Infof("index: %s restored from %s", sanitize.Log(m.BaseName()), sanitize.Log(filepath.Base(yamlName)))
+				} else {
+					photoExists = true
+					log.Infof("index: uid %s restored from %s", photo.PhotoUID, sanitize.Log(filepath.Base(yamlName)))
+				}
 			}
 		}
 	}
