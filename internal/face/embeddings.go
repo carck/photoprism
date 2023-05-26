@@ -1,11 +1,12 @@
 package face
 
 import (
+	"bytes"
 	"encoding/json"
-	"strings"
 
 	"github.com/montanaflynn/stats"
 	"github.com/photoprism/photoprism/pkg/clusters"
+	"github.com/valyala/gozstd"
 )
 
 // Embeddings represents a face embedding cluster.
@@ -107,7 +108,7 @@ func (embeddings Embeddings) JSON() []byte {
 	if result, err := json.Marshal(embeddings); err != nil {
 		return noResult
 	} else {
-		return result
+		return gozstd.Compress(nil, result)
 	}
 }
 
@@ -162,13 +163,17 @@ func EmbeddingsMidpoint(embeddings Embeddings) (result Embedding, radius float64
 }
 
 // UnmarshalEmbeddings parses face embedding JSON.
-func UnmarshalEmbeddings(s string) (result Embeddings) {
-	if !strings.HasPrefix(s, "[[") {
-		return nil
-	}
+func UnmarshalEmbeddings(s []byte) (result Embeddings) {
+	if decompressed, err := gozstd.Decompress(nil, s); err != nil {
+		log.Errorf("faces: decompress %s", err)
+	} else {
+		if !bytes.HasPrefix(decompressed, []byte("[[")) {
+			return nil
+		}
 
-	if err := json.Unmarshal([]byte(s), &result); err != nil {
-		log.Errorf("faces: %s", err)
+		if err := json.Unmarshal(decompressed, &result); err != nil {
+			log.Errorf("faces: %s", err)
+		}
 	}
 
 	return result

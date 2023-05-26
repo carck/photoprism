@@ -30,7 +30,6 @@ func (m *MediaFile) SidecarJsonName() string {
 	return ""
 }
 
-
 // NeedsExifToolJson tests if an ExifTool JSON file needs to be created.
 func (m *MediaFile) NeedsExifToolJson() bool {
 	if m.Root() == entity.RootSidecar || !m.IsMedia() || m.IsSidecar() {

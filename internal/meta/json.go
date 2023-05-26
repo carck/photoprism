@@ -1,9 +1,9 @@
 package meta
 
 import (
-	"strings"
 	"fmt"
 	"runtime/debug"
+	"strings"
 
 	"github.com/photoprism/photoprism/pkg/sanitize"
 )

@@ -402,8 +402,8 @@ func (m *Marker) Embeddings() face.Embeddings {
 		return face.Embeddings{}
 	} else if len(m.embeddings) > 0 {
 		return m.embeddings
-	} else if err := json.Unmarshal(m.EmbeddingsJSON, &m.embeddings); err != nil {
-		log.Errorf("markers: %s while parsing embeddings json", err)
+	} else if  e := face.UnmarshalEmbeddings(m.EmbeddingsJSON); e != nil {
+		m.embeddings= e
 	}
 
 	return m.embeddings

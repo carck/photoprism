@@ -79,7 +79,7 @@ func FaceMarkers(limit, offset int) (result entity.Markers, err error) {
 
 // Embeddings returns existing face embeddings.
 func Embeddings(single, unclustered bool, size, score int) (result face.Embeddings, err error) {
-	var col []string
+	var col [][]byte
 
 	stmt := Db().
 		Model(&entity.Marker{}).
