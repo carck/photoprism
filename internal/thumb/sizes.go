@@ -58,12 +58,8 @@ var DefaultSizes = []Name{
 	Fit1920,
 	Fit1280,
 	Fit720,
-	Right224,
-	Left224,
-	Colors,
 	Tile500,
 	Tile224,
-	Tile100,
 	Tile50,
 }
 

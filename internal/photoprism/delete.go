@@ -32,11 +32,6 @@ func Delete(p entity.Photo) error {
 				logWarn("delete", os.Remove(sidecarJson))
 			}
 
-			if exifJson, err := f.ExifToolJsonName(); err == nil && fs.FileExists(exifJson) {
-				log.Debugf("delete: removing exiftool sidecar %s", sanitize.Log(filepath.Base(exifJson)))
-				logWarn("delete", os.Remove(exifJson))
-			}
-
 			logWarn("delete", f.RemoveSidecars())
 		}
 

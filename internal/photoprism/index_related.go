@@ -2,7 +2,6 @@ package photoprism
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/dustin/go-humanize/english"
 
@@ -33,8 +32,8 @@ func IndexMain(related *RelatedFiles, ind *Index, opt IndexOptions) (result Inde
 	if f.NeedsExifToolJson() {
 		if jsonName, err := ind.convert.ToJson(f); err != nil {
 			log.Debugf("index: %s in %s (extract metadata)", sanitize.Log(err.Error()), sanitize.Log(f.BaseName()))
-		} else {
-			log.Debugf("index: created %s", filepath.Base(jsonName))
+		} else if err := f.ReadExifToolJson(jsonName); err != nil {
+			log.Errorf("import: %s in %s (read metadata)", sanitize.Log(err.Error()), sanitize.Log(f.BaseName()))
 		}
 	}
 
@@ -130,8 +129,8 @@ func IndexRelated(related RelatedFiles, ind *Index, opt IndexOptions) (result In
 		if f.NeedsExifToolJson() {
 			if jsonName, err := ind.convert.ToJson(f); err != nil {
 				log.Debugf("index: %s in %s (extract metadata)", sanitize.Log(err.Error()), sanitize.Log(f.BaseName()))
-			} else {
-				log.Debugf("index: created %s", filepath.Base(jsonName))
+			} else if err := f.ReadExifToolJson(jsonName); err != nil {
+				log.Errorf("import: %s in %s (read metadata)", sanitize.Log(err.Error()), sanitize.Log(f.BaseName()))
 			}
 		}
 

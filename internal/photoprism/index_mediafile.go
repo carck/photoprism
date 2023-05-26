@@ -376,22 +376,6 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 	// Handle file types.
 	switch {
 	case m.IsJpeg():
-		// Color information
-		if p, err := m.Colors(Config().ThumbPath()); err != nil {
-			log.Debugf("%s while detecting colors", err.Error())
-			file.FileError = err.Error()
-			file.FilePrimary = false
-		} else {
-			file.FileMainColor = p.MainColor.Name()
-			file.FileColors = p.Colors.Hex()
-			file.FileLuminance = p.Luminance.Hex()
-			file.FileDiff = p.Luminance.Diff()
-			file.FileChroma = p.Chroma.Value()
-
-			if file.FilePrimary {
-				photo.PhotoColor = p.MainColor.Uint8()
-			}
-		}
 
 		if m.Width() > 0 && m.Height() > 0 {
 			file.FileWidth = m.Width()

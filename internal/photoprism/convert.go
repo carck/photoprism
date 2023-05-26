@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime/debug"
@@ -136,16 +135,6 @@ func (c *Convert) ToJson(f *MediaFile) (jsonName string, err error) {
 		return "", fmt.Errorf("exiftool: file is nil - you might have found a bug")
 	}
 
-	jsonName, err = f.ExifToolJsonName()
-
-	if err != nil {
-		return "", nil
-	}
-
-	if fs.FileExists(jsonName) {
-		return jsonName, nil
-	}
-
 	relName := f.RelName(c.conf.OriginalsPath())
 
 	log.Debugf("exiftool: extracting metadata from %s", relName)
@@ -170,17 +159,7 @@ func (c *Convert) ToJson(f *MediaFile) (jsonName string, err error) {
 		}
 	}
 
-	// Write output to file.
-	if err := os.WriteFile(jsonName, []byte(out.String()), os.ModePerm); err != nil {
-		return "", err
-	}
-
-	// Check if file exists.
-	if !fs.FileExists(jsonName) {
-		return "", fmt.Errorf("exiftool: failed creating %s", filepath.Base(jsonName))
-	}
-
-	return jsonName, err
+	return out.String(), err
 }
 
 // JpegConvertCommand returns the command for converting files to JPEG, depending on the format.

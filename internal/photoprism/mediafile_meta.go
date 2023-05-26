@@ -2,7 +2,6 @@ package photoprism
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"github.com/photoprism/photoprism/internal/entity"
 
@@ -31,38 +30,18 @@ func (m *MediaFile) SidecarJsonName() string {
 	return ""
 }
 
-// ExifToolJsonName returns the cached ExifTool metadata file name.
-func (m *MediaFile) ExifToolJsonName() (string, error) {
-	if Config().DisableExifTool() {
-		return "", fmt.Errorf("media: exiftool json files disabled")
-	}
-
-	return CacheName(m.Hash(), "json", "exiftool.json")
-}
 
 // NeedsExifToolJson tests if an ExifTool JSON file needs to be created.
 func (m *MediaFile) NeedsExifToolJson() bool {
-	if m.Root() == entity.RootSidecar || !m.IsMedia() {
+	if m.Root() == entity.RootSidecar || !m.IsMedia() || m.IsSidecar() {
 		return false
 	}
 
-	jsonName, err := m.ExifToolJsonName()
-
-	if err != nil {
-		return false
-	}
-
-	return !fs.FileExists(jsonName)
+	return true
 }
 
 // ReadExifToolJson reads metadata from a cached ExifTool JSON file.
-func (m *MediaFile) ReadExifToolJson() error {
-	jsonName, err := m.ExifToolJsonName()
-
-	if err != nil {
-		return err
-	}
-
+func (m *MediaFile) ReadExifToolJson(jsonName string) error {
 	return m.metaData.JSON(jsonName, "")
 }
 
@@ -75,29 +54,6 @@ func (m *MediaFile) MetaData() (result meta.Data) {
 			err = m.metaData.Exif(m.FileName(), m.FileType(), Config().ExifBruteForce())
 		} else {
 			err = fmt.Errorf("exif not supported")
-		}
-
-		// Parse regular JSON sidecar files ("img_1234.json")
-		if !m.IsSidecar() {
-			if jsonFiles := fs.FormatJson.FindAll(m.FileName(), []string{Config().SidecarPath(), fs.HiddenPath}, Config().OriginalsPath(), false); len(jsonFiles) == 0 {
-				log.Tracef("metadata: found no additional sidecar file for %s", sanitize.Log(filepath.Base(m.FileName())))
-			} else {
-				for _, jsonFile := range jsonFiles {
-					jsonErr := m.metaData.JSON(jsonFile, m.BaseName())
-
-					if jsonErr != nil {
-						log.Debug(jsonErr)
-					} else {
-						err = nil
-					}
-				}
-			}
-
-			if jsonErr := m.ReadExifToolJson(); jsonErr != nil {
-				log.Debug(jsonErr)
-			} else {
-				err = nil
-			}
 		}
 
 		if err != nil {

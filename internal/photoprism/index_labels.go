@@ -13,13 +13,7 @@ import (
 func (ind *Index) Labels(jpeg *MediaFile) (results classify.Labels) {
 	start := time.Now()
 
-	var sizes []thumb.Name
-
-	if jpeg.AspectRatio() == 1 {
-		sizes = []thumb.Name{thumb.Tile224}
-	} else {
-		sizes = []thumb.Name{thumb.Tile224, thumb.Left224, thumb.Right224}
-	}
+	sizes := []thumb.Name{thumb.Tile224}
 
 	var labels classify.Labels
 
