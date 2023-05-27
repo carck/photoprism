@@ -52,7 +52,7 @@ func (c *Counts) Refresh() {
 		Take(c)
 
 	Db().Table("files").
-		Select("COUNT(media_id) AS files").
+		Select("COUNT(*) AS files").
 		Take(c)
 
 	Db().Table("countries").

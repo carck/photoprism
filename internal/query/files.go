@@ -131,8 +131,6 @@ func SetPhotoPrimary(photoUID, fileUID string) (err error) {
 		Model(entity.File{}).Where("photo_uid = ? AND file_uid = ?", photoUID, fileUID).
 		UpdateColumn("file_primary", 1).Error; err != nil {
 		return err
-	} else {
-		entity.File{PhotoUID: photoUID}.RegenerateIndex()
 	}
 
 	return nil

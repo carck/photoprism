@@ -1,1 +1,0 @@
-DROP INDEX IF EXISTS idx_albums_album_filter;

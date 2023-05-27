@@ -53,7 +53,7 @@ func Geo(f form.SearchGeo) (results GeoResults, err error) {
 	// s.LogMode(true)
 
 	s = s.Table("photos").Select(GeoCols).
-		Joins(`JOIN files ON files.photo_id = photos.id AND files.file_primary = 1 AND files.media_id IS NOT NULL`).
+		Joins(`JOIN files ON files.photo_id = photos.id AND files.file_primary = 1`).
 		Where("photos.deleted_at IS NULL").
 		Where("photos.photo_lat <> 0")
 

@@ -78,15 +78,14 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 	}
 
 	s := UnscopedDb()
-	// s = s.LogMode(true)
+	s = s.LogMode(true)
 
 	// Database tables.
-	s = s.Table("files").Select(resultCols).
-		Joins("JOIN photos ON files.photo_id = photos.id AND files.media_id IS NOT NULL").
+	s = s.Table("photos").Select(resultCols).
+		Joins("JOIN files ON files.photo_id = photos.id").
 		Joins("LEFT JOIN cameras ON photos.camera_id = cameras.id").
 		Joins("LEFT JOIN lenses ON photos.lens_id = lenses.id").
-		Joins("LEFT JOIN places ON photos.place_id = places.id").
-		Where("files.deleted_at IS NULL")
+		Joins("LEFT JOIN places ON photos.place_id = places.id")
 
 	// Offset and count.
 	if f.Count > 0 && f.Count <= MaxResults {
@@ -97,38 +96,12 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 
 	// Sort order.
 	switch f.Order {
-	case entity.SortOrderEdited:
-		s = s.Where("photos.edited_at IS NOT NULL").Order("photos.edited_at DESC, files.media_id")
-	case entity.SortOrderRelevance:
-		if f.Label != "" {
-			s = s.Order("photos.photo_quality DESC, photos_labels.uncertainty ASC, files.time_index")
-		} else {
-			s = s.Order("photos.photo_quality DESC, files.time_index")
-		}
 	case entity.SortOrderNewest:
-		s = s.Order("files.time_index")
+		s = s.Order("photos.taken_at desc")
 	case entity.SortOrderOldest:
-		s = s.Order("files.photo_taken_at, files.media_id")
-	case entity.SortOrderSimilar:
-		s = s.Where("files.file_diff > 0")
-		s = s.Order("photos.photo_color, photos.cell_id, files.file_diff, files.time_index")
-	case entity.SortOrderName:
-		s = s.Order("photos.photo_path, photos.photo_name, files.time_index")
-	case entity.SortOrderDefault, entity.SortOrderImported, entity.SortOrderAdded:
-		s = s.Order("files.media_id")
+		s = s.Order("photos.taken_at")
 	default:
-		return PhotoResults{}, 0, fmt.Errorf("invalid sort order")
-	}
-
-	// Show hidden files?
-	if !f.Hidden {
-		s = s.Where("files.file_type in ('jpg', 'heif') OR files.file_video = 1")
-
-		if f.Error {
-			s = s.Where("files.file_error <> ''")
-		} else {
-			s = s.Where("files.file_error = ''")
-		}
+		s = s.Order("photos.taken_at desc")
 	}
 
 	// Primary files only?
@@ -141,7 +114,6 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 
 		// Take shortcut?
 		if f.Album == "" && f.Query == "" {
-			s = s.Order("files.media_id")
 
 			if result := s.Scan(&results); result.Error != nil {
 				return results, 0, result.Error
@@ -325,23 +297,14 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 	// Filter by status?
 	if f.Hidden {
 		s = s.Where("photos.photo_quality = -1")
-		s = s.Where("photos.deleted_at IS NULL")
 	} else if f.Archived {
 		s = s.Where("photos.photo_quality > -1")
 		s = s.Where("photos.deleted_at IS NOT NULL")
 	} else {
-		s = s.Where("photos.deleted_at IS NULL")
-
 		if f.Private {
 			s = s.Where("photos.photo_private = 1")
 		} else if f.Public {
 			s = s.Where("photos.photo_private = 0")
-		}
-
-		if f.Review {
-			s = s.Where("photos.photo_quality < 3")
-		} else if f.Quality != 0 && f.Private == false {
-			s = s.Where("photos.photo_quality >= ?", f.Quality)
 		}
 	}
 

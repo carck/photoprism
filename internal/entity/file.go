@@ -43,9 +43,6 @@ type File struct {
 	Photo            *Photo        `json:"-" yaml:"-"`
 	PhotoID          uint          `gorm:"index:idx_files_photo_id;" json:"-" yaml:"-"`
 	PhotoUID         string        `gorm:"type:VARBINARY(42);index;" json:"PhotoUID" yaml:"PhotoUID"`
-	PhotoTakenAt     time.Time     `gorm:"type:DATETIME;index;" json:"TakenAt" yaml:"TakenAt"`
-	TimeIndex        *string       `gorm:"type:VARBINARY(48);" json:"TimeIndex" yaml:"TimeIndex"`
-	MediaID          *string       `gorm:"type:VARBINARY(32);" json:"MediaID" yaml:"MediaID"`
 	InstanceID       string        `gorm:"type:VARBINARY(42);index;" json:"InstanceID,omitempty" yaml:"InstanceID,omitempty"`
 	FileUID          string        `gorm:"type:VARBINARY(42);unique_index;" json:"UID" yaml:"UID"`
 	FileName         string        `gorm:"type:VARBINARY(755);unique_index:idx_files_name_root;" json:"Name" yaml:"Name"`
@@ -90,59 +87,6 @@ type File struct {
 // TableName returns the entity database table name.
 func (File) TableName() string {
 	return "files"
-}
-
-// RegenerateIndex updates the search index columns.
-func (m File) RegenerateIndex() {
-	fileIndexMutex.Lock()
-	defer fileIndexMutex.Unlock()
-
-	start := time.Now()
-	filesTable := File{}.TableName()
-	photosTable := Photo{}.TableName()
-
-	var updateWhere *gorm.SqlExpr
-
-	if m.PhotoID > 0 {
-		updateWhere = gorm.Expr("photo_id = ?", m.PhotoID)
-	} else if m.PhotoUID != "" {
-		updateWhere = gorm.Expr("photo_uid = ?", m.PhotoUID)
-	} else if m.ID > 0 {
-		updateWhere = gorm.Expr("id = ?", m.ID)
-	} else {
-		updateWhere = gorm.Expr("photo_id IS NOT NULL")
-	}
-
-	switch DbDialect() {
-	case MySQL:
-		Log("files", "regenerate photo_taken_at",
-			Db().Exec("UPDATE ? f JOIN ? p ON p.id = f.photo_id SET f.photo_taken_at = p.taken_at_local WHERE ?",
-				gorm.Expr(filesTable), gorm.Expr(photosTable), updateWhere).Error)
-
-		Log("files", "regenerate media_id",
-			Db().Exec("UPDATE ? SET media_id = CASE WHEN file_missing = 0 AND deleted_at IS NULL THEN CONCAT(HEX(100000000000 - photo_id), '-', 1 + file_sidecar - file_primary, '-', file_uid) END WHERE ?",
-				gorm.Expr(filesTable), updateWhere).Error)
-
-		Log("files", "regenerate time_index",
-			Db().Exec("UPDATE ? SET time_index = CASE WHEN file_missing = 0 AND deleted_at IS NULL THEN CONCAT(100000000000000 - CAST(photo_taken_at AS UNSIGNED), '-', media_id) END WHERE ?",
-				gorm.Expr(filesTable), updateWhere).Error)
-	case SQLite3:
-		Log("files", "regenerate photo_taken_at",
-			Db().Exec("UPDATE ? SET photo_taken_at = (SELECT p.taken_at_local FROM ? p WHERE p.id = photo_id) WHERE ?",
-				gorm.Expr(filesTable), gorm.Expr(photosTable), updateWhere).Error)
-
-		Log("files", "regenerate media_id",
-			Db().Exec("UPDATE ? SET media_id = CASE WHEN file_missing = 0 AND deleted_at IS NULL THEN (HEX(100000000000 - photo_id) || '-' || (1 + file_sidecar - file_primary) || '-' || file_uid) ELSE NULL END WHERE ?",
-				gorm.Expr(filesTable), updateWhere).Error)
-
-		Log("files", "regenerate time_index",
-			Db().Exec("UPDATE ? SET time_index = CASE WHEN file_missing = 0 AND deleted_at IS NULL THEN ((100000000000000 - CAST(photo_taken_at AS UNSIGNED)) || '-' || media_id) ELSE NULL END WHERE ?",
-				gorm.Expr(filesTable), updateWhere).Error)
-	default:
-		log.Warnf("sql: unsupported dialect %s", DbDialect())
-	}
-
-	log.Debugf("files: updated search index [%s]", time.Since(start))
 }
 
 type FileInfos struct {
@@ -409,10 +353,6 @@ func (m *File) ResolvePrimary() (err error) {
 
 	err = UnscopedDb().
 		Exec("UPDATE files SET file_primary = (id = ?) WHERE photo_id = ?", m.ID, m.PhotoID).Error
-
-	if err == nil {
-		m.RegenerateIndex()
-	}
 
 	return err
 }

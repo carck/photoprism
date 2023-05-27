@@ -131,7 +131,5 @@ func (m *Photo) Merge(mergeMeta, mergeUuid bool) (original Photo, merged Photos,
 		m.PhotoQuality = -1
 	}
 
-	File{PhotoID: original.ID, PhotoUID: original.PhotoUID}.RegenerateIndex()
-
 	return original, merged, err
 }

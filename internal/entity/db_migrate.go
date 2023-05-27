@@ -56,7 +56,6 @@ func InitTestDb(driver, dsn string) *Gorm {
 	// Insert test fixtures.
 	SetDbProvider(db)
 	ResetTestFixtures()
-	File{}.RegenerateIndex()
 
 	return db
 }

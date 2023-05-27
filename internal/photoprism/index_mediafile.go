@@ -228,7 +228,6 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 	if photoExists && (file.PhotoID != photo.ID || file.PhotoUID != photo.PhotoUID) {
 		file.PhotoID = photo.ID
 		file.PhotoUID = photo.PhotoUID
-		file.PhotoTakenAt = photo.TakenAtLocal
 	}
 
 	// Skip unchanged files.

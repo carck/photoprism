@@ -1,1 +1,0 @@
-CREATE OR REPLACE UNIQUE INDEX idx_files_search_timeline ON files (time_index);

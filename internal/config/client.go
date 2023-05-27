@@ -382,7 +382,6 @@ func (c *Config) UserConfig() ClientConfig {
 	c.Db().
 		Table("photos").
 		Select("photo_uid, cell_id, photo_lat, photo_lng, taken_at").
-		Where("deleted_at IS NULL AND photo_lat <> 0 AND photo_lng <> 0").
 		Order("taken_at DESC").
 		Limit(1).Offset(0).
 		Take(&result.Pos)
@@ -401,14 +400,7 @@ func (c *Config) UserConfig() ClientConfig {
 
 	c.Db().
 		Table("photos").
-		Select("SUM(photo_type = 'video' AND photo_quality >= 0 AND photo_private = 0) AS videos, " +
-			"SUM(photo_type = 'live' AND photo_quality >= 0 AND photo_private = 0) AS live, " +
-			"SUM(photo_quality = -1) AS hidden, SUM(photo_type IN ('image','raw') AND photo_private = 0 AND photo_quality >= 0) AS photos, " +
-			"SUM(photo_type IN ('image','raw','live') AND photo_quality < 3 AND photo_quality >= 0 AND photo_private = 0) AS review, " +
-			"SUM(photo_favorite = 1 AND photo_private = 0 AND photo_quality >= 0) AS favorites, " +
-			"SUM(photo_private = 1 AND photo_quality >= 0) AS private").
-		Where("photos.id NOT IN (SELECT photo_id FROM files WHERE file_primary = 1 AND (file_missing = 1 OR file_error <> ''))").
-		Where("deleted_at IS NULL").
+		Select("count(*) AS photos, 0 as live, 0 as videos").
 		Take(&result.Count)
 
 	result.Count.All = result.Count.Photos + result.Count.Live + result.Count.Videos
@@ -424,12 +416,12 @@ func (c *Config) UserConfig() ClientConfig {
 	c.Db().
 		Table("albums").
 		Select("SUM(album_type = ?) AS albums, SUM(album_type = ?) AS moments, SUM(album_type = ?) AS months, SUM(album_type = ?) AS states, SUM(album_type = ?) AS folders", entity.AlbumDefault, entity.AlbumMoment, entity.AlbumMonth, entity.AlbumState, entity.AlbumFolder).
-		Where("deleted_at IS NULL AND (albums.album_type <> 'folder' OR albums.album_path IN (SELECT photos.photo_path FROM photos WHERE photos.deleted_at IS NULL))").
+		Where("deleted_at IS NULL AND (albums.album_type <> 'folder'").
 		Take(&result.Count)
 
 	c.Db().
 		Table("files").
-		Select("COUNT(media_id) AS files").
+		Select("COUNT(*) AS files").
 		Take(&result.Count)
 
 	c.Db().
@@ -452,7 +444,6 @@ func (c *Config) UserConfig() ClientConfig {
 	result.People, _ = query.People()
 
 	c.Db().
-		Where("id IN (SELECT photos.camera_id FROM photos WHERE photos.photo_quality >= 0 OR photos.deleted_at IS NULL)").
 		Where("deleted_at IS NULL").
 		Limit(10000).Order("camera_slug").
 		Find(&result.Cameras)
@@ -469,7 +460,6 @@ func (c *Config) UserConfig() ClientConfig {
 
 	c.Db().
 		Table("photos").
-		Where("photo_year > 0 AND (photos.photo_quality >= 0 OR photos.deleted_at IS NULL)").
 		Order("photo_year DESC").
 		Pluck("DISTINCT photo_year", &result.Years)
 

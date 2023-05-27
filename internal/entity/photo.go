@@ -896,9 +896,6 @@ func (m *Photo) SetPrimary(fileUID string) (err error) {
 		err = m.UpdateQuality()
 	}
 
-	// Regenerate file search index.
-	File{PhotoID: m.ID, PhotoUID: m.PhotoUID}.RegenerateIndex()
-
 	return nil
 }
 

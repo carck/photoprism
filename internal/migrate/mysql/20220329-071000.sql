@@ -1,1 +1,0 @@
-UPDATE files f JOIN photos p ON p.id = f.photo_id SET f.photo_taken_at = p.taken_at_local;
