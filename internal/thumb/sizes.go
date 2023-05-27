@@ -57,10 +57,8 @@ var DefaultSizes = []Name{
 	Fit2048,
 	Fit1920,
 	Fit1280,
-	Fit720,
 	Tile500,
 	Tile224,
-	Tile50,
 }
 
 // Find returns the largest default thumbnail type for the given size limit.

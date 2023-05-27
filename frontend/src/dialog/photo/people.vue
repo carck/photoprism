@@ -115,7 +115,7 @@ export default {
     return {
       busy: false,
       markers: this.model.getMarkers(true),
-      imageUrl: this.model.thumbnailUrl("fit_720"),
+      imageUrl: this.model.thumbnailUrl("fit_1280"),
       disabled: !this.$config.feature("edit"),
       config: this.$config.values,
       readonly: this.$config.get("readonly"),

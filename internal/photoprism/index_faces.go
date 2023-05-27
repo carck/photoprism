@@ -19,7 +19,7 @@ func (ind *Index) Faces(jpeg *MediaFile, expected int) face.Faces {
 	var thumbSize thumb.Name
 
 	// Select best thumbnail depending on configured size.
-	thumbSize = thumb.Fit720
+	thumbSize = thumb.Fit1280
 
 	thumbName, err := jpeg.Thumbnail(Config().ThumbPath(), thumbSize)
 

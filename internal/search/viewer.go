@@ -21,7 +21,6 @@ func (photo Photo) ViewerResult(contentUri, apiUri, previewToken, downloadToken 
 		Width:        photo.FileWidth,
 		Height:       photo.FileHeight,
 		Thumbs: viewer.Thumbs{
-			Fit720:  viewer.NewThumb(photo.FileWidth, photo.FileHeight, photo.FileHash, thumb.Sizes[thumb.Fit720], contentUri, previewToken),
 			Fit1280: viewer.NewThumb(photo.FileWidth, photo.FileHeight, photo.FileHash, thumb.Sizes[thumb.Fit1280], contentUri, previewToken),
 			Fit1920: viewer.NewThumb(photo.FileWidth, photo.FileHeight, photo.FileHash, thumb.Sizes[thumb.Fit1920], contentUri, previewToken),
 			Fit2048: viewer.NewThumb(photo.FileWidth, photo.FileHeight, photo.FileHash, thumb.Sizes[thumb.Fit2048], contentUri, previewToken),

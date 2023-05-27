@@ -180,7 +180,7 @@ export default {
   methods: {
     phoneUrl(photo, inView){
       return inView 
-              ? photo.thumbnailUrl('tile_50')
+              ? photo.thumbnailUrl('tile_224')
               : "";
     },
     downloadFile(index) {

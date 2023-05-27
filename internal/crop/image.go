@@ -30,7 +30,6 @@ var thumbFileNames = []string{
 
 // Suitable thumb file sizes.
 var thumbFileSizes = []thumb.Size{
-	thumb.Sizes[thumb.Fit720],
 	thumb.Sizes[thumb.Fit1280],
 	thumb.Sizes[thumb.Fit1920],
 	thumb.Sizes[thumb.Fit2048],
