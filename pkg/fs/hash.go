@@ -3,30 +3,50 @@ package fs
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"fmt"
 	"hash/crc32"
 	"io"
 	"os"
 )
 
+const (
+	hashSize = 16 * 1024
+)
+
 // Hash returns the SHA1 hash of a file as string.
 func Hash(fileName string) string {
-	var result []byte
+	if bytes, err := readHashBytes(fileName); err != nil {
+		return ""
+	} else {
+		hash := sha1.New()
+		if _, hErr := hash.Write(bytes); hErr != nil {
+			return ""
+		}
+		return hex.EncodeToString(hash.Sum(nil))
+	}
+}
 
-	file, err := os.Open(fileName)
-
+func readHashBytes(filePath string) ([]byte, error) {
+	file, err := os.Open(filePath)
 	if err != nil {
-		return ""
+		return nil, err
 	}
-
 	defer file.Close()
-
-	hash := sha1.New()
-
-	if _, err := io.Copy(hash, file); err != nil {
-		return ""
+	firstBytes := make([]byte, hashSize/2)
+	if _, e := file.ReadAt(firstBytes, 0); e != nil {
+		return nil, fmt.Errorf("couldn't read first few bytes: %+v", e)
 	}
-
-	return hex.EncodeToString(hash.Sum(result))
+	middleBytes := make([]byte, hashSize/4)
+	fileInfo, _ := file.Stat()
+	if _, e := file.ReadAt(middleBytes, fileInfo.Size()/2); e != nil {
+		return nil, fmt.Errorf("couldn't read middle bytes: %+v", e)
+	}
+	lastBytes := make([]byte, hashSize/4)
+	if _, e := file.ReadAt(lastBytes, fileInfo.Size()-hashSize/4); e != nil {
+		return nil, fmt.Errorf("couldn't read end bytes: %+v", e)
+	}
+	bytes := append(append(firstBytes, middleBytes...), lastBytes...)
+	return bytes, nil
 }
 
 // Checksum returns the CRC32 checksum of a file as string.
