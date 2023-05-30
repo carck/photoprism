@@ -24,13 +24,13 @@ func ConvertWorker(jobs <-chan ConvertJob) {
 		case job.convert == nil:
 			continue
 		case job.file.IsVideo():
-			_, _ = job.convert.ToJson(job.file)
+			if jsonName, err := job.convert.ToJson(job.file); err != nil {
+				log.Debugf("convert: %s in %s (extract metadata)", sanitize.Log(err.Error()), sanitize.Log(job.file.BaseName()))
+			} else if err := job.file.ReadExifToolJson(jsonName); err != nil {
+				log.Errorf("convert: %s in %s (read metadata)", sanitize.Log(err.Error()), sanitize.Log(job.file.BaseName()))
+			}
 
 			if _, err := job.convert.ToJpeg(job.file); err != nil {
-				logError(err, job)
-			} else if metaData := job.file.MetaData(); metaData.CodecAvc() {
-				continue
-			} else if _, err := job.convert.ToAvc(job.file, job.convert.conf.FFmpegEncoder()); err != nil {
 				logError(err, job)
 			}
 		default:

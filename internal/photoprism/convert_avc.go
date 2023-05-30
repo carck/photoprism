@@ -1,14 +1,12 @@
 package photoprism
 
 import (
-	"bytes"
-	"errors"
 	"fmt"
 	"os"
+	"io"
 	"os/exec"
 	"path/filepath"
 	"strconv"
-	"time"
 
 	"github.com/photoprism/photoprism/internal/event"
 	"github.com/photoprism/photoprism/pkg/fs"
@@ -63,10 +61,8 @@ var FFmpegAvcEncoders = map[string]string{
 }
 
 // AvcConvertCommand returns the command for converting video files to MPEG-4 AVC.
-func (c *Convert) AvcConvertCommand(f *MediaFile, avcName, encoderName string) (result *exec.Cmd, useMutex bool, err error) {
+func (c *Convert) AvcConvertCommand(f *MediaFile, avcName, encoderName string) (result *exec.Cmd, err error) {
 	if f.IsVideo() {
-		// Don't transcode more than one video at the same time.
-		useMutex = true
 
 		// Display encoder info.
 		if encoderName != FFmpegSoftwareEncoder {
@@ -158,14 +154,14 @@ func (c *Convert) AvcConvertCommand(f *MediaFile, avcName, encoderName string) (
 			)
 		}
 	} else {
-		return nil, useMutex, fmt.Errorf("convert: file type %s not supported in %s", f.FileType(), sanitize.Log(f.BaseName()))
+		return nil, fmt.Errorf("convert: file type %s not supported in %s", f.FileType(), sanitize.Log(f.BaseName()))
 	}
 
-	return result, useMutex, nil
+	return result, nil
 }
 
 // ToAvc converts a single video file to MPEG-4 AVC.
-func (c *Convert) ToAvc(f *MediaFile, encoderName string) (file *MediaFile, err error) {
+func (c *Convert) ToAvc(f *MediaFile, encoderName string) (io.ReadCloser, *os.Process, error) {
 	if n := FFmpegAvcEncoders[encoderName]; n != "" {
 		encoderName = n
 	} else {
@@ -174,55 +170,32 @@ func (c *Convert) ToAvc(f *MediaFile, encoderName string) (file *MediaFile, err 
 	}
 
 	if f == nil {
-		return nil, fmt.Errorf("convert: file is nil - you might have found a bug")
+		return nil, nil, fmt.Errorf("convert: file is nil - you might have found a bug")
 	}
 
 	if !f.Exists() {
-		return nil, fmt.Errorf("convert: %s not found", f.RelName(c.conf.OriginalsPath()))
-	}
-
-	avcName := fs.FormatAvc.FindFirst(f.FileName(), []string{c.conf.SidecarPath(), fs.HiddenPath}, c.conf.OriginalsPath(), false)
-
-	mediaFile, err := NewMediaFile(avcName)
-
-	if err == nil && mediaFile.IsVideo() {
-		return mediaFile, nil
-	}
-
-	if !c.conf.SidecarWritable() {
-		return nil, fmt.Errorf("convert: transcoding disabled in read only mode (%s)", f.RelName(c.conf.OriginalsPath()))
+		return nil, nil, fmt.Errorf("convert: %s not found", f.RelName(c.conf.OriginalsPath()))
 	}
 
 	if c.conf.DisableFFmpeg() {
-		return nil, fmt.Errorf("convert: ffmpeg is disabled for transcoding %s", f.RelName(c.conf.OriginalsPath()))
+		return nil, nil, fmt.Errorf("convert: ffmpeg is disabled for transcoding %s", f.RelName(c.conf.OriginalsPath()))
 	}
 
-	avcName = fs.FileName(f.FileName(), c.conf.SidecarPath(), c.conf.OriginalsPath(), fs.AvcExt)
+	avcName := "pipe:1"
 	fileName := f.RelName(c.conf.OriginalsPath())
 
-	cmd, useMutex, err := c.AvcConvertCommand(f, avcName, encoderName)
+	cmd, err := c.AvcConvertCommand(f, avcName, encoderName)
 
 	if err != nil {
 		log.Error(err)
-		return nil, err
+		return nil, nil, err
 	}
-
-	if useMutex {
-		// Make sure only one command is executed at a time.
-		// See https://photo.stackexchange.com/questions/105969/darktable-cli-fails-because-of-locked-database-file
-		c.cmdMutex.Lock()
-		defer c.cmdMutex.Unlock()
+	
+	stdout, pipeErr := cmd.StdoutPipe()
+	if pipeErr != nil {
+		log.Error(pipeErr)
+		return nil, nil, pipeErr
 	}
-
-	if fs.FileExists(avcName) {
-		return NewMediaFile(avcName)
-	}
-
-	// Fetch command output.
-	var out bytes.Buffer
-	var stderr bytes.Buffer
-	cmd.Stdout = &out
-	cmd.Stderr = &stderr
 
 	event.Publish("index.converting", event.Data{
 		"fileType": f.FileType(),
@@ -237,31 +210,10 @@ func (c *Convert) ToAvc(f *MediaFile, encoderName string) (file *MediaFile, err 
 	log.Trace(cmd.String())
 
 	// Run convert command.
-	start := time.Now()
-	if err = cmd.Run(); err != nil {
-		_ = os.Remove(avcName)
-
-		if stderr.String() != "" {
-			err = errors.New(stderr.String())
-		}
-
-		// Log ffmpeg output for debugging.
-		if err.Error() != "" {
-			log.Debug(err)
-		}
-
-		// Log filename and transcoding time.
-		log.Warnf("%s: failed transcoding %s [%s]", encoderName, fileName, time.Since(start))
-
-		if encoderName != FFmpegSoftwareEncoder {
-			return c.ToAvc(f, FFmpegSoftwareEncoder)
-		} else {
-			return nil, err
-		}
+	if err = cmd.Start(); err != nil {
+		log.Warnf("%s: failed transcoding %s [%s]", encoderName, fileName, err)
+		return nil, nil, err
 	}
 
-	// Log transcoding time.
-	log.Infof("%s: created %s [%s]", encoderName, filepath.Base(avcName), time.Since(start))
-
-	return NewMediaFile(avcName)
+	return stdout, cmd.Process, nil
 }
