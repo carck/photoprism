@@ -78,7 +78,7 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 	}
 
 	s := UnscopedDb()
-	s = s.LogMode(true)
+	//s = s.LogMode(true)
 
 	// Database tables.
 	s = s.Table("photos").Select(resultCols).
