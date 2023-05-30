@@ -2,7 +2,6 @@ package photoprism
 
 import (
 	"fmt"
-	"os"
 	"io"
 	"os/exec"
 	"path/filepath"
@@ -148,7 +147,7 @@ func (c *Convert) AvcConvertCommand(f *MediaFile, avcName, encoderName string) (
 				"-vsync", "vfr",
 				"-r", "30",
 				"-b:v", c.AvcBitrate(f),
-				"-f", "mp4",
+				"-f", "ismv",
 				"-y",
 				avcName,
 			)
@@ -161,7 +160,7 @@ func (c *Convert) AvcConvertCommand(f *MediaFile, avcName, encoderName string) (
 }
 
 // ToAvc converts a single video file to MPEG-4 AVC.
-func (c *Convert) ToAvc(f *MediaFile, encoderName string) (io.ReadCloser, *os.Process, error) {
+func (c *Convert) ToAvc(f *MediaFile, encoderName string) (io.ReadCloser, *exec.Cmd, error) {
 	if n := FFmpegAvcEncoders[encoderName]; n != "" {
 		encoderName = n
 	} else {
@@ -181,7 +180,7 @@ func (c *Convert) ToAvc(f *MediaFile, encoderName string) (io.ReadCloser, *os.Pr
 		return nil, nil, fmt.Errorf("convert: ffmpeg is disabled for transcoding %s", f.RelName(c.conf.OriginalsPath()))
 	}
 
-	avcName := "pipe:1"
+	avcName := "pipe:"
 	fileName := f.RelName(c.conf.OriginalsPath())
 
 	cmd, err := c.AvcConvertCommand(f, avcName, encoderName)
@@ -190,7 +189,7 @@ func (c *Convert) ToAvc(f *MediaFile, encoderName string) (io.ReadCloser, *os.Pr
 		log.Error(err)
 		return nil, nil, err
 	}
-	
+
 	stdout, pipeErr := cmd.StdoutPipe()
 	if pipeErr != nil {
 		log.Error(pipeErr)
@@ -215,5 +214,5 @@ func (c *Convert) ToAvc(f *MediaFile, encoderName string) (io.ReadCloser, *os.Pr
 		return nil, nil, err
 	}
 
-	return stdout, cmd.Process, nil
+	return stdout, cmd, nil
 }

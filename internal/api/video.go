@@ -30,7 +30,7 @@ func GetVideo(router *gin.RouterGroup) {
 
 		fileHash := sanitize.Token(c.Param("hash"))
 		typeName := sanitize.Token(c.Param("type"))
-		skipConvert := true
+		skipConvert := false
 
 		videoType, ok := video.Types[typeName]
 
@@ -82,8 +82,12 @@ func GetVideo(router *gin.RouterGroup) {
 				c.Data(http.StatusOK, "image/svg+xml", videoIconSvg)
 				return
 			} else {
+				defer func() {
+					r.Close()
+					p.Process.Kill()
+					p.Wait()
+				}()
 				c.DataFromReader(http.StatusOK, -1, ContentTypeAvc, r, nil)
-				p.Kill()
 				return
 			}
 		}
