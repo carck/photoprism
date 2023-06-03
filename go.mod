@@ -69,7 +69,10 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 )
 
-require github.com/carck/libheif v1.12.1-0.20220322055459-feb51ccb72eb
+require (
+	github.com/carck/libheif v1.12.1-0.20230603041326-eec491e5a751
+	github.com/valyala/gozstd v1.20.1
+)
 
 require (
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
@@ -92,7 +95,6 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/ugorji/go/codec v1.2.7 // indirect
-	github.com/valyala/gozstd v1.20.1 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

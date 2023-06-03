@@ -31,7 +31,9 @@ func Open(fileName string, orientation int) (result image.Image, err error) {
 	}
 
 	if fs.GetFileFormat(fileName) == fs.FormatHEIF {
-		return OpenHeif(fileName)
+		if result, err = OpenHeif(fileName); err == nil {
+			return result, nil
+		}
 	}
 
 	// Open file with imaging function.

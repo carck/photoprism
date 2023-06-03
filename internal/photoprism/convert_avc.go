@@ -147,7 +147,9 @@ func (c *Convert) AvcConvertCommand(f *MediaFile, avcName, encoderName string) (
 				"-vsync", "vfr",
 				"-r", "30",
 				"-b:v", c.AvcBitrate(f),
-				"-f", "ismv",
+				"-f", "mp4",
+				"-movflags", "frag_keyframe+empty_moov",
+				"-preset", "ultrafast",
 				"-y",
 				avcName,
 			)
