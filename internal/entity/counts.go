@@ -30,20 +30,12 @@ func LabelCounts() LabelPhotoCounts {
 		SELECT label_id, SUM(photo_count) AS photo_count FROM (
 			SELECT l.id AS label_id, COUNT(*) AS photo_count FROM labels l
 		JOIN photos_labels pl ON pl.label_id = l.id
-		JOIN photos ph ON pl.photo_id = ph.id
-		WHERE pl.uncertainty < 100
-		AND ph.photo_quality >= 0
-		AND ph.photo_private = 0
-		AND ph.deleted_at IS NULL GROUP BY l.id
+		GROUP BY l.id
 		UNION ALL
 		SELECT l.id AS label_id, COUNT(*) AS photo_count FROM labels l
 		JOIN categories c ON c.category_id = l.id
 		JOIN photos_labels pl ON pl.label_id = c.label_id
-		JOIN photos ph ON pl.photo_id = ph.id
-		WHERE pl.uncertainty < 100
-		AND ph.photo_quality >= 0
-		AND ph.photo_private = 0
-		AND ph.deleted_at IS NULL GROUP BY l.id) counts GROUP BY label_id
+		GROUP BY l.id) counts GROUP BY label_id
 		`).Scan(&result).Error; err != nil {
 		log.Errorf("label-count: %s", err.Error())
 	}
@@ -61,10 +53,7 @@ func UpdatePlacesCounts() (err error) {
 	// Update places.
 	res := Db().Table("places").
 		UpdateColumn("photo_count", gorm.Expr("(SELECT COUNT(*) FROM photos p "+
-			"WHERE places.id = p.place_id "+
-			"AND p.photo_quality >= 0 "+
-			"AND p.photo_private = 0 "+
-			"AND p.deleted_at IS NULL)"))
+			"WHERE places.id = p.place_id)"))
 
 	if res.Error != nil {
 		return res.Error
@@ -104,8 +93,8 @@ func UpdateSubjectCounts() (err error) {
 		// Update files count.
 		res = Db().Table(subjTable).
 			UpdateColumn("file_count", gorm.Expr("(SELECT COUNT(DISTINCT f.id) FROM files f "+
-				fmt.Sprintf("JOIN %s m ON f.file_uid = m.file_uid AND m.subj_uid = %s.subj_uid ",
-					markerTable, subjTable)+" WHERE m.marker_invalid = 0 AND f.deleted_at IS NULL) WHERE ?", condition))
+				"JOIN markers m ON f.file_uid = m.file_uid"+
+				" WHERE m.subj_uid = subjects.subj_uid) WHERE ?", condition))
 
 		// Update photo count.
 		if res.Error != nil {
@@ -113,8 +102,8 @@ func UpdateSubjectCounts() (err error) {
 		} else {
 			photosRes := Db().Table(subjTable).
 				UpdateColumn("photo_count", gorm.Expr("(SELECT COUNT(DISTINCT f.photo_id) FROM files f "+
-					fmt.Sprintf("JOIN %s m ON f.file_uid = m.file_uid AND m.subj_uid = %s.subj_uid ",
-						markerTable, subjTable)+" WHERE m.marker_invalid = 0 AND f.deleted_at IS NULL) WHERE ?", condition))
+					"JOIN markers m ON f.file_uid = m.file_uid "+
+					" WHERE m.subj_uid = subjects.subj_uid) WHERE ?", condition))
 			res.RowsAffected += photosRes.RowsAffected
 		}
 	default:
@@ -156,22 +145,16 @@ func UpdateLabelCounts() (err error) {
 			Table("labels").
 			UpdateColumn("photo_count",
 				gorm.Expr(`(SELECT photo_count FROM (SELECT label_id, SUM(photo_count) AS photo_count FROM (
-				SELECT l.id AS label_id, COUNT(*) AS photo_count FROM labels l
+					SELECT l.id AS label_id, COUNT(*) AS photo_count FROM labels l
 					JOIN photos_labels pl ON pl.label_id = l.id
-					JOIN photos ph ON pl.photo_id = ph.id
-					WHERE pl.uncertainty < 100
-					AND ph.photo_quality >= 0
-					AND ph.photo_private = 0
-					AND ph.deleted_at IS NULL GROUP BY l.id
+				 	GROUP BY l.id
 					UNION ALL
 					SELECT l.id AS label_id, COUNT(*) AS photo_count FROM labels l
 					JOIN categories c ON c.category_id = l.id
 					JOIN photos_labels pl ON pl.label_id = c.label_id
-					JOIN photos ph ON pl.photo_id = ph.id
-					WHERE pl.uncertainty < 100
-					AND ph.photo_quality >= 0
-					AND ph.photo_private = 0
-					AND ph.deleted_at IS NULL GROUP BY l.id) counts GROUP BY label_id) label_counts WHERE label_id = labels.id)`))
+			 		GROUP BY l.id) counts 
+					GROUP BY label_id) label_counts 
+			 WHERE label_id = labels.id)`))
 	} else {
 		return fmt.Errorf("sql: unsupported dialect %s", DbDialect())
 	}
