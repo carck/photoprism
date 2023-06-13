@@ -53,7 +53,7 @@
                       v-else
                       :key="photo.Hash"
                       :alt="photo.Title"
-                      :style="`background-image: url(${photo.thumbnailUrl('tile_50')})`"
+                      :style="`background-image: url(${photo.thumbnailUrl('tile_224')})`"
                       class="accent lighten-2 clickable image"
                       @touchstart="onMouseDown($event, index)"
                       @touchend.stop.prevent="onClick($event, index)"
