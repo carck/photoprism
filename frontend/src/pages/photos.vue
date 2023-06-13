@@ -98,7 +98,7 @@ export default {
       complete: false,
       results: [],
       scrollDisabled: true,
-      scrollDistance: window.innerHeight*2,
+      scrollDistance: window.innerHeight*6,
       batchSize: batchSize,
       offset: 0,
       page: 0,

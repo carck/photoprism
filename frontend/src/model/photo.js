@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2018 - 2022 Michael Mayer <hello@photoprism.app>
+Copyright (c) 2018 - 2022 PhotoPrism UG. All rights reserved.
 
     This program is free software: you can redistribute it and/or modify
     it under Version 3 of the GNU Affero General Public License (the "AGPL"):
@@ -15,13 +15,15 @@ Copyright (c) 2018 - 2022 Michael Mayer <hello@photoprism.app>
     which describe how our Brand Assets may be used:
     <https://photoprism.app/trademark>
 
-Feel free to send an e-mail to hello@photoprism.app if you have questions,
+Feel free to send an email to hello@photoprism.app if you have questions,
 want to support our work, or just want to say hello.
 
 Additional information can be found in our Developer Guide:
 <https://docs.photoprism.app/developer-guide/>
 
 */
+
+import memoizeOne from 'memoize-one';
 
 import RestModel from "model/rest";
 import File from "model/file";
@@ -39,8 +41,11 @@ import * as src from "common/src";
 export const CodecAvc1 = "avc1";
 export const FormatMp4 = "mp4";
 export const FormatAvc = "avc";
+export const FormatGif = "gif";
 export const FormatJpeg = "jpg";
 export const TypeImage = "image";
+export const MediaAnimated = "animated";
+export const MediaSidecar = "sidecar";
 export const TypeVideo = "video";
 export const TypeLive = "live";
 export const TypeRaw = "raw";
@@ -138,6 +143,8 @@ export class Photo extends RestModel {
         CopyrightSrc: "",
         License: "",
         LicenseSrc: "",
+        Software: "",
+        SoftwareSrc: "",
       },
       Files: [],
       Labels: [],
@@ -157,6 +164,10 @@ export class Photo extends RestModel {
       FileUID: "",
       FileRoot: "",
       FileName: "",
+      FileType: "",
+      MediaType: "",
+      FPS: 0.0,
+      Frames: 0,
       Hash: "",
       Width: "",
       Height: "",
@@ -170,17 +181,21 @@ export class Photo extends RestModel {
   }
 
   classes() {
+    return this.generateClasses(this.isPlayable(), Clipboard.has(this), this.Portrait, this.Favorite, this.Private, this.Files.length > 1)
+  }
+
+  generateClasses = memoizeOne((isPlayable, isInClipboard, portrait, favorite, isPrivate, hasMultipleFiles) => {
     let classes = ["is-photo", "uid-" + this.UID, "type-" + this.Type];
 
-    if (this.isPlayable()) classes.push("is-playable");
-    if (Clipboard.has(this)) classes.push("is-selected");
-    if (this.Portrait) classes.push("is-portrait");
-    if (this.Favorite) classes.push("is-favorite");
-    if (this.Private) classes.push("is-private");
-    if (this.Files.length > 1) classes.push("is-stack");
+    if (isPlayable) classes.push("is-playable");
+    if (isInClipboard) classes.push("is-selected");
+    if (portrait) classes.push("is-portrait");
+    if (favorite) classes.push("is-favorite");
+    if (isPrivate) classes.push("is-private");
+    if (hasMultipleFiles) classes.push("is-stack");
 
     return classes;
-  }
+  })
 
   localDayString() {
     if (!this.TakenAtLocal) {
@@ -286,7 +301,7 @@ export class Photo extends RestModel {
     let iso = this.localDateString(time);
     let zone = this.getTimeZone();
 
-    if (this.getTimeZone() === "") {
+    if (zone === "") {
       zone = "UTC";
     }
 
@@ -294,8 +309,12 @@ export class Photo extends RestModel {
   }
 
   utcDate() {
-    return DateTime.fromISO(this.TakenAt).toUTC();
+    return this.generateUtcDate(this.TakenAt);
   }
+
+  generateUtcDate = memoizeOne((takenAt) => {
+    return DateTime.fromISO(takenAt).toUTC();
+  })
 
   baseName(truncate) {
     let result = this.fileBase(this.FileName ? this.FileName : this.mainFile().Name);
@@ -343,12 +362,18 @@ export class Photo extends RestModel {
   }
 
   isPlayable() {
-    if (!this.Files) {
+    return this.generateIsPlayable(this.Type, this.Files);
+  }
+
+  generateIsPlayable = memoizeOne((type, files) => {
+    if (type === MediaAnimated) {
+      return true;
+    } else if (!files) {
       return false;
     }
 
-    return this.Files.findIndex((f) => f.Video) !== -1;
-  }
+    return files.some((f) => f.Video);
+  })
 
   videoParams() {
     const uri = this.videoUrl();
@@ -359,6 +384,10 @@ export class Photo extends RestModel {
 
     let main = this.mainFile();
     let file = this.videoFile();
+
+    if (!file) {
+      file = main;
+    }
 
     const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
     const vh = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
@@ -393,7 +422,7 @@ export class Photo extends RestModel {
       height = newHeight;
     }
 
-    const loop = file.Duration >= 0 && file.Duration <= 5000000000;
+    const loop = this.Type === MediaAnimated || (file.Duration >= 0 && file.Duration <= 5000000000);
     const poster = this.thumbnailUrl("fit_720");
     const error = false;
 
@@ -401,25 +430,41 @@ export class Photo extends RestModel {
   }
 
   videoFile() {
+    return this.getVideoFileFromFiles(this.Files);
+  }
+
+  getVideoFileFromFiles = memoizeOne((files) => {
+    if (!files) {
+      return false;
+    }
+
+    let file = files.find((f) => f.Codec === CodecAvc1);
+
+    if (!file) {
+      file = files.find((f) => f.FileType === FormatMp4);
+    }
+
+    if (!file) {
+      file = files.find((f) => !!f.Video);
+    }
+
+    if (!file) {
+      file = this.gifFile();
+    }
+
+    return file;
+  })
+
+  gifFile() {
     if (!this.Files) {
       return false;
     }
 
-    let file = this.Files.find((f) => f.Codec === CodecAvc1);
-
-    if (!file) {
-      file = this.Files.find((f) => f.Type === FormatMp4);
-    }
-
-    if (!file) {
-      file = this.Files.find((f) => !!f.Video);
-    }
-
-    return file;
+    return this.Files.find((f) => f.FileType === FormatGif);
   }
 
   videoUrl() {
-    const file = this.videoFile();
+    let file = this.videoFile();
 
     if (file) {
       return `${config.apiUri}/videos/${file.Hash}/${config.previewToken()}/${FormatAvc}`;
@@ -429,40 +474,46 @@ export class Photo extends RestModel {
   }
 
   mainFile() {
-    if (!this.Files) {
+    return this.getMainFileFromFiles(this.Files)
+  }
+
+  getMainFileFromFiles = memoizeOne((files) => {
+    if (!files) {
       return this;
     }
 
-    let file = this.Files.find((f) => !!f.Primary);
+    let file = files.find((f) => !!f.Primary);
 
     if (file) {
       return file;
     }
 
-    return this.Files.find((f) => f.Type === FormatJpeg);
-  }
+    return files.find((f) => f.FileType === FormatJpeg);
+  })
 
   jpegFiles() {
     if (!this.Files) {
       return [this];
     }
 
-    return this.Files.filter((f) => f.Type === FormatJpeg);
+    return this.Files.filter((f) => f.FileType === FormatJpeg);
   }
 
   mainFileHash() {
-    if (this.Files) {
-      let file = this.mainFile();
+    return this.generateMainFileHash(this.mainFile(), this.Hash);
+  }
 
-      if (file && file.Hash) {
-        return file.Hash;
+  generateMainFileHash = memoizeOne((mainFile, hash) => {
+    if (this.Files) {
+      if (mainFile && mainFile.Hash) {
+        return mainFile.Hash;
       }
-    } else if (this.Hash) {
-      return this.Hash;
+    } else if (hash) {
+      return hash;
     }
 
     return "";
-  }
+  });
 
   fileModels() {
     let result = [];
@@ -489,26 +540,35 @@ export class Photo extends RestModel {
   }
 
   thumbnailUrl(size) {
-    let hash = this.mainFileHash();
+    return this.generateThumbnailUrl(this.mainFileHash(), this.videoFile(), config.contentUri, config.previewToken(), size);
+  }
+
+  generateThumbnailUrl = memoizeOne((mainFileHash, videoFile, contentUri, previewToken, size) => {
+    let hash = mainFileHash;
 
     if (!hash) {
-      let video = this.videoFile();
-
-      if (video && video.Hash) {
-        return `${config.contentUri}/t/${video.Hash}/${config.previewToken()}/${size}`;
+      if (videoFile && videoFile.Hash) {
+        return `${contentUri}/t/${videoFile.Hash}/${previewToken}/${size}`;
       }
 
-      return `${config.contentUri}/svg/photo`;
+      return `${contentUri}/svg/photo`;
     }
 
-    return `${config.contentUri}/t/${hash}/${config.previewToken()}/${size}`;
-  }
+    return `${contentUri}/t/${hash}/${previewToken}/${size}`;
+  })
 
   getDownloadUrl() {
     return `${config.apiUri}/dl/${this.mainFileHash()}?t=${config.downloadToken()}`;
   }
 
   downloadAll() {
+    const s = config.settings();
+
+    if (!s || !s.features || !s.download || !s.features.download || s.download.disabled) {
+      console.log("download: disabled in settings", s.features, s.download);
+      return;
+    }
+
     const token = config.downloadToken();
 
     if (!this.Files) {
@@ -524,16 +584,34 @@ export class Photo extends RestModel {
     }
 
     this.Files.forEach((file) => {
-      if (!file || !file.Hash || file.Sidecar) {
-        // Don't download broken files and sidecars.
-        if (config.debug) console.log("download: skipped file", file);
+      if (!file || !file.Hash) {
         return;
       }
 
-      // Skip related images if video.
+      // Originals only?
+      if (s.download.originals && file.Root.length > 1) {
+        // Don't download broken files and sidecars.
+        if (config.debug) console.log(`download: skipped ${file.Root} file ${file.Name}`);
+        return;
+      }
+
+      // Skip metadata sidecar files?
+      if (!s.download.mediaSidecar && (file.MediaType === MediaSidecar || file.Sidecar)) {
+        // Don't download broken files and sidecars.
+        if (config.debug) console.log(`download: skipped sidecar file ${file.Name}`);
+        return;
+      }
+
+      // Skip RAW images?
+      if (!s.download.mediaRaw && (file.MediaType === TypeRaw || file.FileType === TypeRaw)) {
+        if (config.debug) console.log(`download: skipped raw file ${file.Name}`);
+        return;
+      }
+
+      // If this is a video, always skip stacked images...
       // see https://github.com/photoprism/photoprism/issues/1436
-      if (this.Type === TypeVideo && !file.Video) {
-        if (config.debug) console.log("download: skipped image", file);
+      if (this.Type === TypeVideo && !(file.MediaType === TypeVideo || file.Video)) {
+        if (config.debug) console.log(`download: skipped video sidecar ${file.Name}`);
         return;
       }
 
@@ -564,33 +642,41 @@ export class Photo extends RestModel {
   }
 
   getDateString(showTimeZone) {
-    if (!this.TakenAt || this.Year === YearUnknown) {
+    return this.generateDateString(showTimeZone, this.TakenAt, this.Year, this.Month, this.Day, this.TimeZone);
+  }
+
+  generateDateString = memoizeOne((showTimeZone, takenAt, year, month, day, timeZone) => {
+    if (!takenAt || year === YearUnknown) {
       return $gettext("Unknown");
-    } else if (this.Month === MonthUnknown) {
+    } else if (month === MonthUnknown) {
       return this.localYearString();
-    } else if (this.Day === DayUnknown) {
+    } else if (day === DayUnknown) {
       return this.localDate().toLocaleString({
         month: long,
         year: num,
       });
-    } else if (this.TimeZone) {
+    } else if (timeZone) {
       return this.localDate().toLocaleString(showTimeZone ? DATE_FULL_TZ : DATE_FULL);
     }
 
     return this.localDate().toLocaleString(DateTime.DATE_HUGE);
-  }
+  })
 
-  shortDateString() {
-    if (!this.TakenAt || this.Year === YearUnknown) {
+  shortDateString = () => {
+    return this.generateShortDateString(this.TakenAt, this.Year, this.Month, this.Day)
+  }
+  
+  generateShortDateString = memoizeOne((takenAt, year, month, day) => {
+    if (!takenAt || year === YearUnknown) {
       return $gettext("Unknown");
-    } else if (this.Month === MonthUnknown) {
+    } else if (month === MonthUnknown) {
       return this.localYearString();
-    } else if (this.Day === DayUnknown) {
+    } else if (day === DayUnknown) {
       return this.localDate().toLocaleString({ month: "long", year: "numeric" });
     }
 
     return this.localDate().toLocaleString(DateTime.DATE_MED);
-  }
+  })
 
   hasLocation() {
     return this.Lat !== 0 || this.Lng !== 0;
@@ -608,19 +694,23 @@ export class Photo extends RestModel {
     return $gettext("Unknown");
   }
 
-  locationInfo() {
-    if (this.PlaceID === "zz" && this.Country !== "zz") {
-      const country = countries.find((c) => c.Code === this.Country);
+  locationInfo = () => {
+    return this.generateLocationInfo(this.PlaceID, this.Country, this.Place, this.PlaceLabel)
+  }
+
+  generateLocationInfo = memoizeOne((placeId, countryCode, place, placeLabel) => {
+    if (placeId === "zz" && countryCode !== "zz") {
+      const country = countries.find((c) => c.Code === countryCode);
 
       if (country) {
         return country.Name;
       }
-    } else if (this.Place && this.Place.Label) {
-      return this.Place.Label;
+    } else if (place && place.Label) {
+      return place.Label;
     }
 
-    return this.PlaceLabel ? this.PlaceLabel : $gettext("Unknown");
-  }
+    return placeLabel ? placeLabel : $gettext("Unknown");
+  })
 
   addSizeInfo(file, info) {
     if (!file) {
@@ -647,17 +737,18 @@ export class Photo extends RestModel {
     }
   }
 
-  getVideoInfo() {
-    let info = [];
-    let file = this.videoFile();
+  getVideoInfo = () => {
+    let file = this.videoFile() || this.mainFile();
+    return this.generateVideoInfo(file)
+  }
 
-    if (!file) {
-      file = this.mainFile();
-    }
-
+  generateVideoInfo = memoizeOne((file) => {
     if (!file) {
       return $gettext("Video");
     }
+
+    const info = [];
+
 
     if (file.Duration > 0) {
       info.push(Util.duration(file.Duration));
@@ -674,30 +765,35 @@ export class Photo extends RestModel {
     }
 
     return info.join(", ");
+  })
+
+  getPhotoInfo = () => {
+    let file = this.videoFile();
+    if (!file || !file.Width) {
+      file = this.mainFile();
+    }
+
+    return this.generatePhotoInfo(this.Camera, this.CameraModel, this.CameraMake, file);
   }
 
-  getPhotoInfo() {
+  generatePhotoInfo = memoizeOne((camera, cameraModel, cameraMake, file) => {
     let info = [];
 
-    if (this.Camera) {
-      if (this.Camera.Model.length > 7) {
-        info.push(this.Camera.Model);
+    if (camera) {
+      if (camera.Model.length > 7) {
+        info.push(camera.Model);
       } else {
-        info.push(this.Camera.Make + " " + this.Camera.Model);
+        info.push(camera.Make + " " + camera.Model);
       }
-    } else if (this.CameraModel && this.CameraMake) {
-      if (this.CameraModel.length > 7) {
-        info.push(this.CameraModel);
+    } else if (cameraModel && cameraMake) {
+      if (cameraModel.length > 7) {
+        info.push(cameraModel);
       } else {
-        info.push(this.CameraMake + " " + this.CameraModel);
+        info.push(cameraMake + " " + cameraModel);
       }
     }
 
-    let file = this.videoFile();
-
-    if (!file || !file.Width) {
-      file = this.mainFile();
-    } else if (file.Codec) {
+    if (file && file.Width && file.Codec) {
       info.push(file.Codec.toUpperCase());
     }
 
@@ -708,7 +804,7 @@ export class Photo extends RestModel {
     }
 
     return info.join(", ");
-  }
+  })
 
   getCamera() {
     if (this.Camera) {
@@ -838,7 +934,14 @@ export class Photo extends RestModel {
       values.PlaceSrc = src.Manual;
     }
 
-    if (values.TakenAt || values.TimeZone || values.Day || values.Month || values.Year) {
+    if (
+      values.TakenAt ||
+      values.TakenAtLocal ||
+      values.TimeZone ||
+      values.Day ||
+      values.Month ||
+      values.Year
+    ) {
       values.TakenSrc = src.Manual;
     }
 
