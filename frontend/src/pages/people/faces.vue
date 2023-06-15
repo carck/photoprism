@@ -50,12 +50,14 @@
               :key="model.ID"
               xs6 sm4 md3 lg2 xxl1 d-flex
           >
+            <in-view :tag="'section'" :rootMargin="'0px 0px 200px 0px'" v-slot="{visible}">
             <v-card :data-id="model.ID"
                     tile style="user-select: none;"
                     :class="model.classes()"
                     class="result accent lighten-3">
               <div class="card-background accent lighten-3"></div>
-              <v-img :src="model.thumbnailUrl('tile_320')"
+              <div v-if="!visible" class="accent lighten-2 image"></div>
+              <v-img v-else :src="model.thumbnailUrl('tile_320')"
                      :transition="false"
                      aspect-ratio="1"
                      class="accent lighten-2 clickable"
@@ -71,7 +73,9 @@
               <v-card-actions class="card-details pa-0">
                 <v-layout v-if="model.SubjUID" row wrap align-center>
                   <v-flex xs12 class="text-xs-left pa-0">
+                    <div v-if="!visible" class="input-name pa-0 ma-0 input-holder"></div>
                     <v-text-field
+                        v-else
                         v-model="model.Name"
                         :rules="[textRule]"
                         :readonly="readonly"
@@ -90,7 +94,9 @@
                 </v-layout>
                 <v-layout v-else row wrap align-center>
                   <v-flex xs12 class="text-xs-left pa-0">
+                    <div v-if="!visible" class="input-name pa-0 ma-0 input-holder"></div>
                     <v-combobox
+                        v-else
                         v-model="model.Name"
                         style="z-index: 250"
                         :items="$config.values.people"
@@ -118,6 +124,7 @@
                 </v-layout>
               </v-card-actions>
             </v-card>
+            </in-view>
           </v-flex>
         </v-layout>
         <div class="text-xs-center mt-3 mb-2">

@@ -12,7 +12,7 @@
       }
     }"
   >
-    <slot :inView="inView" />
+    <slot :visible="inView" />
   </component>
 </template>
 

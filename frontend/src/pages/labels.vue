@@ -60,6 +60,7 @@
               :key="label.UID"
               xs6 sm4 md3 lg2 xxl1 d-flex
           >
+            <in-view :tag="'section'" :rootMargin="'0px 0px 200px 0px'" v-slot="{visible}">
             <v-card tile
                     :data-uid="label.UID"
                     style="user-select: none"
@@ -69,7 +70,9 @@
                     @contextmenu.stop="onContextMenu($event, index)"
             >
               <div class="card-background accent lighten-3"></div>
+              <div v-if="!visible" class="accent lighten-2 image"></div>
               <v-img
+                  v-else
                   :src="label.thumbnailUrl('tile_500')"
                   :alt="label.Name"
                   :transition="false"
@@ -142,6 +145,7 @@
                 </div>
               </v-card-text>
             </v-card>
+            </in-view>
           </v-flex>
         </v-layout>
       </v-container>

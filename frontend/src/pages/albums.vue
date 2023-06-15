@@ -82,6 +82,7 @@
               :key="album.UID"
               xs6 sm4 md3 xlg2 xxl1 d-flex
           >
+            <in-view :tag="'section'" :rootMargin="'0px 0px 200px 0px'" v-slot="{visible}">
             <v-card tile
                     :data-uid="album.UID"
                     style="user-select: none"
@@ -91,7 +92,9 @@
                     @contextmenu.stop="onContextMenu($event, index)"
             >
               <div class="card-background accent lighten-3" style="user-select: none"></div>
+              <div v-if="!visible" class="accent lighten-2 image"></div>
               <v-img
+                  v-else
                   :src="album.thumbnailUrl('tile_500')"
                   :alt="album.Title"
                   :transition="false"
@@ -189,6 +192,7 @@
                 </div>
               </v-card-text>
             </v-card>
+            </in-view>
           </v-flex>
         </v-layout>
         <div v-if="staticFilter.type === 'album' && config.count.albums === 0" class="text-xs-center my-2">
