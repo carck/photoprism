@@ -144,17 +144,15 @@ func UpdateLabelCounts() (err error) {
 		res = Db().
 			Table("labels").
 			UpdateColumn("photo_count",
-				gorm.Expr(`(SELECT photo_count FROM (SELECT label_id, SUM(photo_count) AS photo_count FROM (
-					SELECT l.id AS label_id, COUNT(*) AS photo_count FROM labels l
-					JOIN photos_labels pl ON pl.label_id = l.id
-				 	GROUP BY l.id
+				gorm.Expr(`(SELECT SUM(photo_count) FROM (
+					SELECT COUNT(*) AS photo_count
+					FROM photos_labels pl WHERE pl.label_id = labels.id
 					UNION ALL
-					SELECT l.id AS label_id, COUNT(*) AS photo_count FROM labels l
-					JOIN categories c ON c.category_id = l.id
+					SELECT COUNT(*) AS photo_count
+					FROM categories c
 					JOIN photos_labels pl ON pl.label_id = c.label_id
-			 		GROUP BY l.id) counts 
-					GROUP BY label_id) label_counts 
-			 WHERE label_id = labels.id)`))
+                                        WHERE c.category_id = labels.id
+			 		))`))
 	} else {
 		return fmt.Errorf("sql: unsupported dialect %s", DbDialect())
 	}
