@@ -27,6 +27,11 @@ func Hash(fileName string) string {
 }
 
 func readHashBytes(filePath string) ([]byte, error) {
+	if fi, err := os.Stat(filePath); err != nil {
+		return nil, err
+	} else if fi.Size() <= hashSize {
+		return os.ReadFile(filePath)
+	}
 	file, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
