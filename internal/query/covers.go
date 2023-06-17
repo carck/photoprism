@@ -210,7 +210,7 @@ func UpdateLabelCovers() (err error) {
 			JOIN photos_labels pl ON pl.photo_id = f.photo_id
 			WHERE pl.label_id = labels.id and pl.uncertainty <14 and f.deleted_at IS NULL AND f.file_hash <> '' AND f.file_missing = 0 AND f.file_primary = 1 AND f.file_type = 'jpg' 
 			LIMIT 1
-		) WHERE ?`, condition))
+		) WHERE thumb is null and ?`, condition))
 
 		if res.Error == nil {
 			catRes := Db().Table(entity.Label{}.TableName()).UpdateColumn("thumb", gorm.Expr(`(
