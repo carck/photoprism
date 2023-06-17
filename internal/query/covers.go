@@ -207,20 +207,18 @@ func UpdateLabelCovers() (err error) {
 	case SQLite3:
 		res = Db().Table(entity.Label{}.TableName()).UpdateColumn("thumb", gorm.Expr(`(
 		SELECT f.file_hash FROM files f 
-			JOIN photos_labels pl ON pl.label_id = labels.id AND pl.photo_id = f.photo_id AND pl.uncertainty < 100
-			JOIN photos p ON p.id = f.photo_id AND p.photo_private = 0 AND p.deleted_at IS NULL AND p.photo_quality > 0
-			WHERE f.deleted_at IS NULL AND f.file_hash <> '' AND f.file_missing = 0 AND f.file_primary = 1 AND f.file_error = '' AND f.file_type = 'jpg' 
-			ORDER BY p.photo_quality DESC, pl.uncertainty ASC, p.taken_at DESC LIMIT 1
+			JOIN photos_labels pl ON pl.photo_id = f.photo_id
+			WHERE pl.label_id = labels.id and pl.uncertainty <14 and f.deleted_at IS NULL AND f.file_hash <> '' AND f.file_missing = 0 AND f.file_primary = 1 AND f.file_type = 'jpg' 
+			LIMIT 1
 		) WHERE ?`, condition))
 
 		if res.Error == nil {
 			catRes := Db().Table(entity.Label{}.TableName()).UpdateColumn("thumb", gorm.Expr(`(
 			SELECT f.file_hash FROM files f 
-			JOIN photos_labels pl ON pl.photo_id = f.photo_id AND pl.uncertainty < 100
-			JOIN categories c ON c.label_id = pl.label_id AND c.category_id = labels.id
-			JOIN photos p ON p.id = f.photo_id AND p.photo_private = 0 AND p.deleted_at IS NULL AND p.photo_quality > 0
-			WHERE f.deleted_at IS NULL AND f.file_hash <> '' AND f.file_missing = 0 AND f.file_primary = 1 AND f.file_error = '' AND f.file_type = 'jpg' 
-			ORDER BY p.photo_quality DESC, pl.uncertainty ASC, p.taken_at DESC LIMIT 1
+			JOIN photos_labels pl ON pl.photo_id = f.photo_id
+			JOIN categories c ON c.label_id = pl.label_id 
+			WHERE c.category_id = labels.id and pl.uncertainty <14 and f.deleted_at IS NULL AND f.file_hash <> '' AND f.file_missing = 0 AND f.file_primary = 1 AND f.file_type = 'jpg' 
+			LIMIT 1
 			) WHERE thumb IS NULL`))
 
 			res.RowsAffected += catRes.RowsAffected
