@@ -7,8 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dustin/go-humanize/english"
-
 	"github.com/jinzhu/gorm"
 
 	"github.com/photoprism/photoprism/internal/crop"
@@ -476,16 +474,6 @@ func (m *Marker) ClearSubject(src string) error {
 	if m.face == nil {
 		m.face = FindFace(m.FaceID)
 	}
-
-	defer func() {
-		// Find and (soft) delete unused subjects.
-		start := time.Now()
-		if count, err := DeleteOrphanPeople(); err != nil {
-			log.Errorf("marker %s: %s while removing unused subjects [%s]", sanitize.Log(m.MarkerUID), err, time.Since(start))
-		} else if count > 0 {
-			log.Debugf("marker %s: removed %s [%s]", sanitize.Log(m.MarkerUID), english.Plural(count, "person", "people"), time.Since(start))
-		}
-	}()
 
 	// Update index & resolve collisions.
 	if err := m.Updates(Values{"MarkerName": "", "FaceID": "", "FaceDist": -1.0, "SubjUID": "", "SubjSrc": src}); err != nil {

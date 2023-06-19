@@ -72,6 +72,11 @@ var FacesCommand = cli.Command{
 			Usage:  "Optimizes face clusters",
 			Action: facesOptimizeAction,
 		},
+		{
+			Name:   "clean",
+			Usage:  "Removes orphan people and faces after confirmation",
+			Action: facesCleanAction,
+		},
 	},
 }
 
@@ -169,6 +174,49 @@ func facesResetAction(ctx *cli.Context) error {
 	w := service.Faces()
 
 	if err := w.Reset(); err != nil {
+		return err
+	} else {
+		elapsed := time.Since(start)
+
+		log.Infof("completed in %s", elapsed)
+	}
+
+	conf.Shutdown()
+
+	return nil
+}
+
+func facesCleanAction(ctx *cli.Context) error {
+	if ctx.Bool("force") {
+		return facesResetAllAction(ctx)
+	}
+
+	actionPrompt := promptui.Prompt{
+		Label:     "Remove automatically recognized faces, matches, and dangling subjects?",
+		IsConfirm: true,
+	}
+
+	if _, err := actionPrompt.Run(); err != nil {
+		return nil
+	}
+
+	start := time.Now()
+
+	conf := config.NewConfig(ctx)
+	service.SetConfig(conf)
+
+	_, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	if err := conf.Init(); err != nil {
+		return err
+	}
+
+	conf.InitDb()
+
+	w := service.Faces()
+
+	if err := w.Clean(); err != nil {
 		return err
 	} else {
 		elapsed := time.Since(start)
