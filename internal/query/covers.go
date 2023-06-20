@@ -208,7 +208,7 @@ func UpdateLabelCovers() (err error) {
 		res = Db().Table(entity.Label{}.TableName()).UpdateColumn("thumb", gorm.Expr(`(
 		SELECT f.file_hash FROM files f 
 			JOIN photos_labels pl ON pl.photo_id = f.photo_id
-			WHERE pl.label_id = labels.id and pl.uncertainty <14 and f.deleted_at IS NULL AND f.file_hash <> '' AND f.file_missing = 0 AND f.file_primary = 1 AND f.file_type = 'jpg' 
+			WHERE pl.label_id = labels.id and pl.uncertainty <21 and f.deleted_at IS NULL AND f.file_hash <> '' AND f.file_missing = 0 AND f.file_primary = 1 AND f.file_type = 'jpg' 
 			LIMIT 1
 		) WHERE thumb is null and ?`, condition))
 
@@ -217,7 +217,7 @@ func UpdateLabelCovers() (err error) {
 			SELECT f.file_hash FROM files f 
 			JOIN photos_labels pl ON pl.photo_id = f.photo_id
 			JOIN categories c ON c.label_id = pl.label_id 
-			WHERE c.category_id = labels.id and pl.uncertainty <14 and f.deleted_at IS NULL AND f.file_hash <> '' AND f.file_missing = 0 AND f.file_primary = 1 AND f.file_type = 'jpg' 
+			WHERE c.category_id = labels.id and pl.uncertainty <21 and f.deleted_at IS NULL AND f.file_hash <> '' AND f.file_missing = 0 AND f.file_primary = 1 AND f.file_type = 'jpg' 
 			LIMIT 1
 			) WHERE thumb IS NULL`))
 
