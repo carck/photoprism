@@ -403,13 +403,9 @@ func (m *Subject) MergeWith(other *Subject) error {
 	}
 
 	// Update markers and faces with new SubjUID.
-	if err := Db().Model(&Marker{}).
-		Where("subj_uid = ?", m.SubjUID).
-		UpdateColumn("subj_uid", other.SubjUID).Error; err != nil {
+	if err := Db().Exec(`update markers set subj_uid=? where subj_uid=?`, other.SubjUID, m.SubjUID).Error; err != nil {
 		return err
-	} else if err := Db().Model(&Face{}).
-		Where("subj_uid = ?", m.SubjUID).
-		UpdateColumn("subj_uid", other.SubjUID).Error; err != nil {
+	} else if err := Db().Exec(`update faces set subj_uid=? where subj_uid=?`, other.SubjUID, m.SubjUID).Error; err != nil {
 		return err
 	} else if err := other.UpdateMarkerNames(); err != nil {
 		return err
