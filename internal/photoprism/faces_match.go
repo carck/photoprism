@@ -60,23 +60,6 @@ func (w *Faces) Match(opt FacesOptions) (result FacesMatchResult, err error) {
 		}
 	}
 
-	// Find unmatched faces.
-	if unmatchedFaces, err := query.Faces(false, true, false); err != nil {
-		log.Error(err)
-	} else if len(unmatchedFaces) > 0 {
-		if r, err := w.MatchFaces(unmatchedFaces, false, matchedAt); err != nil {
-			return result, err
-		} else {
-			result.Add(r)
-		}
-
-		for _, m := range unmatchedFaces {
-			if err := m.Matched(); err != nil {
-				log.Warnf("faces: %s (update match timestamp)", err)
-			}
-		}
-	}
-
 	// Update remaining markers based on previous matches.
 	if m, err := query.MatchFaceMarkers(); err != nil {
 		return result, err

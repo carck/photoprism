@@ -373,10 +373,9 @@ func (m *Subject) UpdateMarkerNames() error {
 		return fmt.Errorf("subject uid is empty")
 	}
 
-	if err := Db().Model(&Marker{}).
-		Where("subj_uid = ? AND subj_src <> ?", m.SubjUID, SrcAuto).
-		Where("marker_name <> ?", m.SubjName).
-		UpdateColumn("marker_name", m.SubjName).Error; err != nil {
+	if err := Db().Exec(`update markers set marker_name=?
+					where subj_uid=? and subj_src<>? and marker_name<>?`,
+					m.SubjName, m.SubjUID, SrcAuto, m.SubjName).Error; err != nil {
 		return err
 	}
 
