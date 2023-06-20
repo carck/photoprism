@@ -41,7 +41,7 @@ require (
 	github.com/mandykoh/prism v0.35.0
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mattn/go-isatty v0.0.14 // indirect
-	github.com/mattn/go-sqlite3 v2.0.1+incompatible // indirect
+	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/mattn/go-tflite v1.0.2-0.20210524070808-ba19dc99415b
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/montanaflynn/stats v0.6.6
