@@ -347,12 +347,9 @@ func (m *Marker) SyncSubject(updateRelated bool) (err error) {
 		return fmt.Errorf("%s (update known face)", err)
 	} else if !updateRelated {
 		return nil
-	} else if err := Db().Model(&Marker{}).
-		Where("marker_uid <> ?", m.MarkerUID).
-		Where("face_id = ?", m.FaceID).
-		Where("subj_src = ?", SrcAuto).
-		Where("subj_uid <> ?", m.SubjUID).
-		UpdateColumns(Values{"subj_uid": m.SubjUID, "subj_src": SrcAuto, "marker_review": false}).Error; err != nil {
+	} else if err := Db().Exec(`update markers set subj_uid=?,marker_review=0
+					where marker_uid<>? and face_id=? and subj_src=? and subj_uid<>?`,
+					m.SubjUID, m.MarkerUID, m.FaceID, SrcAuto, m.SubjUID).Error; err != nil {
 		return fmt.Errorf("%s (update related markers)", err)
 	} else if res.RowsAffected > 0 && m.face != nil {
 		log.Debugf("markers: matched %s with %s", subj.SubjName, m.FaceID)
