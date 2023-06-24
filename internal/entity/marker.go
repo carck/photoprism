@@ -349,7 +349,7 @@ func (m *Marker) SyncSubject(updateRelated bool) (err error) {
 		return nil
 	} else if err := Db().Exec(`update markers set subj_uid=?,marker_review=0
 					where marker_uid<>? and face_id=? and subj_src=? and subj_uid<>?`,
-					m.SubjUID, m.MarkerUID, m.FaceID, SrcAuto, m.SubjUID).Error; err != nil {
+		m.SubjUID, m.MarkerUID, m.FaceID, SrcAuto, m.SubjUID).Error; err != nil {
 		return fmt.Errorf("%s (update related markers)", err)
 	} else if res.RowsAffected > 0 && m.face != nil {
 		log.Debugf("markers: matched %s with %s", subj.SubjName, m.FaceID)

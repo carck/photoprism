@@ -51,7 +51,7 @@ func MatchFaceMarkers() (affected int64, err error) {
 	for _, f := range faces {
 		if res := Db().Exec(`update markers set subj_uid=?, marker_review=0 
 					where marker_invalid=0 and face_id=? and subj_src=? and subj_uid<>?`,
-					f.SubjUID, f.ID, entity.SrcAuto, f.SubjUID); res.Error != nil {
+			f.SubjUID, f.ID, entity.SrcAuto, f.SubjUID); res.Error != nil {
 			return affected, err
 		} else if res.RowsAffected > 0 {
 			affected += res.RowsAffected

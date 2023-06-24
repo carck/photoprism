@@ -34,6 +34,11 @@ type Face struct {
 	UpdatedAt       time.Time       `json:"UpdatedAt" yaml:"UpdatedAt,omitempty"`
 }
 
+type MatchResult struct {
+	Idx  int
+	Dist float64
+}
+
 // Faceless can be used as argument to match unmatched face markers.
 var Faceless = []string{""}
 
@@ -240,13 +245,33 @@ func (m *Face) MatchMarkers(faceIds []string) error {
 		return err
 	}
 
-	for _, marker := range markers {
-		if ok, dist := m.Match(marker.Embeddings()); !ok {
-			// Ignore.
-		} else if _, err = marker.SetFace(m, dist); err != nil {
-			return err
-		}
+	wg := new(sync.WaitGroup)
+	c := make(chan MatchResult)
+	wg.Add(len(markers))
+
+	for i := range markers {
+		go func(idx int) {
+			defer wg.Done()
+			marker := &markers[idx]
+			if ok, dist := m.Match(marker.Embeddings()); ok {
+				c <- MatchResult{idx, dist}
+			}
+		}(i)
 	}
+
+	go func() {
+		for v := range c {
+			dist := v.Dist
+			idx := v.Idx
+			marker := &markers[idx]
+			if _, err = marker.SetFace(m, dist); err != nil {
+				log.Errorf("failed set face: %s", err)
+			}
+		}
+	}()
+
+	wg.Wait()
+	close(c)
 
 	return nil
 }

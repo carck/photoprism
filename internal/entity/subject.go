@@ -375,7 +375,7 @@ func (m *Subject) UpdateMarkerNames() error {
 
 	if err := Db().Exec(`update markers set marker_name=?
 					where subj_uid=? and subj_src<>? and marker_name<>?`,
-					m.SubjName, m.SubjUID, SrcAuto, m.SubjName).Error; err != nil {
+		m.SubjName, m.SubjUID, SrcAuto, m.SubjName).Error; err != nil {
 		return err
 	}
 
