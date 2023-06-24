@@ -2,6 +2,7 @@ package photoprism
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/dustin/go-humanize/english"
@@ -17,6 +18,11 @@ type FacesMatchResult struct {
 	Updated    int64
 	Recognized int64
 	Unknown    int64
+}
+
+type FaceDistResult struct {
+	Ok   bool
+	Dist float64
 }
 
 // Add adds result counts.
@@ -122,8 +128,20 @@ func (w *Faces) MatchFaces(faces entity.Faces, force bool, matchedBefore *time.T
 					continue
 				}
 			}
-			for i, m := range faces {
-				if ok, dist := m.Match(marker.Embeddings()); ok && (f == nil || dist < d && f.FaceSrc == m.FaceSrc) {
+			distResults := make([]FaceDistResult, len(faces))
+			wg := new(sync.WaitGroup)
+			wg.Add(len(faces))
+			for i := range faces {
+				go func(idx int) {
+					f := &faces[idx]
+					ok, dist := f.Match(marker.Embeddings())
+					distResults[idx] = FaceDistResult{ok, dist}
+				}(i)
+			}
+			wg.Wait()
+			for i, r := range distResults {
+				m := &faces[i]
+				if ok, dist := r.Ok, r.Dist; ok && (f == nil || dist < d && f.FaceSrc == m.FaceSrc) {
 					f = &faces[i]
 					d = dist
 				}
