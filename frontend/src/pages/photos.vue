@@ -44,7 +44,6 @@
 <script>
 import {Photo, TypeLive, TypeRaw, TypeVideo} from "model/photo";
 import Thumb from "model/thumb";
-import Viewer from "common/viewer";
 import Event from "pubsub-js";
 
 export default {
@@ -236,12 +235,12 @@ export default {
         if (selected.isPlayable()) {
           this.$viewer.play({video: selected});
         } else {
-          this.$viewer.show(Thumb.fromPhotos(this.results), index);
+          this.$viewer.show(this.results, index);
         }
       } else if (showMerged) {
         this.$viewer.show(Thumb.fromFiles([selected]), 0);
       } else {
-        Viewer.show(this, index);
+        this.$viewer.show(this.results, index);
       }
     },
     loadMore() {

@@ -57,6 +57,7 @@ export const TimeZoneUTC = "UTC";
 const num = "numeric";
 const short = "short";
 const long = "long";
+const thumbs = window.__CONFIG__.thumbs;
 
 export const DATE_FULL = {
   year: num,
@@ -82,6 +83,41 @@ export let BatchSize = 60;
 export class Photo extends RestModel {
   constructor(values) {
     super(values);
+    this.DownloadUrl = this.getDownloadUrl();
+  }
+
+  generateThumbs() {
+    let sourceWidth = this.Width;
+    let sourceHeight = this.Height;
+    if (this.Files) {
+      const mainFile = this.mainFile();
+      if (mainFile) {
+        sourceWidth = mainFile.Width;
+        sourceHeight = mainFile.Height;
+      }
+    }
+
+    if (!this.Hash) {
+      this.Thumbs= {};
+      return;
+    }
+
+    const result = {};
+    const sizes = {'fit_1280': true};
+    for (let i = 0; i < thumbs.length; i++) {
+      let t = thumbs[i];
+      if (!sizes[t.size])
+          continue;
+      let size = this.calculateSizeFromProps(t.w, t.h, sourceWidth, sourceHeight);
+
+      result[t.size] = {
+        src: this.thumbnailUrl(t.size),
+        w: size.width,
+        h: size.height,
+      };
+    }
+
+    this.Thumbs = result;
   }
 
   getDefaults() {
@@ -177,6 +213,8 @@ export class Photo extends RestModel {
       EditedAt: null,
       CheckedAt: null,
       DeletedAt: null,
+      Thumbs: null,
+      DownloadUrl: "",
     };
   }
 
@@ -619,13 +657,13 @@ export class Photo extends RestModel {
     });
   }
 
-  calculateSize(width, height) {
-    if (width >= this.Width && height >= this.Height) {
+  calculateSizeFromProps(width, height, sourceWidth, sourceHeight) {
+    if (width >= sourceWidth && height >= sourceHeight) {
       // Smaller
-      return { width: this.Width, height: this.Height };
+      return { width: sourceWidth, height: sourceHeight };
     }
 
-    const srcAspectRatio = this.Width / this.Height;
+    const srcAspectRatio = sourceWidth / sourceHeight;
     const maxAspectRatio = width / height;
 
     let newW, newH;
@@ -639,6 +677,10 @@ export class Photo extends RestModel {
     }
 
     return { width: newW, height: newH };
+  }
+
+  calculateSize(width, height) {
+    return this.calculateSizeFromProps(width, height, this.Width, this.Height);
   }
 
   getDateString(showTimeZone) {
