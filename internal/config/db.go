@@ -239,6 +239,7 @@ func (c *Config) SetDbOptions() {
 		// Ignore for now.
 	case SQLite3:
 		// Not required as unicode is default.
+		c.Db().Unscoped().Raw("PRAGMA mmap_size=1073741824")
 	}
 }
 
