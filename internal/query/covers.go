@@ -82,14 +82,11 @@ func UpdateAlbumFolderCovers() (err error) {
 		SET thumb = b.file_hash WHERE ?`, condition)
 	case SQLite3:
 		res = Db().Table(entity.Album{}.TableName()).UpdateColumn("thumb", gorm.Expr(`(
-		SELECT f.file_hash FROM files f,(
-			SELECT p.photo_path, max(p.id) AS photo_id FROM photos p
-			  WHERE p.photo_quality > 0 AND p.photo_private = 0 AND p.deleted_at IS NULL
-			  GROUP BY p.photo_path
-			) b
-		WHERE f.photo_id = b.photo_id  AND f.file_primary = 1 AND f.file_error = '' AND f.file_type = 'jpg'
-		AND b.photo_path = albums.album_path LIMIT 1)
-		WHERE ?`, condition))
+		SELECT f.file_hash FROM files f join photos p 
+		on f.photo_id = p.photo_id
+		where f.file_primary = 1 AND f.file_error = '' AND f.file_type = 'jpg'
+		AND p.photo_path = albums.album_path LIMIT 1)
+		WHERE thumb is null and ?`, condition))
 	default:
 		log.Warnf("sql: unsupported dialect %s", DbDialect())
 		return nil

@@ -323,7 +323,7 @@ export default {
           let el = document.createElement('div');
           el.className = 'marker';
           el.title = props.Title;
-          el.style.backgroundImage = `url(${this.$config.contentUri}/t/${props.Hash}/${token}/tile_50)`;
+          el.style.backgroundImage = `url(${this.$config.contentUri}/t/${props.Hash}/${token}/tile_224)`;
           el.style.width = '50px';
           el.style.height = '50px';
 
