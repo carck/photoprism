@@ -23,8 +23,7 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 	s := UnscopedDb()
 	s = s.Table("photos").
 		Select(`photos.photo_uid, photos.taken_at, files.file_hash ,photos.photo_type `).
-		Joins("JOIN files ON photos.id = files.photo_id AND files.file_missing = 0 AND files.deleted_at IS NULL and files.file_primary = 1").
-		Where("photos.photo_quality >= 3 and photos.photo_private = 0").
+		Joins("JOIN files ON +photos.id = files.photo_id AND files.file_primary = 1").
 		Order("photos.taken_at DESC, photos.photo_uid DESC")
 
 	if f.Album != "" {

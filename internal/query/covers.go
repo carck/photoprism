@@ -83,7 +83,7 @@ func UpdateAlbumFolderCovers() (err error) {
 	case SQLite3:
 		res = Db().Table(entity.Album{}.TableName()).UpdateColumn("thumb", gorm.Expr(`(
 		SELECT f.file_hash FROM files f join photos p 
-		on f.photo_id = p.photo_id
+		on f.photo_id = p.id
 		where f.file_primary = 1 AND f.file_error = '' AND f.file_type = 'jpg'
 		AND p.photo_path = albums.album_path LIMIT 1)
 		WHERE thumb is null and ?`, condition))
