@@ -23,7 +23,6 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 	s := UnscopedDb()
 	s = s.Table("photos").
 		Select(`photos.photo_uid, photos.taken_at, files.file_hash ,photos.photo_type `).
-		Joins("JOIN files ON +photos.id = files.photo_id AND files.file_primary = 1").
 		Order("photos.taken_at DESC, photos.photo_uid DESC")
 
 	if f.Album != "" {
@@ -35,7 +34,10 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 		}
 	}
 	if f.Subject != "" {
+		s = s.Joins("JOIN files ON photos.id = files.photo_id AND files.file_primary = 1")
 		s = s.Where("files.file_uid in (select file_uid from markers m where m.subj_uid = ?)", f.Subject)
+	} else {
+		s = s.Joins("CROSS JOIN files ON photos.id = files.photo_id AND files.file_primary = 1")
 	}
 
 	if f.Count > 0 && f.Count <= MaxResults {
