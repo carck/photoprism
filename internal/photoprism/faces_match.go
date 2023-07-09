@@ -136,6 +136,7 @@ func (w *Faces) MatchFaces(faces entity.Faces, force bool, matchedBefore *time.T
 					f := &faces[idx]
 					ok, dist := f.Match(marker.Embeddings())
 					distResults[idx] = FaceDistResult{ok, dist}
+					wg.Done()
 				}(i)
 			}
 			wg.Wait()

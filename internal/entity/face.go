@@ -118,7 +118,7 @@ func (m *Face) Embedding() face.Embedding {
 func (m *Face) Match(embeddings face.Embeddings) (match bool, dist float64) {
 	dist = -1
 
-	if embeddings.Empty() {
+	if embeddings == nil || embeddings.Empty() {
 		// Np embeddings, no match.
 		return false, dist
 	}
