@@ -70,9 +70,6 @@ func BatchPhotosArchive(router *gin.RouterGroup) {
 		// Update precalculated photo and file counts.
 		logWarn("index", entity.UpdateCounts())
 
-		// Update album, subject, and label cover thumbs.
-		logWarn("index", query.UpdateCovers())
-
 		// UpdateClientConfig()
 
 		event.EntitiesArchived("photos", f.Photos)
@@ -132,9 +129,6 @@ func BatchPhotosRestore(router *gin.RouterGroup) {
 
 		// Update precalculated photo and file counts.
 		logWarn("index", entity.UpdateCounts())
-
-		// Update album, subject, and label cover thumbs.
-		logWarn("index", query.UpdateCovers())
 
 		UpdateClientConfig()
 
