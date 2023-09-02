@@ -12,6 +12,8 @@ import (
 	"github.com/photoprism/photoprism/pkg/sanitize"
 )
 
+const FFmpegMediaCodecEncoder = "h264"
+
 // FFmpegSoftwareEncoder see https://trac.ffmpeg.org/wiki/HWAccelIntro.
 const FFmpegSoftwareEncoder = "libx264"
 
@@ -32,8 +34,8 @@ const FFmpegV4L2Encoder = "h264_v4l2m2m"
 
 // FFmpegAvcEncoders is the list of supported H.264 encoders with aliases.
 var FFmpegAvcEncoders = map[string]string{
-	"":                    FFmpegSoftwareEncoder,
-	"default":             FFmpegSoftwareEncoder,
+	"":                    FFmpegMediaCodecEncoder,
+	"default":             FFmpegMediaCodecEncoder,
 	"software":            FFmpegSoftwareEncoder,
 	FFmpegSoftwareEncoder: FFmpegSoftwareEncoder,
 	"intel":               FFmpegIntelEncoder,
@@ -131,6 +133,22 @@ func (c *Convert) AvcConvertCommand(f *MediaFile, avcName, encoderName string) (
 				"-y",
 				avcName,
 			)
+		} else if encoderName == FFmpegMediaCodecEncoder {
+                        result = exec.Command(
+                                c.conf.FFmpegBin(),
+                                "-i", f.FileName(),
+                                "-pix_fmt", "nv12",
+                                "-c:v", "h264",
+                                "-c:a", "aac",
+				"-ndk_codec", "1",
+				"-vf", "format=yuv420p",
+				"-b:v", "3000k",
+				"-v", "quiet",
+				"-movflags", "frag_keyframe+empty_moov",
+                                "-f", "mp4",
+                                "-y",
+                                avcName,
+                        )
 		} else {
 			format := "format=yuv420p"
 
