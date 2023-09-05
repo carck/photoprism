@@ -134,21 +134,21 @@ func (c *Convert) AvcConvertCommand(f *MediaFile, avcName, encoderName string) (
 				avcName,
 			)
 		} else if encoderName == FFmpegMediaCodecEncoder {
-                        result = exec.Command(
-                                c.conf.FFmpegBin(),
-                                "-i", f.FileName(),
-                                "-pix_fmt", "nv12",
-                                "-c:v", "h264",
-                                "-c:a", "aac",
+			result = exec.Command(
+				c.conf.FFmpegBin(),
+				"-i", f.FileName(),
+				"-pix_fmt", "nv12",
+				"-c:v", "h264",
+				"-c:a", "aac",
 				"-ndk_codec", "1",
 				"-b:v", "3000k",
 				"-v", "quiet",
 				"-movflags", "frag_keyframe",
 				"-g", "60",
-                                "-f", "mp4",
-                                "-y",
-                                avcName,
-                        )
+				"-f", "mp4",
+				"-y",
+				avcName,
+			)
 		} else {
 			format := "format=yuv420p"
 

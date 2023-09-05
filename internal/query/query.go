@@ -73,3 +73,12 @@ func UnscopedDb() *gorm.DB {
 func DbDialect() string {
 	return Db().Dialect().GetName()
 }
+
+func DbVersion() string {
+	var result = struct {
+		V string
+	}{}
+	Db().Raw("select max(rowid)||'-'|| count(1) as v from files").
+		Scan(&result)
+	return result.V
+}

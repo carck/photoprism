@@ -16,7 +16,8 @@ import (
 
 // Meta represents a background metadata optimization worker.
 type Meta struct {
-	conf *config.Config
+	conf      *config.Config
+	dbVersion string
 }
 
 // NewMeta returns a new Meta worker.
@@ -43,6 +44,16 @@ func (m *Meta) Start(delay, interval time.Duration, force bool) (err error) {
 	}
 
 	defer mutex.MetaWorker.Stop()
+
+	dbVersion := query.DbVersion()
+
+	log.Infof("db version new=%s,old=%s,force=%t", dbVersion, m.dbVersion, force)
+
+	if !force && dbVersion == m.dbVersion {
+		return nil
+	}
+
+	m.dbVersion = dbVersion
 
 	log.Debugf("metadata: running facial recognition")
 

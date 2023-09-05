@@ -48,6 +48,8 @@ func Start(conf *config.Config) {
 
 	ticker := time.NewTicker(interval)
 
+	metaWorker := NewMeta(conf)
+
 	go func() {
 		for {
 			select {
@@ -59,7 +61,7 @@ func Start(conf *config.Config) {
 				mutex.SyncWorker.Cancel()
 				return
 			case <-ticker.C:
-				StartMeta(conf)
+				StartMeta(metaWorker)
 				StartShare(conf)
 				StartSync(conf)
 			}
@@ -73,11 +75,9 @@ func Stop() {
 }
 
 // StartMeta runs the metadata worker once.
-func StartMeta(conf *config.Config) {
+func StartMeta(worker *Meta) {
 	if !mutex.WorkersBusy() {
 		go func() {
-			worker := NewMeta(conf)
-
 			delay := time.Minute
 			interval := entity.MetadataUpdateInterval
 
