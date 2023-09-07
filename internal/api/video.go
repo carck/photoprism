@@ -82,7 +82,9 @@ func GetVideo(router *gin.RouterGroup) {
 				c.Data(http.StatusOK, "image/svg+xml", videoIconSvg)
 				return
 			} else {
-				defer func() {
+				reqContext := c.Request.Context()
+				go func() {
+					<-reqContext.Done()
 					r.Close()
 					p.Process.Kill()
 					p.Wait()
