@@ -4,7 +4,9 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/photoprism/photoprism/pkg/fs"
 	"github.com/photoprism/photoprism/pkg/sanitize"
@@ -17,6 +19,7 @@ import (
 
 const WebDAVOriginals = "/originals"
 const WebDAVImport = "/import"
+const WebDAVCargo = "/cargo"
 
 // MarkUploadAsFavorite sets the favorite flag for newly uploaded files.
 func MarkUploadAsFavorite(fileName string) {
@@ -42,6 +45,17 @@ func MarkUploadAsFavorite(fileName string) {
 
 	// Log success.
 	log.Infof("webdav: marked %s as favorite", sanitize.Log(filepath.Base(fileName)))
+}
+
+func SetFileTime(fileName string, tHeader string) {
+	if msec, err := strconv.ParseInt(tHeader, 10, 64); err !=nil {
+		log.Errorf("webdav: parse file time error %s", err.Error())
+	} else {
+		t := time.UnixMilli(msec)
+		if err = os.Chtimes(fileName, t, t); err != nil {
+			log.Errorf("webdav: change file time error: %v", err)
+		}
+	}
 }
 
 // WebDAV handles any requests to /originals|import/*
@@ -74,19 +88,28 @@ func WebDAV(path string, router *gin.RouterGroup, conf *config.Config) {
 				}
 
 			} else {
+				var fileName string
+				if router.BasePath() == WebDAVOriginals {
+					fileName = filepath.Join(conf.OriginalsPath(), strings.TrimPrefix(r.URL.Path, router.BasePath()))
+				} else if router.BasePath() == WebDAVImport {
+					fileName = filepath.Join(conf.ImportPath(), strings.TrimPrefix(r.URL.Path, router.BasePath()))
+				} else if router.BasePath() == WebDAVCargo {
+					fileName = filepath.Join(conf.StoragePath(), "cargo", strings.TrimPrefix(r.URL.Path, router.BasePath()))
+				}
+				
 				// Mark uploaded files as favorite if X-Favorite HTTP header is "1".
 				if r.Method == MethodPut && r.Header.Get("X-Favorite") == "1" {
-					if router.BasePath() == WebDAVOriginals {
-						MarkUploadAsFavorite(filepath.Join(conf.OriginalsPath(), strings.TrimPrefix(r.URL.Path, router.BasePath())))
-					} else if router.BasePath() == WebDAVImport {
-						MarkUploadAsFavorite(filepath.Join(conf.ImportPath(), strings.TrimPrefix(r.URL.Path, router.BasePath())))
-					}
+					MarkUploadAsFavorite(fileName)
 				}
 
 				switch r.Method {
 				case MethodPut, MethodPost, MethodPatch, MethodDelete, MethodCopy, MethodMove:
 					log.Infof("webdav: %s %s", sanitize.Log(r.Method), sanitize.Log(r.URL.String()))
 
+					if r.Header.Get("X-PS-TIME") != "" {
+						SetFileTime(fileName, r.Header.Get("X-PS-TIME"))
+					}
+					
 					if router.BasePath() == WebDAVOriginals {
 						auto.ShouldIndex()
 					} else if router.BasePath() == WebDAVImport {
