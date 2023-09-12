@@ -182,6 +182,9 @@ func registerRoutes(router *gin.Engine, conf *config.Config) {
 		WebDAV(conf.OriginalsPath(), router.Group(conf.BaseUri(WebDAVOriginals), BasicAuth()), conf)
 		log.Infof("webdav: %s/ enabled, waiting for requests", conf.BaseUri(WebDAVOriginals))
 
+		WebDAV(filepath.Join(conf.StoragePath(), "cargo"), router.Group(conf.BaseUri(WebDAVCargo), BasicAuth()), conf)
+		log.Infof("webdav: %s/ enabled, waiting for requests", conf.BaseUri(WebDAVCargo))
+
 		if conf.ImportPath() != "" {
 			WebDAV(conf.ImportPath(), router.Group(conf.BaseUri(WebDAVImport), BasicAuth()), conf)
 			log.Infof("webdav: %s/ enabled, waiting for requests", conf.BaseUri(WebDAVImport))
