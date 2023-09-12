@@ -48,7 +48,7 @@ func MarkUploadAsFavorite(fileName string) {
 }
 
 func SetFileTime(fileName string, tHeader string) {
-	if msec, err := strconv.ParseInt(tHeader, 10, 64); err !=nil {
+	if msec, err := strconv.ParseInt(tHeader, 10, 64); err != nil {
 		log.Errorf("webdav: parse file time error %s", err.Error())
 	} else {
 		t := time.UnixMilli(msec)
@@ -94,9 +94,9 @@ func WebDAV(path string, router *gin.RouterGroup, conf *config.Config) {
 				} else if router.BasePath() == WebDAVImport {
 					fileName = filepath.Join(conf.ImportPath(), strings.TrimPrefix(r.URL.Path, router.BasePath()))
 				} else if router.BasePath() == WebDAVCargo {
-					fileName = filepath.Join(conf.StoragePath(), "cargo", strings.TrimPrefix(r.URL.Path, router.BasePath()))
+					fileName = filepath.Join(conf.CargoPath(), strings.TrimPrefix(r.URL.Path, router.BasePath()))
 				}
-				
+
 				// Mark uploaded files as favorite if X-Favorite HTTP header is "1".
 				if r.Method == MethodPut && r.Header.Get("X-Favorite") == "1" {
 					MarkUploadAsFavorite(fileName)
@@ -109,7 +109,7 @@ func WebDAV(path string, router *gin.RouterGroup, conf *config.Config) {
 					if r.Header.Get("X-PS-TIME") != "" {
 						SetFileTime(fileName, r.Header.Get("X-PS-TIME"))
 					}
-					
+
 					if router.BasePath() == WebDAVOriginals {
 						auto.ShouldIndex()
 					} else if router.BasePath() == WebDAVImport {

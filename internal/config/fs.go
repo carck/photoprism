@@ -65,6 +65,12 @@ func (c *Config) CreateDirectories() error {
 		return createError(c.BackupPath(), err)
 	}
 
+	if c.CargoPath() == "" {
+		return notFoundError("cargo")
+	} else if err := os.MkdirAll(c.CargoPath(), os.ModePerm); err != nil {
+		return createError(c.CargoPath(), err)
+	}
+
 	if c.OriginalsPath() == "" {
 		return notFoundError("originals")
 	} else if err := os.MkdirAll(c.OriginalsPath(), os.ModePerm); err != nil {
@@ -302,6 +308,10 @@ func (c *Config) BackupPath() string {
 	}
 
 	return filepath.Join(c.StoragePath(), "backup")
+}
+
+func (c *Config) CargoPath() string {
+	return filepath.Join(c.StoragePath(), "cargo")
 }
 
 // AssetsPath returns the path to static assets for models and templates.
