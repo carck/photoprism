@@ -41,7 +41,7 @@ func UpdateAlbumDefaultCovers() (err error) {
 			JOIN photos p ON p.id = f.photo_id AND p.photo_private = 0 AND p.deleted_at IS NULL AND p.photo_quality > 0
 			WHERE f.deleted_at IS NULL AND f.file_missing = 0 AND f.file_hash <> '' AND f.file_primary = 1 AND f.file_error = '' AND f.file_type  in ('jpg','heif')
 			ORDER BY p.taken_at DESC LIMIT 1
-		) WHERE thumb is null and ?`, condition))
+		) WHERE ?`, condition))
 	default:
 		log.Warnf("sql: unsupported dialect %s", DbDialect())
 		return nil
@@ -86,7 +86,7 @@ func UpdateAlbumFolderCovers() (err error) {
 		on f.photo_id = p.id
 		where f.file_primary = 1 AND f.file_error = '' AND f.file_type  in ('jpg','heif')
 		AND p.photo_path = albums.album_path LIMIT 1)
-		WHERE thumb is null and ?`, condition))
+		WHERE ?`, condition))
 	default:
 		log.Warnf("sql: unsupported dialect %s", DbDialect())
 		return nil
@@ -131,7 +131,7 @@ func UpdateAlbumMonthCovers() (err error) {
 			cross join files f on f.photo_id=b.id
 		WHERE f.file_primary = 1 AND f.file_error = '' AND f.file_type  in ('jpg','heif')
 		AND b.photo_year = albums.album_year AND b.photo_month = albums.album_month LIMIT 1)
-		WHERE thumb is null and ?`, condition))
+		WHERE ?`, condition))
 	default:
 		log.Warnf("sql: unsupported dialect %s", DbDialect())
 		return nil
@@ -204,7 +204,7 @@ func UpdateLabelCovers() (err error) {
 			JOIN photos_labels pl ON pl.photo_id = f.photo_id
 			WHERE pl.label_id = labels.id and pl.uncertainty <21 and f.deleted_at IS NULL AND f.file_hash <> '' AND f.file_missing = 0 AND f.file_primary = 1 AND f.file_type  in ('jpg','heif')
 			LIMIT 1
-		) WHERE thumb is null and ?`, condition))
+		) WHERE ?`, condition))
 
 		if res.Error == nil {
 			catRes := Db().Table(entity.Label{}.TableName()).UpdateColumn("thumb", gorm.Expr(`(
@@ -213,7 +213,7 @@ func UpdateLabelCovers() (err error) {
 			JOIN categories c ON c.label_id = pl.label_id 
 			WHERE c.category_id = labels.id and pl.uncertainty <21 and f.deleted_at IS NULL AND f.file_hash <> '' AND f.file_missing = 0 AND f.file_primary = 1 AND f.file_type  in ('jpg','heif')
 			LIMIT 1
-			) WHERE thumb IS NULL`))
+			) WHERE thumb IS NULL or thumb = ''`))
 
 			res.RowsAffected += catRes.RowsAffected
 		}
