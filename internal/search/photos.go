@@ -376,9 +376,9 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 		s = s.Where("photos.photo_country IN (?)", strings.Split(strings.ToLower(f.Country), txt.Or))
 	}
 
-	// Filter by location state?
+	// Filter by location city?
 	if txt.NotEmpty(f.State) {
-		s = s.Where("places.place_state IN (?)", strings.Split(f.State, txt.Or))
+		s = s.Where("places.place_city IN (?)", strings.Split(f.State, txt.Or))
 	}
 
 	// Filter by location category?

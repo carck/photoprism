@@ -18,7 +18,7 @@ func AlbumsSlim(f form.SearchAlbums) (results AlbumResultsSlim, err error) {
 	s := UnscopedDb().Table("albums").
 		Select("album_uid,album_title,album_type,album_path,thumb").
 		Order("albums.album_favorite DESC, albums.album_title ASC, albums.album_uid DESC").
-		Where("albums.deleted_at IS NULL and albums.thumb is not NULL")
+		Where("albums.deleted_at IS NULL")
 
 	// Limit result count.
 	if f.Count > 0 && f.Count <= MaxResults {
@@ -47,7 +47,7 @@ func Albums(f form.SearchAlbums) (results AlbumResults, err error) {
 	// Base query.
 	s := UnscopedDb().Table("albums").
 		Select("albums.*, 0 as photo_count, 0 as link_count, CASE WHEN albums.album_year = 0 THEN 0 ELSE 1 END AS has_year").
-		Where("albums.deleted_at IS NULL and albums.Thumb is not null")
+		Where("albums.deleted_at IS NULL")
 
 	// Limit result count.
 	if f.Count > 0 && f.Count <= MaxResults {

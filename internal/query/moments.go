@@ -210,10 +210,10 @@ func MomentsCountries(threshold int) (results Moments, err error) {
 // MomentsStates returns the most popular states and countries by year.
 func MomentsStates(threshold int) (results Moments, err error) {
 	db := UnscopedDb().Table("photos").
-		Select("p.place_country AS country, p.place_state AS state, COUNT(*) AS photo_count").
+		Select("p.place_country AS country, p.place_city AS state, COUNT(*) AS photo_count").
 		Joins("JOIN places p ON p.id = photos.place_id").
 		Where("photos.photo_quality >= 3 AND photos.deleted_at IS NULL AND photo_private = 0 AND p.place_state <> '' AND p.place_country <> 'zz'").
-		Group("p.place_country, p.place_state").
+		Group("p.place_country, p.place_city").
 		Having("photo_count >= ?", threshold)
 
 	if err := db.Scan(&results).Error; err != nil {
