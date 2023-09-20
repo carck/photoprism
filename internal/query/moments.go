@@ -18,6 +18,7 @@ type Moment struct {
 	State      string `json:"State"`
 	Year       int    `json:"Year"`
 	Month      int    `json:"Month"`
+	Day        int    `json:"Day"`
 	PhotoCount int    `json:"PhotoCount"`
 }
 
@@ -214,6 +215,22 @@ func MomentsStates(threshold int) (results Moments, err error) {
 		Joins("JOIN places p ON p.id = photos.place_id").
 		Where("photos.photo_quality >= 3 AND photos.deleted_at IS NULL AND photo_private = 0 AND p.place_state <> '' AND p.place_country <> 'zz'").
 		Group("p.place_country, p.place_city").
+		Having("photo_count >= ?", threshold)
+
+	if err := db.Scan(&results).Error; err != nil {
+		return results, err
+	}
+
+	return results, nil
+}
+
+// MomentsStates returns the most popular states and countries by year.
+func MomentsEvents(threshold int) (results Moments, err error) {
+	db := UnscopedDb().Table("photos").
+		Select("photo_year AS year, photo_month as month, photo_day as day, place_city AS state, COUNT(*) AS photo_count").
+		Joins("JOIN places p ON p.id = photos.place_id").
+		Where("photos.place_id <> 'zz'").
+		Group("photo_year, photo_month, photo_day, place_city").
 		Having("photo_count >= ?", threshold)
 
 	if err := db.Scan(&results).Error; err != nil {

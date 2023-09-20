@@ -23,6 +23,7 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 	s := UnscopedDb()
 	s = s.Table("photos").
 		Select(`photos.photo_uid, photos.taken_at, files.file_hash ,photos.photo_type `).
+		Where("+photos.deleted_at is NULL").
 		Order("photos.taken_at DESC, photos.photo_uid DESC")
 
 	if f.Album != "" {
@@ -302,6 +303,7 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 		s = s.Where("photos.photo_quality > -1")
 		s = s.Where("photos.deleted_at IS NOT NULL")
 	} else {
+		s = s.Where("+photos.deleted_at is NULL")
 		if f.Private {
 			s = s.Where("photos.photo_private = 1")
 		} else if f.Public {
