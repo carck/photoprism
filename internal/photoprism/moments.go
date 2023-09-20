@@ -231,32 +231,31 @@ func (w *Moments) Start() (err error) {
 				Public:  true,
 			}
 
-			if a := entity.FindAlbumByAttr(S{mom.Slug(), mom.TitleSlug()}, S{f.Serialize()}, entity.AlbumState); a != nil {
-				if err := a.UpdateState(mom.Title(), mom.Slug(), mom.State, mom.Country); err != nil {
-					log.Errorf("moments: %s (update state)", err.Error())
+			if a := entity.FindAlbumByAttr(S{mom.Slug(), mom.TitleSlug()}, S{f.Serialize()}, entity.AlbumMoment); a != nil {
+				if err := a.UpdateSlug(mom.Title(), mom.Slug()); err != nil {
+					log.Errorf("moments: %s (update slug)", err.Error())
 				}
 
-				if !a.Deleted() {
+				if a.DeletedAt != nil || f.Serialize() == a.AlbumFilter {
 					log.Tracef("moments: %s already exists (%s)", sanitize.Log(a.AlbumTitle), a.AlbumFilter)
-				} else if err := a.Restore(); err != nil {
-					log.Errorf("moments: %s (restore state)", err.Error())
-				} else {
-					log.Infof("moments: %s restored", sanitize.Log(a.AlbumTitle))
+					continue
 				}
-			} else if a := entity.NewStateAlbum(mom.Title(), mom.Slug(), f.Serialize()); a != nil {
-				a.AlbumLocation = mom.CountryName()
-				a.AlbumCountry = mom.Country
-				a.AlbumState = mom.State
-				a.AlbumYear = mom.Year
-				a.AlbumMonth = mom.Month
-				a.AlbumDay = mom.Day
 
+				if err := a.Update("AlbumFilter", f.Serialize()); err != nil {
+					log.Errorf("moments: %s", err.Error())
+				} else {
+					log.Debugf("moments: updated %s (%s)", sanitize.Log(a.AlbumTitle), f.Serialize())
+				}
+			} else if a := entity.NewMomentsAlbum(mom.Title(), mom.Slug(), f.Serialize()); a != nil {
 				if err := a.Create(); err != nil {
-					log.Errorf("moments: %s", err)
+					log.Errorf("moments: %s", err.Error())
 				} else {
 					log.Infof("moments: added %s (%s)", sanitize.Log(a.AlbumTitle), a.AlbumFilter)
 				}
+			} else {
+				log.Errorf("moments: failed to create new moment %s (%s)", mom.Title(), f.Serialize())
 			}
+
 		}
 	}
 
