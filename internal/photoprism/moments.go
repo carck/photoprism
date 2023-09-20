@@ -217,6 +217,49 @@ func (w *Moments) Start() (err error) {
 		}
 	}
 
+	//Events
+	if results, err := query.MomentsEvents(20); err != nil {
+		log.Errorf("moments: %s", err.Error())
+	} else {
+		for _, mom := range results {
+			f := form.SearchPhotos{
+				Country: mom.Country,
+				State:   mom.State,
+				Year:    strconv.Itoa(mom.Year),
+				Month:   strconv.Itoa(mom.Month),
+				Day:     strconv.Itoa(mom.Day),
+				Public:  true,
+			}
+
+			if a := entity.FindAlbumByAttr(S{mom.Slug(), mom.TitleSlug()}, S{f.Serialize()}, entity.AlbumState); a != nil {
+				if err := a.UpdateState(mom.Title(), mom.Slug(), mom.State, mom.Country); err != nil {
+					log.Errorf("moments: %s (update state)", err.Error())
+				}
+
+				if !a.Deleted() {
+					log.Tracef("moments: %s already exists (%s)", sanitize.Log(a.AlbumTitle), a.AlbumFilter)
+				} else if err := a.Restore(); err != nil {
+					log.Errorf("moments: %s (restore state)", err.Error())
+				} else {
+					log.Infof("moments: %s restored", sanitize.Log(a.AlbumTitle))
+				}
+			} else if a := entity.NewStateAlbum(mom.Title(), mom.Slug(), f.Serialize()); a != nil {
+				a.AlbumLocation = mom.CountryName()
+				a.AlbumCountry = mom.Country
+				a.AlbumState = mom.State
+				a.AlbumYear = mom.Year
+				a.AlbumMonth = mom.Month
+				a.AlbumDay = mom.Day
+
+				if err := a.Create(); err != nil {
+					log.Errorf("moments: %s", err)
+				} else {
+					log.Infof("moments: added %s (%s)", sanitize.Log(a.AlbumTitle), a.AlbumFilter)
+				}
+			}
+		}
+	}
+
 	// Popular labels.
 	if results, err := query.MomentsLabels(threshold); err != nil {
 		log.Errorf("moments: %s", err.Error())
