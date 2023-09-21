@@ -23,6 +23,13 @@ const (
 	MarkerLabel   = "label" // MarkerType for labels (todo).
 )
 
+// Marker embeddings
+type MarkerBody struct {
+	MarkerUID      string          `gorm:"type:VARBINARY(42);`
+	EmbeddingsJSON json.RawMessage `gorm:"type:MEDIUMBLOB;" json:"-" yaml:"EmbeddingsJSON,omitempty"`
+	LandmarksJSON  json.RawMessage `gorm:"type:MEDIUMBLOB;" json:"-" yaml:"LandmarksJSON,omitempty"`
+}
+
 // Marker represents an image marker point.
 type Marker struct {
 	MarkerUID      string          `gorm:"type:VARBINARY(42);primary_key;auto_increment:false;" json:"UID" yaml:"UID"`
@@ -38,9 +45,8 @@ type Marker struct {
 	FaceID         string          `gorm:"type:VARBINARY(42);index;" json:"FaceID" yaml:"FaceID,omitempty"`
 	FaceDist       float64         `gorm:"default:-1;" json:"FaceDist" yaml:"FaceDist,omitempty"`
 	face           *Face           `gorm:"foreignkey:FaceID;association_foreignkey:ID;association_autoupdate:false;association_autocreate:false;association_save_reference:false"`
-	EmbeddingsJSON json.RawMessage `gorm:"type:MEDIUMBLOB;" json:"-" yaml:"EmbeddingsJSON,omitempty"`
+	MarkerBody     MarkerBody      `gorm:"foreignkey:MarkerUID;constraint:OnDelete:CASCADE;PRELOAD:true`
 	embeddings     face.Embeddings `gorm:"-"`
-	LandmarksJSON  json.RawMessage `gorm:"type:MEDIUMBLOB;" json:"-" yaml:"LandmarksJSON,omitempty"`
 	landmarks      crop.Areas      `gorm:"-"`
 	X              float32         `gorm:"type:FLOAT;" json:"X" yaml:"X,omitempty"`
 	Y              float32         `gorm:"type:FLOAT;" json:"Y" yaml:"Y,omitempty"`
@@ -109,7 +115,7 @@ func NewFaceMarker(f face.Face, file File, subjUID string) *Marker {
 
 	m.Q = int(f.Q)
 	m.SetEmbeddings(f.Embeddings)
-	m.LandmarksJSON = f.RelativeLandmarksJSON()
+	m.MarkerBody.LandmarksJSON = f.RelativeLandmarksJSON()
 
 	return m
 }
@@ -117,7 +123,7 @@ func NewFaceMarker(f face.Face, file File, subjUID string) *Marker {
 // SetEmbeddings assigns new face emebddings to the marker.
 func (m *Marker) SetEmbeddings(e face.Embeddings) {
 	m.embeddings = e
-	m.EmbeddingsJSON = e.JSON()
+	m.MarkerBody.EmbeddingsJSON = e.JSON()
 }
 
 // UpdateFile sets the file uid and thumb and updates the index if the marker already exists.
@@ -393,11 +399,11 @@ func (m *Marker) Create() error {
 
 // Embeddings returns parsed marker embeddings.
 func (m *Marker) Embeddings() face.Embeddings {
-	if len(m.EmbeddingsJSON) == 0 {
+	if len(m.MarkerBody.EmbeddingsJSON) == 0 {
 		return face.Embeddings{}
 	} else if len(m.embeddings) > 0 {
 		return m.embeddings
-	} else if e := face.UnmarshalEmbeddings(m.EmbeddingsJSON); e != nil {
+	} else if e := face.UnmarshalEmbeddings(m.MarkerBody.EmbeddingsJSON); e != nil {
 		m.embeddings = e
 	}
 
@@ -406,11 +412,11 @@ func (m *Marker) Embeddings() face.Embeddings {
 
 // Landmarks returns parsed landmarks
 func (m *Marker) Landmarks() crop.Areas {
-	if len(m.LandmarksJSON) == 0 {
+	if len(m.MarkerBody.LandmarksJSON) == 0 {
 		return crop.Areas{}
 	} else if len(m.landmarks) > 0 {
 		return m.landmarks
-	} else if err := json.Unmarshal(m.LandmarksJSON, &m.landmarks); err != nil {
+	} else if err := json.Unmarshal(m.MarkerBody.LandmarksJSON, &m.landmarks); err != nil {
 		log.Errorf("markers: %s while parsing landmarks json", err)
 	}
 
