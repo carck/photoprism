@@ -25,40 +25,45 @@ const (
 
 // Marker embeddings
 type MarkerBody struct {
-	MarkerUID      string          `gorm:"type:VARBINARY(42);`
+	MarkerUID      string          `gorm:"type:VARBINARY(42);primary_key;auto_increment:false;"`
 	EmbeddingsJSON json.RawMessage `gorm:"type:MEDIUMBLOB;" json:"-" yaml:"EmbeddingsJSON,omitempty"`
 	LandmarksJSON  json.RawMessage `gorm:"type:MEDIUMBLOB;" json:"-" yaml:"LandmarksJSON,omitempty"`
 }
 
 // Marker represents an image marker point.
 type Marker struct {
-	MarkerUID      string          `gorm:"type:VARBINARY(42);primary_key;auto_increment:false;" json:"UID" yaml:"UID"`
-	FileUID        string          `gorm:"type:VARBINARY(42);index;default:'';" json:"FileUID" yaml:"FileUID"`
-	MarkerType     string          `gorm:"type:VARBINARY(8);default:'';" json:"Type" yaml:"Type"`
-	MarkerSrc      string          `gorm:"type:VARBINARY(8);default:'';" json:"Src" yaml:"Src,omitempty"`
-	MarkerName     string          `gorm:"type:VARCHAR(160);" json:"Name" yaml:"Name,omitempty"`
-	MarkerReview   bool            `json:"Review" yaml:"Review,omitempty"`
-	MarkerInvalid  bool            `json:"Invalid" yaml:"Invalid,omitempty"`
-	SubjUID        string          `gorm:"type:VARBINARY(42);index:idx_markers_subj_uid_src;" json:"SubjUID" yaml:"SubjUID,omitempty"`
-	SubjSrc        string          `gorm:"type:VARBINARY(8);index:idx_markers_subj_uid_src;default:'';" json:"SubjSrc" yaml:"SubjSrc,omitempty"`
-	subject        *Subject        `gorm:"foreignkey:SubjUID;association_foreignkey:SubjUID;association_autoupdate:false;association_autocreate:false;association_save_reference:false"`
-	FaceID         string          `gorm:"type:VARBINARY(42);index;" json:"FaceID" yaml:"FaceID,omitempty"`
-	FaceDist       float64         `gorm:"default:-1;" json:"FaceDist" yaml:"FaceDist,omitempty"`
-	face           *Face           `gorm:"foreignkey:FaceID;association_foreignkey:ID;association_autoupdate:false;association_autocreate:false;association_save_reference:false"`
-	MarkerBody     MarkerBody      `gorm:"foreignkey:MarkerUID;constraint:OnDelete:CASCADE;PRELOAD:true`
-	embeddings     face.Embeddings `gorm:"-"`
-	landmarks      crop.Areas      `gorm:"-"`
-	X              float32         `gorm:"type:FLOAT;" json:"X" yaml:"X,omitempty"`
-	Y              float32         `gorm:"type:FLOAT;" json:"Y" yaml:"Y,omitempty"`
-	W              float32         `gorm:"type:FLOAT;" json:"W" yaml:"W,omitempty"`
-	H              float32         `gorm:"type:FLOAT;" json:"H" yaml:"H,omitempty"`
-	Q              int             `json:"Q" yaml:"Q,omitempty"`
-	Size           int             `gorm:"default:-1;" json:"Size" yaml:"Size,omitempty"`
-	Score          int             `gorm:"type:SMALLINT;" json:"Score" yaml:"Score,omitempty"`
-	Thumb          string          `gorm:"type:VARBINARY(128);index;default:'';" json:"Thumb" yaml:"Thumb,omitempty"`
-	MatchedAt      *time.Time      `sql:"index" json:"MatchedAt" yaml:"MatchedAt,omitempty"`
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
+	MarkerUID     string          `gorm:"type:VARBINARY(42);primary_key;auto_increment:false;" json:"UID" yaml:"UID"`
+	FileUID       string          `gorm:"type:VARBINARY(42);index;default:'';" json:"FileUID" yaml:"FileUID"`
+	MarkerType    string          `gorm:"type:VARBINARY(8);default:'';" json:"Type" yaml:"Type"`
+	MarkerSrc     string          `gorm:"type:VARBINARY(8);default:'';" json:"Src" yaml:"Src,omitempty"`
+	MarkerName    string          `gorm:"type:VARCHAR(160);" json:"Name" yaml:"Name,omitempty"`
+	MarkerReview  bool            `json:"Review" yaml:"Review,omitempty"`
+	MarkerInvalid bool            `json:"Invalid" yaml:"Invalid,omitempty"`
+	SubjUID       string          `gorm:"type:VARBINARY(42);index:idx_markers_subj_uid_src;" json:"SubjUID" yaml:"SubjUID,omitempty"`
+	SubjSrc       string          `gorm:"type:VARBINARY(8);index:idx_markers_subj_uid_src;default:'';" json:"SubjSrc" yaml:"SubjSrc,omitempty"`
+	subject       *Subject        `gorm:"foreignkey:SubjUID;association_foreignkey:SubjUID;association_autoupdate:false;association_autocreate:false;association_save_reference:false"`
+	FaceID        string          `gorm:"type:VARBINARY(42);index;" json:"FaceID" yaml:"FaceID,omitempty"`
+	FaceDist      float64         `gorm:"default:-1;" json:"FaceDist" yaml:"FaceDist,omitempty"`
+	face          *Face           `gorm:"foreignkey:FaceID;association_foreignkey:ID;association_autoupdate:false;association_autocreate:false;association_save_reference:false"`
+	MarkerBody    MarkerBody      `gorm:"foreignkey:MarkerUID;constraint:OnDelete:CASCADE;PRELOAD:true;association_autoupdate:true;association_autocreate:true"`
+	embeddings    face.Embeddings `gorm:"-"`
+	landmarks     crop.Areas      `gorm:"-"`
+	X             float32         `gorm:"type:FLOAT;" json:"X" yaml:"X,omitempty"`
+	Y             float32         `gorm:"type:FLOAT;" json:"Y" yaml:"Y,omitempty"`
+	W             float32         `gorm:"type:FLOAT;" json:"W" yaml:"W,omitempty"`
+	H             float32         `gorm:"type:FLOAT;" json:"H" yaml:"H,omitempty"`
+	Q             int             `json:"Q" yaml:"Q,omitempty"`
+	Size          int             `gorm:"default:-1;" json:"Size" yaml:"Size,omitempty"`
+	Score         int             `gorm:"type:SMALLINT;" json:"Score" yaml:"Score,omitempty"`
+	Thumb         string          `gorm:"type:VARBINARY(128);index;default:'';" json:"Thumb" yaml:"Thumb,omitempty"`
+	MatchedAt     *time.Time      `sql:"index" json:"MatchedAt" yaml:"MatchedAt,omitempty"`
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
+// TableName returns the entity database table name.
+func (MarkerBody) TableName() string {
+	return "marker_body"
 }
 
 // TableName returns the entity database table name.
@@ -99,6 +104,7 @@ func NewMarker(file File, area crop.Area, subjUID, markerSrc, markerType string,
 		Score:         score,
 		Thumb:         area.Thumb(file.FileHash),
 		MatchedAt:     nil,
+		MarkerBody:    MarkerBody{},
 	}
 
 	return m

@@ -106,6 +106,7 @@ func ShouldRunFaceMatch(since time.Time) bool {
 func CountNewFaceMarkers(size, score int, since time.Time) (n int) {
 
 	q := Db().Model(&entity.Markers{}).
+		Joins("join marker_body on marker_body.marker_uid = markers.marker_uid").
 		Where("marker_type = ?", entity.MarkerFace).
 		Where("face_id = '' AND marker_invalid = 0 AND embeddings_json <> ''")
 

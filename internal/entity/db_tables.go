@@ -43,6 +43,7 @@ var Entities = Tables{
 	Subject{}.TableName():           &Subject{},
 	Face{}.TableName():              &Face{},
 	Marker{}.TableName():            &Marker{},
+	MarkerBody{}.TableName():        &MarkerBody{},
 }
 
 // WaitForMigration waits for the database migration to be successful.

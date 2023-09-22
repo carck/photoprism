@@ -19,7 +19,7 @@ func MarkerByUID(uid string) (*entity.Marker, error) {
 
 // Markers finds a list of file markers filtered by type, embeddings, and sorted by id.
 func Markers(limit, offset int, markerType string, embeddings, subjects bool, matchedBefore time.Time) (result entity.Markers, err error) {
-	db := Db()
+	db := Db().Joins("join marker_body on marker_body.marker_uid = markers.marker_uid")
 
 	if markerType != "" {
 		db = db.Where("marker_type = ?", markerType)
@@ -47,6 +47,7 @@ func Markers(limit, offset int, markerType string, embeddings, subjects bool, ma
 // UnmatchedFaceMarkers finds all currently unmatched face markers.
 func UnmatchedFaceMarkers(limit, offset int, matchedBefore *time.Time) (result entity.Markers, err error) {
 	db := Db().
+		Joins("join marker_body on marker_body.marker_uid = markers.marker_uid").
 		Where("marker_type = ?", entity.MarkerFace).
 		Where("marker_invalid = 0").
 		Where("q >= 16").
@@ -59,7 +60,7 @@ func UnmatchedFaceMarkers(limit, offset int, matchedBefore *time.Time) (result e
 		db = db.Where("matched_at IS NULL OR matched_at < ?", matchedBefore)
 	}
 
-	db = db.Order("matched_at, marker_uid").Limit(limit).Offset(offset)
+	db = db.Order("matched_at, markers.marker_uid").Limit(limit).Offset(offset)
 
 	err = db.Find(&result).Error
 
@@ -69,9 +70,10 @@ func UnmatchedFaceMarkers(limit, offset int, matchedBefore *time.Time) (result e
 // FaceMarkers returns all face markers sorted by id.
 func FaceMarkers(limit, offset int) (result entity.Markers, err error) {
 	err = Db().
+		Joins("join marker_body on marker_body.marker_uid = markers.marker_uid").
 		Where("marker_type = ?", entity.MarkerFace).
 		Where("q >= 16").
-		Order("marker_uid").Limit(limit).Offset(offset).
+		Order("markers.marker_uid").Limit(limit).Offset(offset).
 		Find(&result).Error
 
 	return result, err
@@ -83,10 +85,11 @@ func Embeddings(single, unclustered bool, size, score int) (result face.Embeddin
 
 	stmt := Db().
 		Model(&entity.Marker{}).
+		Joins("join marker_body on marker_body.marker_uid = markers.marker_uid").
 		Where("marker_type = ?", entity.MarkerFace).
 		Where("marker_invalid = 0").
 		Where("embeddings_json <> ''").
-		Order("marker_uid")
+		Order("markers.marker_uid")
 
 	if size > 0 {
 		stmt = stmt.Where("size >= ?", size)
@@ -247,6 +250,13 @@ func RemoveOrphanMarkers() (removed int64, err error) {
 
 	if res := UnscopedDb().
 		Delete(&entity.Marker{}, where); res.Error != nil {
+		return removed, fmt.Errorf("markers: %s (purge orphans)", res.Error)
+	} else {
+		removed += res.RowsAffected
+	}
+
+	if res := UnscopedDb().
+		Delete(&entity.MarkerBody{}, "marker_uid not in (select marker_uid from markers"); res.Error != nil {
 		return removed, fmt.Errorf("markers: %s (purge orphans)", res.Error)
 	} else {
 		removed += res.RowsAffected
