@@ -123,7 +123,7 @@ func CreateZip(router *gin.RouterGroup) {
 				log.Infof("download: added %s as %s", sanitize.Log(file.FileName), sanitize.Log(alias))
 			} else {
 				log.Warnf("download: file %s is missing", sanitize.Log(file.FileName))
-				logError("download", file.Update("FileMissing", true))
+				//logError("download", file.Update("FileMissing", true))
 			}
 		}
 
