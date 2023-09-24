@@ -131,6 +131,11 @@ func (m *Meta) Start(delay, interval time.Duration, force bool) (err error) {
 		log.Warnf("metadata: %s (reset quality)", err.Error())
 	}
 
+	// Remove orphan folders
+	if err := query.DeleteOrphanFolders(); err != nil {
+		log.Warnf("metadata: %s (remove orphan folders)", err.Error())
+	}
+
 	// Run moments worker.
 	if w := photoprism.NewMoments(m.conf); w == nil {
 		log.Errorf("metadata: failed updating moments")

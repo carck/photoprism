@@ -110,3 +110,8 @@ func AlbumEntryFound(uid string) error {
 		return UnscopedDb().Exec(`UPDATE photos_albums SET missing = 0 WHERE photo_uid = ?`, uid).Error
 	}
 }
+
+
+func DeleteOrphanFolders() error {
+	return UnscopedDb().Exec("delete from albums where album_type ='folder' and not exists (select 1 from photos where photo_path=albums.album_path) and not exists (select 1 from albums ab where ab.album_path like albums.album_path||'_')").Error
+}
