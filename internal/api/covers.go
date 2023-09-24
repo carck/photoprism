@@ -8,7 +8,6 @@ import (
 	"github.com/photoprism/photoprism/pkg/sanitize"
 
 	"github.com/gin-gonic/gin"
-	"github.com/photoprism/photoprism/internal/photoprism"
 	"github.com/photoprism/photoprism/internal/query"
 	"github.com/photoprism/photoprism/internal/service"
 	"github.com/photoprism/photoprism/internal/thumb"
@@ -83,7 +82,8 @@ func AlbumCover(router *gin.RouterGroup) {
 			return
 		}
 
-		fileName := photoprism.FileName(f.FileRoot, f.FileName)
+		fromSize := thumb.Sizes[thumb.Fit1280]
+		fileName, _ := thumb.FileName(f.FileHash, conf.ThumbPath(), fromSize.Width, fromSize.Height, fromSize.Options...)
 
 		if !fs.FileExists(fileName) {
 			log.Errorf("%s: found no original for %s", albumCover, sanitize.Log(fileName))
@@ -196,7 +196,8 @@ func LabelCover(router *gin.RouterGroup) {
 			return
 		}
 
-		fileName := photoprism.FileName(f.FileRoot, f.FileName)
+		fromSize := thumb.Sizes[thumb.Fit1280]
+		fileName, _ := thumb.FileName(f.FileHash, conf.ThumbPath(), fromSize.Width, fromSize.Height, fromSize.Options...)
 
 		if !fs.FileExists(fileName) {
 			log.Errorf("%s: file %s is missing", labelCover, sanitize.Log(f.FileName))
