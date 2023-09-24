@@ -16,7 +16,7 @@ func AlbumsSlim(f form.SearchAlbums) (results AlbumResultsSlim, err error) {
 
 	// Base query.
 	s := UnscopedDb().Table("albums").
-		Select("album_uid,album_title,album_type,album_path,thumb").
+		Select("album_uid,album_title,album_type,album_path,thumb,album_filter").
 		Order("albums.album_favorite DESC, albums.album_title ASC, albums.album_uid DESC").
 		Where("albums.deleted_at IS NULL")
 
