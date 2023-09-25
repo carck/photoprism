@@ -162,7 +162,7 @@
                   </button>
                 </div>
 
-                <div v-else-if="album.Type === 'album'" class="caption mb-2">
+                <div v-else-if="album.Type === 'album' && !album.Filter" class="caption mb-2">
                   <button v-if="album.PhotoCount === 1" @click.exact="edit(album)">
                     <translate>Contains one picture.</translate>
                   </button>
