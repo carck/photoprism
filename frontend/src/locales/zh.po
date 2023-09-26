@@ -21,7 +21,7 @@ msgstr ""
 
 #: src/pages/albums.vue:342 src/share/albums.vue:300
 msgid "%{n} albums found"
-msgstr "找到 %{n} 个相册"
+msgstr "找到了 %{n} 个相册"
 
 #: src/dialog/share/upload.vue:65
 msgid "%{n} files uploaded"
@@ -38,7 +38,7 @@ msgstr "找到了 %{n} 个标签"
 #: src/pages/people/faces.vue:282 src/pages/people/faces.vue:368
 #: src/pages/people/subjects.vue:432
 msgid "%{n} people found"
-msgstr "发现%{n}人"
+msgstr "找到了%{n}个人"
 
 #: src/pages/album/photos.vue:226 src/pages/album/photos.vue:338
 #: src/pages/photos.vue:266 src/pages/photos.vue:376 src/share/photos.vue:241
@@ -79,7 +79,7 @@ msgstr "账号"
 
 #: src/dialog/photo/info.vue:159
 msgid "Accuracy"
-msgstr "准确率"
+msgstr "精度"
 
 #: src/dialog/photo/labels.vue:20
 msgid "Action"
@@ -95,7 +95,7 @@ msgstr "新增相册"
 
 #: src/pages/settings/general.vue:141
 msgid "Add files to your library via Web Upload."
-msgstr "通过网页添加文件到库。"
+msgstr "通过网页上传文件到库相册。"
 
 #: src/dialog/share.vue:92
 msgid "Add Link"
@@ -103,7 +103,7 @@ msgstr "添加链接"
 
 #: src/pages/albums.vue:96
 msgid "Add pictures from search results by selecting them."
-msgstr "通过选择从搜索结果中添加图片。"
+msgstr "从搜索结果中选择添加图片。"
 
 #: src/dialog/account/add.vue:6 src/pages/settings/sync.vue:46
 msgid "Add Server"
@@ -113,7 +113,7 @@ msgstr "新增服务器"
 #: src/component/label/clipboard.vue:67 src/component/photo/clipboard.vue:191
 #: src/component/subject/clipboard.vue:89 src/dialog/photo/album.vue:17
 msgid "Add to album"
-msgstr "新增到相册"
+msgstr "添加到相册"
 
 #: src/dialog/photo/files.vue:171 src/dialog/photo/files.vue:168
 msgid "Added"
@@ -177,15 +177,15 @@ msgstr "相册已删除"
 
 #: src/pages/albums.vue:257 src/share/albums.vue:215
 msgid "All %{n} albums loaded"
-msgstr "%{n} 本相册加载完成"
+msgstr "全部%{n}本相册加载完成"
 
 #: src/pages/labels.vue:246
 msgid "All %{n} labels loaded"
-msgstr "%{n} 个标签加载完成"
+msgstr "全部%{n}个标签加载完成"
 
 #: src/pages/people/subjects.vue:335
 msgid "All %{n} people loaded"
-msgstr "所有%{n}人都被加载"
+msgstr "所有%{n}人物加载完成"
 
 #: src/component/album/toolbar.vue:17 src/component/photo/toolbar.vue:21
 msgid "All Cameras"
@@ -232,7 +232,7 @@ msgstr "所有年份"
 msgid ""
 "Also, please leave a star on GitHub if you like this project. It provides "
 "additional motivation to keep going."
-msgstr "另外，如果你喜欢这个项目，请在GitHub上留下一颗星。它提供了继续前进的额外动力"
+msgstr "如果你喜欢这个项目，请在GitHub上留下一颗星。它提供了继续前进的额外动力"
 "。"
 
 #: src/dialog/share.vue:75
@@ -382,7 +382,7 @@ msgstr "错误报告"
 
 #: src/common/notify.js:99
 msgid "Busy, please wait…"
-msgstr "忙，请稍候…"
+msgstr "请稍候…"
 
 #: src/component/navigation.vue:238 src/component/navigation.vue:924
 #: src/routes.js:147 src/routes.js:154
@@ -402,7 +402,7 @@ msgstr "相机系列"
 #: src/pages/album/photos.vue:232 src/pages/photos.vue:272
 #: src/share/photos.vue:247
 msgid "Can't load more, limit reached"
-msgstr "无法加载更多，已达到限制"
+msgstr "无法加载更多照片，已达到限制"
 
 #: src/common/clipboard.js:105 src/common/clipboard.js:142
 #: src/pages/albums.vue:387 src/pages/albums.vue:403 src/pages/labels.vue:182
@@ -484,7 +484,7 @@ msgstr "颜色"
 
 #: src/pages/library/index.vue:123
 msgid "Complete Rescan"
-msgstr "完成重新扫描"
+msgstr "完全重新扫描"
 
 #: src/dialog/photo/labels.vue:19
 msgid "Confidence"
@@ -514,7 +514,7 @@ msgstr "包含一张图片。"
 
 #: src/pages/settings/library.vue:113
 msgid "Convert to JPEG"
-msgstr "转 JPEG"
+msgstr "转换成JPEG"
 
 #: src/pages/library/index.vue:166
 msgid "Converting"
@@ -530,7 +530,7 @@ msgstr "版权"
 
 #: src/component/photo/list.vue:17 src/share/photo/list.vue:17
 msgid "Couldn't find anything."
-msgstr "找不到任何东西。"
+msgstr "找不到任何照片。"
 
 #: src/component/photo/toolbar.vue:182 src/dialog/photo/details.vue:238
 msgid "Country"
@@ -554,7 +554,7 @@ msgstr "Cubic: 质量适中，性能良好"
 
 #: src/pages/settings/account.vue:55
 msgid "Current Password"
-msgstr "当前密码"
+msgstr "密码"
 
 #: src/options/options.js:374
 msgid "Customer Support"
@@ -670,7 +670,7 @@ msgstr "禁用反向地理编码和地图。"
 
 #: src/routes.js:380 src/routes.js:387 src/routes.js:394 src/routes.js:401
 msgid "Discover"
-msgstr "发现"
+msgstr "探索"
 
 #: src/pages/settings/advanced.vue:144
 msgid "Don't backup photo and album metadata to YAML files."
@@ -755,17 +755,17 @@ msgstr "荷兰语"
 
 #: src/pages/settings/advanced.vue:305
 msgid "Dynamic Previews"
-msgstr "未缓存预览"
+msgstr "动态预览"
 
 #: src/pages/settings/advanced.vue:306
 msgid ""
 "Dynamic rendering requires a powerful server. It is not recommended for NAS "
 "devices."
-msgstr "动态渲染需要性能较强的服务器，不建议用于NAS设备。"
+msgstr "动态预览需要性能较强的服务器，不建议用于NAS设备。"
 
 #: src/pages/settings/advanced.vue:348
 msgid "Dynamic Size Limit: %{n}px"
-msgstr "未缓存大小限制： %{n}px"
+msgstr "动态预览相片大小限制： %{n}px"
 
 #: src/pages/about/feedback.vue:167
 msgid "E-Mail"
@@ -819,7 +819,7 @@ msgstr "在没有坐标的情况下估计图片的大致位置。"
 
 #: src/pages/settings/library.vue:71
 msgid "Estimates"
-msgstr "估算"
+msgstr "位置估算"
 
 #: src/options/options.js:339
 msgid "Every two days"
@@ -833,11 +833,11 @@ msgstr "除了搜尋結果中標記為私人的內容、共享相簿、標籤和
 
 #: src/pages/people/faces.vue:100 src/pages/people/subjects.vue:138
 msgid "Exclude hidden"
-msgstr "不包括隐藏的"
+msgstr "排除括隐藏的"
 
 #: src/component/navigation.vue:269
 msgid "Expand"
-msgstr "展开搜寻"
+msgstr "展开"
 
 #: src/component/photo/toolbar.vue:142
 msgid "Expand Search"
@@ -845,7 +845,7 @@ msgstr "展开搜寻"
 
 #: src/pages/settings/advanced.vue:121
 msgid "Experimental Features"
-msgstr "测试功能"
+msgstr "测试版功能"
 
 #: src/dialog/account/edit.vue:241 src/dialog/share.vue:61
 msgid "Expires"
@@ -861,11 +861,11 @@ msgstr "光圈数"
 
 #: src/model/face.js:159
 msgid "Face"
-msgstr "脸部"
+msgstr "面孔"
 
 #: src/dialog/photo/info.vue:73
 msgid "Faces"
-msgstr "面向"
+msgstr "面孔"
 
 #: src/dialog/share.vue:57 src/dialog/webdav.vue:38
 msgid "Failed copying to clipboard"
@@ -885,7 +885,7 @@ msgstr "导入上传的文件时失败"
 
 #: src/options/options.js:275
 msgid "Fast"
-msgstr "快"
+msgstr "快速"
 
 #: src/dialog/photo/info.vue:94
 msgid "Favorite"
@@ -1134,7 +1134,7 @@ msgstr "间隔"
 
 #: src/dialog/photo/details.vue:105
 msgid "Invalid date"
-msgstr "错误的日期"
+msgstr "无效的日期"
 
 #: src/options/options.js:136
 msgid "Italian"
@@ -1197,7 +1197,7 @@ msgstr "语言"
 
 #: src/pages/settings/sync.vue:30
 msgid "Last Backup"
-msgstr "上次备份"
+msgstr "上次备份时间"
 
 #: src/dialog/photo/details.vue:285 src/dialog/photo/info.vue:135
 msgid "Latitude"
@@ -1216,7 +1216,7 @@ msgstr "镜头"
 #: src/pages/settings.vue:41 src/pages/settings/general.vue:404
 #: src/routes.js:298 src/routes.js:305 src/routes.js:312
 msgid "Library"
-msgstr "库"
+msgstr "照片库"
 
 #: src/component/navigation.vue:410 src/component/navigation.vue:43
 #: src/dialog/photo/details.vue:530 src/pages/about/license.vue:4
@@ -1225,7 +1225,7 @@ msgstr "许可证"
 
 #: src/component/photo/viewer.vue:147
 msgid "Like"
-msgstr "喜欢"
+msgstr "收藏"
 
 #: src/options/options.js:362
 msgid "Lime"
@@ -1301,7 +1301,7 @@ msgstr "主色调"
 
 #: src/dialog/photo/labels.vue:32
 msgid "manual"
-msgstr "手册"
+msgstr "手工"
 
 #: src/dialog/account/edit.vue:52
 msgid "Manual Upload"
@@ -1313,7 +1313,7 @@ msgstr "标记"
 
 #: src/options/options.js:279
 msgid "Medium"
-msgstr "中"
+msgstr "中等"
 
 #: src/dialog/people/merge.vue:25
 msgid "Merge %{a} with %{b}?"
@@ -1363,7 +1363,7 @@ msgstr "找到超过20张标签"
 
 #: src/pages/people/subjects.vue:435
 msgid "More than 20 people found"
-msgstr "超过20人发现"
+msgstr "发现超过20面孔"
 
 #: src/component/album/toolbar.vue:31 src/component/photo/toolbar.vue:30
 msgid "Mosaic"
@@ -1406,7 +1406,7 @@ msgstr "永不"
 
 #: src/pages/people.vue:26
 msgid "New"
-msgstr "新"
+msgstr "新建"
 
 #: src/pages/settings/account.vue:77
 msgid "New Password"
@@ -1427,18 +1427,18 @@ msgstr "否"
 #: src/pages/albums.vue:35 src/pages/albums.vue:338 src/share/albums.vue:18
 #: src/share/albums.vue:296
 msgid "No albums found"
-msgstr "找不到相册"
+msgstr "没有相册"
 
 #: src/dialog/photo/labels.vue:33 src/pages/labels.vue:31
 #: src/pages/labels.vue:335
 msgid "No labels found"
-msgstr "找不到标签"
+msgstr "没有标签"
 
 #: src/dialog/photo/people.vue:5 src/pages/people/faces.vue:30
 #: src/pages/people/faces.vue:278 src/pages/people/faces.vue:364
 #: src/pages/people/subjects.vue:33 src/pages/people/subjects.vue:428
 msgid "No people found"
-msgstr "没有找到人"
+msgstr "没有面孔"
 
 #: src/component/photo/cards.vue:7 src/component/photo/list.vue:8
 #: src/component/photo/mosaic.vue:7 src/pages/album/photos.vue:334
@@ -1447,17 +1447,17 @@ msgstr "没有找到人"
 #: src/share/photo/cards.vue:7 src/share/photo/list.vue:8
 #: src/share/photo/mosaic.vue:7 src/share/photos.vue:349
 msgid "No pictures found"
-msgstr "没有发现图片"
+msgstr "没有照片"
 
 #: src/component/photo/cards.vue:4 src/component/photo/list.vue:5
 #: src/component/photo/mosaic.vue:4 src/share/photo/cards.vue:4
 #: src/share/photo/list.vue:5 src/share/photo/mosaic.vue:4
 msgid "No recently edited pictures"
-msgstr "没有最近编辑过的图片"
+msgstr "无最近编辑过的图片"
 
 #: src/pages/settings/sync.vue:47
 msgid "No servers configured."
-msgstr "沒有发现服务器配置。"
+msgstr "无服务器配置。"
 
 #: src/dialog/sponsor.vue:31
 msgid "No thanks"
@@ -1554,7 +1554,7 @@ msgstr "发现一个标签"
 #: src/pages/people/faces.vue:280 src/pages/people/faces.vue:366
 #: src/pages/people/subjects.vue:430
 msgid "One person found"
-msgstr "一个人发现"
+msgstr "发现一个面孔"
 
 #: src/pages/album/photos.vue:336 src/pages/photos.vue:374
 #: src/share/photos.vue:351
@@ -1641,7 +1641,7 @@ msgstr "密码已更改"
 #: src/dialog/photo/edit.vue:267 src/pages/settings/general.vue:338
 #: src/routes.js:272 src/routes.js:292
 msgid "People"
-msgstr "人"
+msgstr "人物"
 
 #: src/dialog/share.vue:72
 msgid "People you share a link with will be able to view public contents."
@@ -1765,7 +1765,7 @@ msgstr "质量过滤器"
 
 #: src/dialog/photo/info.vue:59
 msgid "Quality Score"
-msgstr "质量得分"
+msgstr "照片质量"
 
 #: src/pages/discover.vue:16
 msgid "Random"
@@ -1800,7 +1800,7 @@ msgstr "只读模式"
 #: src/component/album/toolbar.vue:38 src/component/photo/toolbar.vue:35
 #: src/dialog/album/edit.vue:15
 msgid "Recently added"
-msgstr "近期新增"
+msgstr "近期添加"
 
 #: src/component/album/toolbar.vue:39 src/component/photo/toolbar.vue:36
 #: src/dialog/album/edit.vue:16
@@ -1810,11 +1810,11 @@ msgstr "近期编辑"
 #: src/dialog/photo/people.vue:9 src/pages/people/faces.vue:34
 #: src/pages/people/subjects.vue:38
 msgid "Recognition starts after indexing has been completed."
-msgstr "识别工作在索引完成后开始。"
+msgstr "人物识别工作讲将在索引完成后开始。"
 
 #: src/pages/people.vue:17
 msgid "Recognized"
-msgstr "认可的"
+msgstr "已识别的"
 
 #: src/pages/settings/general.vue:339
 msgid "Recognizes faces so that specific people can be found."
@@ -1878,7 +1878,7 @@ msgstr "解析度"
 
 #: src/component/photo/clipboard.vue:238
 msgid "Restore"
-msgstr "恢复"
+msgstr "复原"
 
 #: src/pages/settings/account.vue:100
 msgid "Retype Password"
@@ -2006,7 +2006,7 @@ msgstr "显示"
 
 #: src/pages/people/faces.vue:66
 msgid "Show all new faces"
-msgstr "显示所有的新面孔"
+msgstr "显示所有的新未识别面孔"
 
 #: src/pages/people/faces.vue:83 src/pages/people/subjects.vue:121
 msgid "Show hidden"
@@ -2026,7 +2026,7 @@ msgstr "显示更多"
 
 #: src/pages/settings/general.vue:427
 msgid "Show server logs in Library."
-msgstr "在库中显示服务器日志。"
+msgstr "显示服务器日志。"
 
 #: src/pages/settings/advanced.vue:78
 msgid "Shows more detailed log messages. Requires a restart."
@@ -2112,7 +2112,7 @@ msgstr "堆叠"
 msgid ""
 "Stacks group files with a similar frame of reference, but differences of "
 "quality, format, size or color."
-msgstr "堆栈将具有类似参考框架，但质量、格式、大小或颜色不同的文件分组。"
+msgstr "将具有类似的照片，但质量、格式、大小或颜色不同的文件进行分组。"
 
 #: src/pages/library/index.vue:31
 msgid "Start"
@@ -2124,7 +2124,7 @@ msgstr "开始/停止幻灯片放映"
 
 #: src/component/navigation.vue:271
 msgid "States"
-msgstr "省份"
+msgstr "城市"
 
 #: src/pages/settings/advanced.vue:374
 msgid "Static Size Limit: %{n}px"
@@ -2136,11 +2136,11 @@ msgstr "状态"
 
 #: src/dialog/photo/files.vue:65 src/dialog/photo/files.vue:62
 msgid "Storage Folder"
-msgstr "储存文件夹"
+msgstr "储存目录"
 
 #: src/options/options.js:294
 msgid "Streets"
-msgstr "街"
+msgstr "街道"
 
 #: src/pages/settings/general.vue:511
 msgid "Style"
@@ -2291,7 +2291,7 @@ msgstr "未分类"
 
 #: src/dialog/photo/files.vue:38 src/dialog/photo/files.vue:35
 msgid "Unstack"
-msgstr "解除堆栈"
+msgstr "取消堆栈"
 
 #: src/dialog/photo/files.vue:180 src/dialog/photo/files.vue:177
 #: src/dialog/photo/info.vue:175
@@ -2364,7 +2364,7 @@ msgstr "URL"
 
 #: src/pages/settings/advanced.vue:463
 msgid "Use Presets"
-msgstr "使用预设"
+msgstr "使用预设值"
 
 #: src/model/user.js:122
 msgid "User"
@@ -2592,7 +2592,7 @@ msgstr "缩放"
 #~ msgstr "搜索词太短"
 
 #~ msgid "Unstacked"
-#~ msgstr "非堆叠式"
+#~ msgstr "非折叠"
 
 #~ msgid "Backup"
 #~ msgstr "备份"
@@ -2607,4 +2607,4 @@ msgstr "缩放"
 #~ msgstr "中国"
 
 #~ msgid "Stack Sequences"
-#~ msgstr "栈序列"
+#~ msgstr "照片序列"
