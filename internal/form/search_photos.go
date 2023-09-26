@@ -71,6 +71,7 @@ type SearchPhotos struct {
 	Offset    int       `form:"offset" serialize:"-"`                   // Result FILE offset
 	Order     string    `form:"order" serialize:"-"`                    // Sort order
 	Merged    bool      `form:"merged" serialize:"-"`                   // Merge FILES in response
+	BeforeDay int       `form:"beforeday"`
 }
 
 func (f *SearchPhotos) GetQuery() string {
@@ -105,6 +106,10 @@ func (f *SearchPhotos) ParseQueryString() error {
 		if err := Unserialize(f, f.Filter); err != nil {
 			return err
 		}
+	}
+
+	if f.BeforeDay != 0 {
+		f.Before = time.Now().AddDate(0, 0, -f.BeforeDay)
 	}
 
 	return nil
