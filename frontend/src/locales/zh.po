@@ -582,7 +582,7 @@ msgstr "丹麦语"
 
 #: src/dialog/photo/details.vue:118
 msgid "Day"
-msgstr "天"
+msgstr "日"
 
 #: src/pages/settings/advanced.vue:77
 msgid "Debug Logs"
@@ -1515,7 +1515,7 @@ msgstr "注意：更新密码不会撤消已通过身份验证的用户的访问
 
 #: src/dialog/photo/details.vue:598
 msgid "Notes"
-msgstr "注意"
+msgstr "备注"
 
 #: src/pages/library/logs.vue:5
 msgid "Nothing to see here yet. Be patient."
