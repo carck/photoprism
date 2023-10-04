@@ -82,6 +82,7 @@ func main() {
 		commands.ConfigCommand,
 		commands.VersionCommand,
 		commands.LabelsCommand,
+		commands.OcrCommand,
 	}
 
 	if err := app.Run(os.Args); err != nil {

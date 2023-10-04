@@ -26,7 +26,7 @@ elif [[ $1 == "race" ]]; then
 elif [[ $1 == "static" ]]; then
   BUILD_CMD=("$GO_BIN" build -tags NOTENSORFLOW -a -v -ldflags "-linkmode external -extldflags \"-static -L /usr/lib -ltensorflow\" -s -w -X main.version=${BUILD_ID}" -o "${BUILD_NAME}" cmd/photoprism/photoprism.go)
 else
-  BUILD_CMD=("$GO_BIN" build -tags "NOTENSORFLOW INSIGHTFACE" -ldflags "-extldflags \"-Wl,-rpath -Wl,\$ORIGIN/../lib\" -s -w -X main.version=${BUILD_ID}" -o "${BUILD_NAME}" cmd/photoprism/photoprism.go)
+  BUILD_CMD=("$GO_BIN" build -tags "NOTENSORFLOW INSIGHTFACE fts5" -ldflags "-extldflags \"-Wl,-rpath -Wl,\$ORIGIN/../lib\" -s -w -X main.version=${BUILD_ID}" -o "${BUILD_NAME}" cmd/photoprism/photoprism.go)
 fi
 
 # build binary

@@ -324,6 +324,19 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 		photo.DeletedAt = nil
 	}
 
+	if o.OcrOnly && (!file.FilePrimary || !photoExists || !fileExists || !file.FilePrimary || file.FileError != "") {
+		result.Status = IndexSkipped
+		return result
+	} else if file.FilePrimary {
+		text := ind.Ocr(m)
+		details.SetNotes(text, entity.SrcAuto)
+		if o.OcrOnly {
+			photo.SaveDetails()
+			result.Status = IndexSkipped
+			return result
+		}
+	}
+
 	// Extra labels to ba added when new files have a photo id.
 	extraLabels := classify.Labels{}
 
@@ -418,7 +431,7 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 
 			// Update metadata details.
 			details.SetKeywords(metaData.Keywords.String(), entity.SrcXmp)
-			details.SetNotes(metaData.Notes, entity.SrcXmp)
+			//details.SetNotes(metaData.Notes, entity.SrcXmp)
 			details.SetSubject(metaData.Subject, entity.SrcXmp)
 			details.SetArtist(metaData.Artist, entity.SrcXmp)
 			details.SetCopyright(metaData.Copyright, entity.SrcXmp)
@@ -437,7 +450,7 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 
 			// Update metadata details.
 			details.SetKeywords(metaData.Keywords.String(), entity.SrcMeta)
-			details.SetNotes(metaData.Notes, entity.SrcMeta)
+			//details.SetNotes(metaData.Notes, entity.SrcMeta)
 			details.SetSubject(metaData.Subject, entity.SrcMeta)
 			details.SetArtist(metaData.Artist, entity.SrcMeta)
 			details.SetCopyright(metaData.Copyright, entity.SrcMeta)
@@ -497,7 +510,7 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 
 			// Update metadata details.
 			details.SetKeywords(metaData.Keywords.String(), entity.SrcMeta)
-			details.SetNotes(metaData.Notes, entity.SrcMeta)
+			//details.SetNotes(metaData.Notes, entity.SrcMeta)
 			details.SetSubject(metaData.Subject, entity.SrcMeta)
 			details.SetArtist(metaData.Artist, entity.SrcMeta)
 			details.SetCopyright(metaData.Copyright, entity.SrcMeta)
@@ -608,7 +621,7 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 
 			// Update metadata details.
 			details.SetKeywords(metaData.Keywords.String(), entity.SrcMeta)
-			details.SetNotes(metaData.Notes, entity.SrcMeta)
+			//details.SetNotes(metaData.Notes, entity.SrcMeta)
 			details.SetSubject(metaData.Subject, entity.SrcMeta)
 			details.SetArtist(metaData.Artist, entity.SrcMeta)
 			details.SetCopyright(metaData.Copyright, entity.SrcMeta)

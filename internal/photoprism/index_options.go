@@ -7,6 +7,7 @@ type IndexOptions struct {
 	Stack      bool
 	FacesOnly  bool
 	LabelsOnly bool
+	OcrOnly    bool
 }
 
 func (o *IndexOptions) SkipUnchanged() bool {
@@ -22,6 +23,7 @@ func IndexOptionsAll() IndexOptions {
 		Stack:      true,
 		FacesOnly:  false,
 		LabelsOnly: false,
+		OcrOnly:    false,
 	}
 
 	return result
@@ -36,6 +38,7 @@ func IndexOptionsFacesOnly() IndexOptions {
 		Stack:      true,
 		FacesOnly:  true,
 		LabelsOnly: false,
+		OcrOnly:    false,
 	}
 
 	return result
@@ -50,6 +53,7 @@ func IndexOptionsSingle() IndexOptions {
 		Stack:      false,
 		FacesOnly:  false,
 		LabelsOnly: false,
+		OcrOnly:    false,
 	}
 
 	return result
