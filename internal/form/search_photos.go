@@ -71,6 +71,7 @@ type SearchPhotos struct {
 	Offset    int       `form:"offset" serialize:"-"`                   // Result FILE offset
 	Order     string    `form:"order" serialize:"-"`                    // Sort order
 	Merged    bool      `form:"merged" serialize:"-"`                   // Merge FILES in response
+	Notes     string    `form:"notes"`
 	BeforeDay int       `form:"beforeday"`
 }
 

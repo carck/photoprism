@@ -106,6 +106,16 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 		s = s.Order("photos.taken_at desc")
 	}
 
+	if f.Notes != "" {
+		var pids []uint
+		if err = UnscopedDb().
+			Raw("select rowid from photo_search where notes match jieba_query(?) order by rank limit 100", f.Notes).
+			Pluck("rowid", &pids).Error; err != nil {
+			return results, 0, err
+		}
+		s = s.Where("photos.id in (?)", pids)
+	}
+
 	// Primary files only?
 	if f.Primary {
 		s = s.Where("files.file_primary = 1")
