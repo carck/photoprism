@@ -23,7 +23,7 @@ func (ind *Index) Ocr(jpeg *MediaFile) string {
 		return ""
 	}
 
-	resp, err := http.Get("http://localhost:8009?f=" + url.QueryEscape(thumbName))
+	resp, err := http.Get("http://localhost:8009/ocr?f=" + url.QueryEscape(thumbName))
 
 	if err != nil {
 		return ""
