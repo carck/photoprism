@@ -1252,7 +1252,7 @@ msgstr "列表"
 #: src/options/options.js:324 src/routes.js:187 src/share/photo/cards.vue:188
 #: src/share/photo/list.vue:165 src/share/photo/mosaic.vue:171
 msgid "Live"
-msgstr "生活"
+msgstr "Live"
 
 #: src/dialog/photo/details.vue:189 src/options/options.js:10
 msgid "Local Time"
@@ -1777,12 +1777,12 @@ msgstr "树莓"
 
 #: src/options/options.js:320
 msgid "Raw"
-msgstr "原始的"
+msgstr "RAW"
 
 #: src/component/photo/cards.vue:205 src/component/photo/mosaic.vue:180
 #: src/share/photo/cards.vue:178 src/share/photo/mosaic.vue:161
 msgid "RAW"
-msgstr "原始"
+msgstr "RAW"
 
 #: src/pages/settings/advanced.vue:96
 msgid "RAW Conversion"
