@@ -256,7 +256,7 @@ func RemoveOrphanMarkers() (removed int64, err error) {
 	}
 
 	if res := UnscopedDb().
-		Delete(&entity.MarkerBody{}, "marker_uid not in (select marker_uid from markers"); res.Error != nil {
+		Delete(&entity.MarkerBody{}, "marker_uid not in (select marker_uid from markers)"); res.Error != nil {
 		return removed, fmt.Errorf("markers: %s (purge orphans)", res.Error)
 	} else {
 		removed += res.RowsAffected
