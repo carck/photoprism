@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/dustin/go-humanize/english"
@@ -47,7 +48,7 @@ func ocrIndexAction(ctx *cli.Context) error {
 
 	var indexed fs.Done
 
-	subPath := ""
+	subPath := strings.TrimSpace(ctx.Args().First())
 
 	if w := service.Index(); w != nil {
 		opt := photoprism.IndexOptions{

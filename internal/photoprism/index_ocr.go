@@ -26,12 +26,16 @@ func (ind *Index) Ocr(jpeg *MediaFile) string {
 	resp, err := http.Get("http://localhost:8009/ocr?f=" + url.QueryEscape(thumbName))
 
 	if err != nil {
+		log.Debugf("index: %s in %s (ocr)", err, sanitize.Log(jpeg.BaseName()))
 		return ""
 	}
 
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
+	if err != nil {                                                                      log.Debugf("index: %s in %s (ocr)", err, sanitize.Log(jpeg.BaseName()))
+                return ""
+        }
 
 	log.Infof("index: ocr for %s [%s]", sanitize.Log(jpeg.BaseName()), time.Since(start))
 
