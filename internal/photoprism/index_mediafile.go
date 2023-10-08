@@ -324,7 +324,7 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 		photo.DeletedAt = nil
 	}
 
-	if o.OcrOnly && (!file.FilePrimary || !photoExists || !fileExists || !file.FilePrimary || file.FileError != "") {
+	if o.OcrOnly && (!photoExists || !fileExists || !file.FilePrimary || file.FileError != "") {
 		result.Status = IndexSkipped
 		return result
 	} else if file.FilePrimary {

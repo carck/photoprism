@@ -33,9 +33,10 @@ func (ind *Index) Ocr(jpeg *MediaFile) string {
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
-	if err != nil {                                                                      log.Debugf("index: %s in %s (ocr)", err, sanitize.Log(jpeg.BaseName()))
-                return ""
-        }
+	if err != nil {
+		log.Debugf("index: %s in %s (ocr)", err, sanitize.Log(jpeg.BaseName()))
+		return ""
+	}
 
 	log.Infof("index: ocr for %s [%s]", sanitize.Log(jpeg.BaseName()), time.Since(start))
 
