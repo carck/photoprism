@@ -109,6 +109,7 @@
 
               <v-card-title primary-title class="pa-3 card-details" style="user-select: none;" @click.stop.prevent="">
                 <v-edit-dialog
+                    v-if="visible"
                     :return-value.sync="label.Name"
                     lazy
                     class="inline-edit"

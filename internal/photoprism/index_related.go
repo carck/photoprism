@@ -29,7 +29,7 @@ func IndexMain(related *RelatedFiles, ind *Index, opt IndexOptions) (result Inde
 		return result
 	}
 
-	if f.NeedsExifToolJson() {
+	if f.NeedsExifToolJson() && !opt.IsPartial() {
 		if jsonName, err := ind.convert.ToJson(f); err != nil {
 			log.Debugf("index: %s in %s (extract metadata)", sanitize.Log(err.Error()), sanitize.Log(f.BaseName()))
 		} else if err := f.ReadExifToolJson(jsonName); err != nil {
@@ -91,7 +91,7 @@ func IndexRelated(related RelatedFiles, ind *Index, opt IndexOptions) (result In
 	} else if !result.Success() {
 		// Skip related files if indexing was not completely successful.
 		return result
-	} else if !result.Indexed() && !(opt.OcrOnly || opt.LabelsOnly || opt.FacesOnly) {
+	} else if !result.Indexed() && !opt.IsPartial() {
 		// Skip related files if main file was not indexed but for example skipped.
 		if related.Len() > 1 {
 			log.Debugf("index: %s has %s", related.MainLogName(), english.Plural(related.Count(), "related file", "related files"))
@@ -126,7 +126,7 @@ func IndexRelated(related RelatedFiles, ind *Index, opt IndexOptions) (result In
 			continue
 		}
 
-		if f.NeedsExifToolJson() {
+		if f.NeedsExifToolJson() && !opt.IsPartial() {
 			if jsonName, err := ind.convert.ToJson(f); err != nil {
 				log.Debugf("index: %s in %s (extract metadata)", sanitize.Log(err.Error()), sanitize.Log(f.BaseName()))
 			} else if err := f.ReadExifToolJson(jsonName); err != nil {

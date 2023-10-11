@@ -14,6 +14,10 @@ func (o *IndexOptions) SkipUnchanged() bool {
 	return !o.Rescan
 }
 
+func (o *IndexOptions) IsPartial() bool {
+	return (o.OcrOnly || o.LabelsOnly || o.FacesOnly)
+}
+
 // IndexOptionsAll returns new index options with all options set to true.
 func IndexOptionsAll() IndexOptions {
 	result := IndexOptions{
