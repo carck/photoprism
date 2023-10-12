@@ -117,7 +117,7 @@ msgstr "添加到相册"
 
 #: src/dialog/photo/files.vue:171 src/dialog/photo/files.vue:168
 msgid "Added"
-msgstr "新增了"
+msgstr "索引日期"
 
 #: src/pages/settings.vue:52
 msgid "Advanced"
@@ -447,7 +447,7 @@ msgstr "更改私人标志"
 
 #: src/dialog/photo/info.vue:191
 msgid "Checked"
-msgstr "已确认"
+msgstr "扫描日期"
 
 #: src/options/options.js:181
 msgid "Chinese Simplified"
@@ -468,7 +468,7 @@ msgstr "关闭"
 
 #: src/dialog/photo/files.vue:95 src/dialog/photo/files.vue:92
 msgid "Codec"
-msgstr "解码器"
+msgstr "编码器"
 
 #: src/component/photo/toolbar.vue:325
 msgid "Color"
@@ -476,7 +476,7 @@ msgstr "颜色"
 
 #: src/dialog/photo/files.vue:145 src/dialog/photo/files.vue:142
 msgid "Color Profile"
-msgstr "颜色简介"
+msgstr "颜色空间"
 
 #: src/pages/discover.vue:4
 msgid "Colors"
@@ -484,7 +484,7 @@ msgstr "颜色"
 
 #: src/pages/library/index.vue:123
 msgid "Complete Rescan"
-msgstr "完全重新扫描"
+msgstr "强制重新扫描"
 
 #: src/dialog/photo/labels.vue:19
 msgid "Confidence"
@@ -542,7 +542,7 @@ msgstr "新增相册"
 
 #: src/dialog/photo/info.vue:167
 msgid "Created"
-msgstr "已新增"
+msgstr "创建日期"
 
 #: src/pages/library/index.vue:173
 msgid "Creating thumbnails for"
@@ -2296,7 +2296,7 @@ msgstr "取消堆栈"
 #: src/dialog/photo/files.vue:180 src/dialog/photo/files.vue:177
 #: src/dialog/photo/info.vue:175
 msgid "Updated"
-msgstr "已更新"
+msgstr "更新日期"
 
 #: src/pages/library/index.vue:153
 msgid "Updating faces"
