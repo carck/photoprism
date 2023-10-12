@@ -870,7 +870,7 @@ func (m *Photo) SetPrimary(fileUID string) (err error) {
 	if fileUID != "" {
 		// Do nothing.
 	} else if err = Db().Model(File{}).
-		Where("photo_uid = ? AND file_type = 'jpg' AND file_missing = 0 AND file_error = ''", m.PhotoUID).
+		Where("photo_uid = ? AND file_type in ('jpg', 'heif') AND file_missing = 0 AND file_error = ''", m.PhotoUID).
 		Order("file_width DESC, file_hdr DESC").Limit(1).
 		Pluck("file_uid", &files).Error; err != nil {
 		return err

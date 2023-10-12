@@ -35,7 +35,7 @@ func FoldersByPath(rootName, rootPath, path string, recursive bool) (folders ent
 
 // FolderCoverByUID returns a folder cover file based on the uid.
 func FolderCoverByUID(uid string) (file entity.File, err error) {
-	if err := Db().Where("files.file_primary = 1 AND files.file_missing = 0 AND files.file_type = 'jpg' AND files.deleted_at IS NULL").
+	if err := Db().Where("files.file_primary = 1 AND files.file_missing = 0 AND files.file_type in ('jpg', 'heif') AND files.deleted_at IS NULL").
 		Joins("JOIN photos ON photos.id = files.photo_id AND photos.deleted_at IS NULL AND photos.photo_quality > -1").
 		Joins("JOIN folders ON photos.photo_path = folders.path AND folders.folder_uid = ?", uid).
 		Order("photos.photo_quality DESC").

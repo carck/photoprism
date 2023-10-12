@@ -284,7 +284,7 @@ func (ind *Index) MediaFile(m *MediaFile, o IndexOptions, originalName, photoUID
 	// Flag first JPEG as primary file for this photo.
 	if !file.FilePrimary {
 		if photoExists {
-			if res := entity.UnscopedDb().Where("photo_id = ? AND file_primary = 1 AND file_type = 'jpg' AND file_error = ''", photo.ID).First(&primaryFile); res.Error != nil {
+			if res := entity.UnscopedDb().Where("photo_id = ? AND file_primary = 1 AND file_type in ('jpg','heif') AND file_error = ''", photo.ID).First(&primaryFile); res.Error != nil {
 				file.FilePrimary = m.IsJpeg() || m.IsHEIF()
 			}
 		} else {
