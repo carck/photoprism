@@ -226,7 +226,7 @@ func (t *TensorFlow) bestLabels(probabilities []float32) Labels {
 		}
 
 		// discard labels with low probabilities
-		if p < 0.8 {
+		if p < 0.82 {
 			continue
 		}
 
