@@ -186,6 +186,13 @@ export default {
             customAttribution: this.attribution,
             zoom: 0,
           };
+          mapOptions = {
+            container: "map",
+            style: "https://cdn.photoprism.app/maps/default.json",
+            glyphs: `https://cdn.photoprism.app/maps/font/{fontstack}/{range}.pbf`,
+            attributionControl: true,
+            zoom: 0,
+          };
         }
 
         this.filter = filter;
