@@ -33,6 +33,7 @@ type TensorFlow struct {
 	modelName   string
 	modelFile   string
 	labels      []string
+	ignores     map[string]bool
 	inBytes     []byte
 	inFloats    []float32
 	outFloats   []float32
@@ -121,8 +122,8 @@ func (t *TensorFlow) Labels(img []byte) (result Labels, err error) {
 	return result, nil
 }
 
-func (t *TensorFlow) loadLabels(path string) error {
-	modelLabels := path + "/labels.txt"
+func (t *TensorFlow) loadLabels(path string, file string) ([]string, error) {
+	modelLabels := path + "/" + file
 
 	log.Infof("classify: loading labels from labels.txt")
 
@@ -130,23 +131,24 @@ func (t *TensorFlow) loadLabels(path string) error {
 	f, err := os.Open(modelLabels)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	defer f.Close()
 
 	scanner := bufio.NewScanner(f)
 
+	var labels []string
 	// Labels are separated by newlines
 	for scanner.Scan() {
-		t.labels = append(t.labels, scanner.Text())
+		labels = append(labels, scanner.Text())
 	}
 
 	if err := scanner.Err(); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return labels, nil
 }
 
 // ModelLoaded tests if the TensorFlow model is loaded.
@@ -212,7 +214,20 @@ func (t *TensorFlow) loadModel() error {
 
 	t.interpreter = interpreter
 
-	return t.loadLabels(modelPath)
+	if labels, err := t.loadLabels(modelPath, "labels.txt"); err != nil {
+		return err
+	} else {
+		t.labels = labels
+	}
+
+	if labels, err := t.loadLabels(modelPath, "ignores.txt"); err != nil {
+		return err
+	} else {
+		for _, element := range labels {
+			t.ignores[element] = true
+		}
+	}
+	return nil
 }
 
 // bestLabels returns the best 5 labels (if enough high probability labels) from the prediction of the model
@@ -231,6 +246,10 @@ func (t *TensorFlow) bestLabels(probabilities []float32) Labels {
 		}
 
 		labelText := strings.ToLower(t.labels[i])
+
+		if _, ok := t.ignores[labelText]; ok {
+			continue
+		}
 
 		uncertainty := 100 - int(math.Round(float64(p*100)))
 
