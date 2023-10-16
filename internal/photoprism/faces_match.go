@@ -106,7 +106,7 @@ func (w *Faces) MatchFaces(faces entity.Faces, force bool, matchedBefore *time.T
 			}
 
 			// Skip invalid markers.
-			if marker.MarkerInvalid || marker.MarkerType != entity.MarkerFace || len(marker.MarkerBody.EmbeddingsJSON) == 0 {
+			if marker.MarkerInvalid || marker.MarkerType != entity.MarkerFace || len(marker.EmbeddingsJSON) == 0 {
 				continue
 			}
 
