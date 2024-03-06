@@ -22,7 +22,7 @@ import (
 func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, err error) {
 	s := UnscopedDb()
 	s = s.Table("photos").
-		Select(`photos.photo_uid, photos.taken_at, files.file_hash ,photos.photo_type `).
+		Select(`photos.photo_uid, photos.taken_at, files.file_hash ,photos.photo_type, photos.photo_name`).
 		Where("+photos.deleted_at is NULL").
 		Order("photos.taken_at DESC, photos.photo_uid DESC")
 

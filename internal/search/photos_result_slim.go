@@ -11,4 +11,5 @@ type PhotoSlim struct {
 	PhotoType string    `json:"Type"`
 	TakenAt   time.Time `json:"TakenAt"`
 	FileHash  string    `json:"Hash"`
+	PhotoName string    `json:"Name"`
 }
