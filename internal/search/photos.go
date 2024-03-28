@@ -41,6 +41,10 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 		s = s.Joins("CROSS JOIN files ON photos.id = files.photo_id AND files.file_primary = 1")
 	}
 
+	if !f.Before.IsZero() {
+		s = s.Where("photos.taken_at <= ?", f.Before.Format("2006-01-02"))
+	}
+
 	if f.Count > 0 && f.Count <= MaxResults {
 		s = s.Limit(f.Count).Offset(f.Offset)
 	} else {
