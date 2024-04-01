@@ -318,6 +318,10 @@ func (c *Config) GuestConfig() ClientConfig {
 
 // UserConfig returns client configuration options for registered users.
 func (c *Config) UserConfig() ClientConfig {
+	return c.UserConfigFull(false)
+}
+
+func (c *Config) UserConfigFull(counterless bool) ClientConfig {
 	assets := c.ClientAssets()
 
 	result := ClientConfig{
@@ -377,6 +381,10 @@ func (c *Config) UserConfig() ClientConfig {
 		ManifestUri:     c.ClientManifestUri(),
 		Clip:            txt.ClipDefault,
 		Server:          NewRuntimeInfo(),
+	}
+
+	if counterless {
+		return result
 	}
 
 	c.Db().

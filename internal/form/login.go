@@ -1,10 +1,11 @@
 package form
 
 type Login struct {
-	Email    string `json:"email"`
-	UserName string `json:"username"`
-	Password string `json:"password"`
-	Token    string `json:"token"`
+	Email       string `json:"email"`
+	UserName    string `json:"username"`
+	Password    string `json:"password"`
+	Token       string `json:"token"`
+	Counterless bool   `json:"counterless"`
 }
 
 func (f Login) HasToken() bool {

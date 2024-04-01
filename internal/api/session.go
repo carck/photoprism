@@ -83,7 +83,7 @@ func CreateSession(router *gin.RouterGroup) {
 		if data.User.Anonymous() {
 			c.JSON(http.StatusOK, gin.H{"status": "ok", "id": id, "data": data, "config": conf.GuestConfig()})
 		} else {
-			c.JSON(http.StatusOK, gin.H{"status": "ok", "id": id, "data": data, "config": conf.UserConfig()})
+			c.JSON(http.StatusOK, gin.H{"status": "ok", "id": id, "data": data, "config": conf.UserConfigFull(f.Counterless)})
 		}
 	})
 }
