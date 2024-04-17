@@ -223,6 +223,7 @@ func (t *TensorFlow) loadModel() error {
 	if labels, err := t.loadLabels(modelPath, "ignores.txt"); err != nil {
 		return err
 	} else {
+		t.ignores = make(map[string]bool)
 		for _, element := range labels {
 			t.ignores[element] = true
 		}
