@@ -6,7 +6,6 @@ require (
 	github.com/carck/libfacedetection-go v0.0.0-20210828012513-6e0c3e17ec60
 	github.com/carck/onnx-runtime-go v0.0.0-20211030090643-75ef2b0cd463
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
-	github.com/disintegration/imaging v1.6.2
 	github.com/djherbis/times v1.6.0
 	github.com/dsoprea/go-exif/v3 v3.0.1
 	github.com/dsoprea/go-heic-exif-extractor/v2 v2.0.0-20210512044107-62067e44c235
@@ -68,6 +67,7 @@ require (
 )
 
 require (
+	github.com/carck/jpegli-go v1.0.0
 	github.com/carck/libheif v1.12.1-0.20230603041326-eec491e5a751
 	github.com/valyala/gozstd v1.20.1
 )

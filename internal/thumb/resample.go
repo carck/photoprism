@@ -3,7 +3,7 @@ package thumb
 import (
 	"image"
 
-	"github.com/disintegration/imaging"
+	"github.com/photoprism/photoprism/pkg/imaging"
 )
 
 // Resample downscales an image and returns it.

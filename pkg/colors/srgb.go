@@ -2,7 +2,6 @@ package colors
 
 import (
 	"image"
-	_ "image/jpeg"
 	"runtime"
 
 	"github.com/mandykoh/prism"

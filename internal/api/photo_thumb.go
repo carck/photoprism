@@ -153,23 +153,23 @@ func GetThumb(router *gin.RouterGroup) {
 
 		fileName := photoprism.FileName(f.FileRoot, f.FileName)
 		/*
-		if !fs.FileExists(fileName) {
-			log.Errorf("%s: file %s is missing", logPrefix, sanitize.Log(f.FileName))
-			c.Data(http.StatusOK, "image/svg+xml", brokenIconSvg)
+			if !fs.FileExists(fileName) {
+				log.Errorf("%s: file %s is missing", logPrefix, sanitize.Log(f.FileName))
+				c.Data(http.StatusOK, "image/svg+xml", brokenIconSvg)
 
-			// Set missing flag so that the file doesn't show up in search results anymore.
-			logError(logPrefix, f.Update("FileMissing", true))
+				// Set missing flag so that the file doesn't show up in search results anymore.
+				logError(logPrefix, f.Update("FileMissing", true))
 
-			if f.AllFilesMissing() {
-				log.Infof("%s: deleting photo, all files missing for %s", logPrefix, sanitize.Log(f.FileName))
+				if f.AllFilesMissing() {
+					log.Infof("%s: deleting photo, all files missing for %s", logPrefix, sanitize.Log(f.FileName))
 
-				if _, err := f.RelatedPhoto().Delete(false); err != nil {
-					log.Errorf("%s: %s while deleting %s", logPrefix, err, sanitize.Log(f.FileName))
+					if _, err := f.RelatedPhoto().Delete(false); err != nil {
+						log.Errorf("%s: %s while deleting %s", logPrefix, err, sanitize.Log(f.FileName))
+					}
 				}
-			}
 
-			return
-		}
+				return
+			}
 		*/
 
 		// Use original file if thumb size exceeds limit, see https://github.com/photoprism/photoprism/issues/157

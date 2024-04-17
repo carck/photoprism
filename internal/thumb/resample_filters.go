@@ -1,6 +1,6 @@
 package thumb
 
-import "github.com/disintegration/imaging"
+import "github.com/photoprism/photoprism/pkg/imaging"
 
 const (
 	ResampleBlackman ResampleFilter = "blackman"

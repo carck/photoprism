@@ -1,8 +1,8 @@
 package thumb
 
 import (
-	"github.com/disintegration/imaging"
 	"github.com/photoprism/photoprism/pkg/fs"
+	"github.com/photoprism/photoprism/pkg/imaging"
 )
 
 type ResampleOption int

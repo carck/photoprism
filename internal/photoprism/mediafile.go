@@ -14,10 +14,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/disintegration/imaging"
 	"github.com/djherbis/times"
 	"github.com/dustin/go-humanize/english"
 	"github.com/mandykoh/prism/meta/autometa"
+	"github.com/photoprism/photoprism/pkg/imaging"
 
 	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/meta"

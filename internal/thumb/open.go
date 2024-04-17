@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"image"
 	_ "image/gif"
-	_ "image/jpeg"
 	_ "image/png"
 
+	_ "github.com/carck/jpegli-go"
 	"github.com/carck/libheif/go/heif"
-	"github.com/disintegration/imaging"
 	"github.com/mandykoh/prism/meta/icc"
+	"github.com/photoprism/photoprism/pkg/imaging"
 
 	"github.com/photoprism/photoprism/pkg/colors"
 	"github.com/photoprism/photoprism/pkg/fs"

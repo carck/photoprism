@@ -2,15 +2,15 @@ package thumb
 
 import (
 	"fmt"
+	_ "github.com/carck/jpegli-go"
 	"image"
 	_ "image/gif"
-	_ "image/jpeg"
 	_ "image/png"
 	"os"
 	"path/filepath"
 
-	"github.com/disintegration/imaging"
 	"github.com/mandykoh/prism/meta/autometa"
+	"github.com/photoprism/photoprism/pkg/imaging"
 
 	"github.com/photoprism/photoprism/pkg/colors"
 	"github.com/photoprism/photoprism/pkg/sanitize"

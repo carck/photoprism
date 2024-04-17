@@ -6,7 +6,7 @@ package face
 import (
 	_ "embed"
 	"fmt"
-	_ "image/jpeg"
+	_ "github.com/carck/jpegli-go"
 	"io"
 	"os"
 	"path/filepath"

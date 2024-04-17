@@ -11,7 +11,6 @@ import (
 
 	"github.com/photoprism/photoprism/pkg/sanitize"
 
-	"github.com/disintegration/imaging"
 	"github.com/gin-gonic/gin"
 	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/form"
@@ -20,6 +19,7 @@ import (
 	"github.com/photoprism/photoprism/internal/service"
 	"github.com/photoprism/photoprism/internal/thumb"
 	"github.com/photoprism/photoprism/pkg/fs"
+	"github.com/photoprism/photoprism/pkg/imaging"
 )
 
 // SharePreview returns a link share preview image.

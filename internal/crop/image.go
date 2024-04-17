@@ -11,9 +11,9 @@ import (
 	"strings"
 
 	"github.com/carck/gg"
-	"github.com/disintegration/imaging"
 	"github.com/photoprism/photoprism/internal/thumb"
 	"github.com/photoprism/photoprism/pkg/fs"
+	"github.com/photoprism/photoprism/pkg/imaging"
 	"github.com/photoprism/photoprism/pkg/sanitize"
 	"golang.org/x/image/draw"
 )

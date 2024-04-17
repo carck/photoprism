@@ -6,7 +6,7 @@ import (
 
 	"github.com/photoprism/photoprism/pkg/txt"
 
-	"github.com/disintegration/imaging"
+	"github.com/photoprism/photoprism/pkg/imaging"
 )
 
 // Quality represents a JPEG image quality.

@@ -4,7 +4,7 @@ import (
 	"image"
 	"path/filepath"
 
-	"github.com/disintegration/imaging"
+	"github.com/photoprism/photoprism/pkg/imaging"
 	"github.com/photoprism/photoprism/pkg/sanitize"
 )
 

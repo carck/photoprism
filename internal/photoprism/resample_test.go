@@ -7,11 +7,11 @@ import (
 
 	"github.com/photoprism/photoprism/internal/face"
 
-	"github.com/disintegration/imaging"
 	"github.com/photoprism/photoprism/internal/classify"
 	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/nsfw"
 	"github.com/photoprism/photoprism/internal/thumb"
+	"github.com/photoprism/photoprism/pkg/imaging"
 
 	"github.com/photoprism/photoprism/internal/config"
 	"github.com/stretchr/testify/assert"

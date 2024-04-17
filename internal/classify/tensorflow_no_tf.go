@@ -18,9 +18,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/disintegration/imaging"
 	"github.com/mattn/go-tflite"
 	"github.com/mattn/go-tflite/delegates/xnnpack"
+	"github.com/photoprism/photoprism/pkg/imaging"
 	"github.com/photoprism/photoprism/pkg/txt"
 )
 

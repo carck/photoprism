@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/disintegration/imaging"
+	"github.com/photoprism/photoprism/pkg/imaging"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/photoprism/photoprism/pkg/fs"

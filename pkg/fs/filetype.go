@@ -1,9 +1,6 @@
 package fs
 
 import (
-	_ "image/gif" // Import for image.
-	_ "image/jpeg"
-	_ "image/png"
 	"os"
 	"path/filepath"
 	"strings"
