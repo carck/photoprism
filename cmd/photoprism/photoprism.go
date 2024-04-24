@@ -26,6 +26,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/carck/vips-thumbnail-go"
 	"github.com/carck/libheif/go/heif"
 	"github.com/photoprism/photoprism/internal/commands"
 	"github.com/photoprism/photoprism/internal/config"
@@ -45,6 +46,9 @@ func main() {
 			os.Exit(1)
 		}
 	}()
+
+	vips.Start()
+	defer vips.Shutdown()
 
 	app := cli.NewApp()
 	app.Name = "PhotoPrism"

@@ -1007,8 +1007,8 @@ func (m *MediaFile) ResampleDefault(thumbPath string, force bool) (err error) {
 
 	hash := m.Hash()
 
-	var originalImg image.Image
-	var sourceImg image.Image
+	originalImg := m.FileName()
+	sourceImg := ""
 	var sourceName thumb.Name
 
 	for _, name := range thumb.DefaultSizes {
@@ -1028,25 +1028,14 @@ func (m *MediaFile) ResampleDefault(thumbPath string, force bool) (err error) {
 				continue
 			}
 
-			if originalImg == nil {
-				img, err := thumb.Open(m.FileName(), m.Orientation())
-
-				if err != nil {
-					log.Debugf("media: %s in %s", err.Error(), sanitize.Log(m.BaseName()))
-					return err
-				}
-
-				originalImg = img
-			}
-
 			if size.Source != "" {
-				if size.Source == sourceName && sourceImg != nil {
-					_, err = thumb.Create(sourceImg, fileName, size.Width, size.Height, size.Options...)
+				if size.Source == sourceName && sourceImg != "" {
+					_, err = thumb.CreateVips(sourceImg, fileName, size.Width, size.Height, size.Options...)
 				} else {
-					_, err = thumb.Create(originalImg, fileName, size.Width, size.Height, size.Options...)
+					_, err = thumb.CreateVips(originalImg, fileName, size.Width, size.Height, size.Options...)
 				}
 			} else {
-				sourceImg, err = thumb.Create(originalImg, fileName, size.Width, size.Height, size.Options...)
+				sourceImg, err = thumb.CreateVips(originalImg, fileName, size.Width, size.Height, size.Options...)
 				sourceName = name
 			}
 
