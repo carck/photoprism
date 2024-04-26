@@ -880,7 +880,7 @@ func (m *MediaFile) Width() int {
 
 	if m.width < 0 {
 		if err := m.decodeDimensions(); err != nil {
-			log.Debugf("media: %s", err)
+			log.Debugf("media: %s %s", err, m.FileName())
 		}
 	}
 
