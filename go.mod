@@ -15,7 +15,6 @@ require (
 	github.com/dsoprea/go-png-image-structure/v2 v2.0.0-20210512210324-29b889a6093d
 	github.com/dsoprea/go-tiff-image-structure/v2 v2.0.0-20221003165014-8ecc4f52edca
 	github.com/dustin/go-humanize v1.0.1
-	github.com/esimov/pigo v1.4.5
 	github.com/gin-contrib/gzip v1.0.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-errors/errors v1.5.1 // indirect
@@ -50,7 +49,6 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.9.0
 	github.com/studio-b12/gowebdav v0.0.0-20211106090535-29e74efa701f
-	github.com/tensorflow/tensorflow v1.15.2
 	github.com/tidwall/gjson v1.17.1
 	github.com/ulule/deepcopier v0.0.0-20200430083143-45decc6639b6
 	github.com/urfave/cli v1.22.14

@@ -6,12 +6,11 @@ package config
 import (
 	"path/filepath"
 
-	tf "github.com/tensorflow/tensorflow/tensorflow/go"
 )
 
 // TensorFlowVersion returns the TenorFlow framework version.
 func (c *Config) TensorFlowVersion() string {
-	return tf.Version()
+	return "1.0.0"
 }
 
 // TensorFlowModelPath returns the TensorFlow model path.
