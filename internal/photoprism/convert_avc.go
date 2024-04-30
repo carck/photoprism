@@ -147,6 +147,7 @@ func (c *Convert) AvcConvertCommand(f *MediaFile, avcName, encoderName string) (
 				"-g", "60",
 				"-f", "mp4",
 				"-blocksize", "8192",
+				"-c:v", "h264_mediacodec",
 				"-y",
 				avcName,
 			)
