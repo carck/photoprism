@@ -143,9 +143,10 @@ func (c *Convert) AvcConvertCommand(f *MediaFile, avcName, encoderName string) (
 				"-ndk_codec", "1",
 				"-b:v", "3000k",
 				"-v", "quiet",
-				"-movflags", "frag_keyframe",
+				"-movflags", "frag_keyframe+isml",
 				"-g", "60",
 				"-f", "mp4",
+				"-blocksize", "8192",
 				"-y",
 				avcName,
 			)

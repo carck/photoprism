@@ -461,7 +461,7 @@ export class Photo extends RestModel {
     }
 
     const loop = this.Type === MediaAnimated || (file.Duration >= 0 && file.Duration <= 5000000000);
-    const poster = this.thumbnailUrl("fit_720");
+    const poster = this.thumbnailUrl("fit_1280");
     const error = false;
 
     return { width, height, loop, poster, uri, error };
