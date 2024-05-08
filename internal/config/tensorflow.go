@@ -5,7 +5,6 @@ package config
 
 import (
 	"path/filepath"
-
 )
 
 // TensorFlowVersion returns the TenorFlow framework version.

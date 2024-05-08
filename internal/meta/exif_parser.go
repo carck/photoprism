@@ -6,8 +6,8 @@ import (
 	"runtime/debug"
 	"strings"
 
+	"github.com/carck/libheif-go"
 	"github.com/dsoprea/go-exif/v3"
-	heicexif "github.com/dsoprea/go-heic-exif-extractor/v2"
 	jpegstructure "github.com/dsoprea/go-jpeg-image-structure/v2"
 	pngstructure "github.com/dsoprea/go-png-image-structure/v2"
 	tiffstructure "github.com/dsoprea/go-tiff-image-structure/v2"
@@ -72,24 +72,15 @@ func RawExif(fileName string, fileType fs.FileFormat, bruteForce bool) (rawExif 
 			}
 		}
 	} else if fileType == fs.FormatHEIF {
-		heicMp := heicexif.NewHeicExifMediaParser()
 
-		cs, err := heicMp.ParseFile(fileName)
+		cs, err := heif.ReadExif(fileName)
 
 		if err != nil {
 			return rawExif, fmt.Errorf("%s while parsing heic file", err)
 		} else {
-			_, rawExif, err = cs.Exif()
+			rawExif = cs
 
-			if err != nil {
-				if err.Error() == "file does not have EXIF" || strings.HasPrefix(err.Error(), "no exif data") {
-					return rawExif, fmt.Errorf("found no exif header")
-				} else {
-					log.Infof("metadata: %s in %s (parse heic)", err, logName)
-				}
-			} else {
-				parsed = true
-			}
+			parsed = true
 		}
 	} else if fileType == fs.FormatTiff {
 		tiffMp := tiffstructure.NewTiffMediaParser()

@@ -6,7 +6,6 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/djherbis/times v1.6.0
 	github.com/dsoprea/go-exif/v3 v3.0.1
-	github.com/dsoprea/go-heic-exif-extractor/v2 v2.0.0-20210512044107-62067e44c235
 	github.com/dsoprea/go-iptc v0.0.0-20200610044640-bc9ca208b413 // indirect
 	github.com/dsoprea/go-jpeg-image-structure/v2 v2.0.0-20210512043942-b434301c6836
 	github.com/dsoprea/go-photoshop-info-format v0.0.0-20200610045659-121dd752914d // indirect
@@ -50,7 +49,6 @@ require (
 	github.com/tidwall/gjson v1.17.1
 	github.com/ulule/deepcopier v0.0.0-20200430083143-45decc6639b6
 	github.com/urfave/cli v1.22.14
-	go4.org v0.0.0-20230225012048-214862532bf5 // indirect
 	golang.org/x/crypto v0.22.0
 	golang.org/x/image v0.14.0
 	golang.org/x/net v0.24.0
@@ -64,7 +62,7 @@ require (
 
 require (
 	github.com/carck/jpegli-go v1.0.3
-	github.com/carck/libheif v1.12.1-0.20230603041326-eec491e5a751
+	github.com/carck/libheif-go v1.0.2
 	github.com/carck/vips-thumbnail-go v1.0.1
 	github.com/valyala/gozstd v1.20.1
 )
@@ -86,6 +84,7 @@ require (
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
+	github.com/kr/pretty v0.1.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mandykoh/go-parallel v0.1.0 // indirect
 	github.com/mattn/go-pointer v0.0.1 // indirect
@@ -98,6 +97,7 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	golang.org/x/arch v0.7.0 // indirect
+	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 

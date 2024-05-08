@@ -26,8 +26,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/carck/libheif-go"
 	"github.com/carck/vips-thumbnail-go"
-	"github.com/carck/libheif/go/heif"
 	"github.com/photoprism/photoprism/internal/commands"
 	"github.com/photoprism/photoprism/internal/config"
 	"github.com/photoprism/photoprism/internal/event"

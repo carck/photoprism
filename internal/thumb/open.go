@@ -8,7 +8,7 @@ import (
 	_ "image/png"
 
 	_ "github.com/carck/jpegli-go"
-	"github.com/carck/libheif/go/heif"
+	"github.com/carck/libheif-go"
 	"github.com/mandykoh/prism/meta/icc"
 	"github.com/photoprism/photoprism/pkg/imaging"
 
