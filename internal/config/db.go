@@ -1,6 +1,8 @@
 package config
 
 import (
+	"database/sql"
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"os"
@@ -14,6 +16,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/mattn/go-sqlite3"
 	"github.com/photoprism/photoprism/internal/entity"
 	"github.com/photoprism/photoprism/internal/mutex"
 )
@@ -23,6 +26,19 @@ var dsnPattern = regexp.MustCompile(
 		`(?:(?P<net>[^\(]*)(?:\((?P<server>[^\)]*)\))?)?` +
 		`\/(?P<name>.*?)` +
 		`(?:\?(?P<params>[^\?]*))?$`)
+
+func init() {
+	sql.Register("sqlite3",
+		&sqlite3.SQLiteDriver{
+			Extensions: []string{
+				"libsimple/libsimple",
+			},
+			ConnectHook: func(conn *sqlite3.SQLiteConn) error {
+				_, err := conn.Exec("PRAGMA mmap_size = 1073741824;", []driver.Value{})
+				return err
+			},
+		})
+}
 
 // DatabaseDriver returns the database driver name.
 func (c *Config) DatabaseDriver() string {
