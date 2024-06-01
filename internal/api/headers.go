@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	ContentTypeAvc = `video/mp4; codecs="avc1"`
+	ContentTypeAvc    = `video/mp4; codecs="avc1"`
+	ContentTypeBinary = "application/octet-stream"
 )
 
 // AddCacheHeader adds a cache control header to the response.

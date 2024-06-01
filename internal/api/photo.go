@@ -341,3 +341,25 @@ func PhotoPrimary(router *gin.RouterGroup) {
 		c.JSON(http.StatusOK, p)
 	})
 }
+
+func PhotoSync(router *gin.RouterGroup) {
+	router.GET("/database/sync.db", func(c *gin.Context) {
+		s := Auth(SessionID(c), acl.ResourcePhotos, acl.ActionUpdate)
+
+		if s.Invalid() {
+			AbortUnauthorized(c)
+			return
+		}
+
+		if !fs.FileExists("up.db") {
+			AbortEntityNotFound(c)
+			return
+		}
+
+		AddContentTypeHeader(c, ContentTypeBinary)
+
+		AddDownloadHeader(c, "photos.db")
+
+		c.File("up.db")
+	})
+}
