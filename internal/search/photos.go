@@ -45,6 +45,10 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 		s = s.Where("photos.taken_at <= ?", f.Before.Format("2006-01-02"))
 	}
 
+	if f.Notes != "" {
+		s = s.Where("photo.id in (select rowid from photo_search where notes match jieba_query(?))", f.Notes)
+	}
+
 	if f.Count > 0 && f.Count <= MaxResults {
 		s = s.Limit(f.Count).Offset(f.Offset)
 	} else {
