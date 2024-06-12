@@ -46,7 +46,16 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 	}
 
 	if f.Notes != "" {
-		s = s.Where("photo.id in (select rowid from photo_search where notes match jieba_query(?))", f.Notes)
+		s = s.Where("photos.id in (select rowid from photo_search where notes match jieba_query(?))", f.Notes)
+	}
+
+	if txt.NotEmpty(f.Country) {
+		s = s.Where("photos.photo_country IN (?)", strings.Split(strings.ToLower(f.Country), txt.Or))
+	}
+
+	if txt.NotEmpty(f.State) {
+		s = s.Joins("JOIN places ON photos.place_id = place.id")
+		s = s.Where("places.place_city IN (?)", strings.Split(f.State, txt.Or))
 	}
 
 	if f.Count > 0 && f.Count <= MaxResults {
