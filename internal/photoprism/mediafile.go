@@ -95,6 +95,18 @@ func (m *MediaFile) ModTime() time.Time {
 	return modTime
 }
 
+func (m *MediaFile) SetModTime(modTime time.Time) *MediaFile {
+	modTime = modTime.UTC()
+
+	if err := os.Chtimes(m.FileName(), time.Time{}, modTime); err != nil {
+		log.Debugf("media: failed to set mtime for %s (%s)", clean.Log(m.RootRelName()), clean.Error(err))
+	} else {
+		m.modTime = modTime
+	}
+
+	return m
+}
+
 // FileSize returns the file size in bytes.
 func (m *MediaFile) FileSize() int64 {
 	fileSize, _, _ := m.Stat()
@@ -582,11 +594,13 @@ func (m *MediaFile) Move(dest string) error {
 		return err
 	}
 
+	modTime := m.ModTime()
+	
 	if err := os.Rename(m.fileName, dest); err != nil {
 		log.Debugf("failed renaming file, fallback to copy and delete: %s", err.Error())
 	} else {
 		m.SetFileName(dest)
-
+		m.SetModTime(modTime)
 		return nil
 	}
 
