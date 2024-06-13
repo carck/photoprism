@@ -99,7 +99,7 @@ func (m *MediaFile) SetModTime(modTime time.Time) *MediaFile {
 	modTime = modTime.UTC()
 
 	if err := os.Chtimes(m.FileName(), time.Time{}, modTime); err != nil {
-		log.Debugf("media: failed to set mtime for %s (%s)", clean.Log(m.RootRelName()), clean.Error(err))
+		log.Debugf("media: failed to set mtime for %s (%s)", m.RootRelName(), err)
 	} else {
 		m.modTime = modTime
 	}
@@ -595,7 +595,7 @@ func (m *MediaFile) Move(dest string) error {
 	}
 
 	modTime := m.ModTime()
-	
+
 	if err := os.Rename(m.fileName, dest); err != nil {
 		log.Debugf("failed renaming file, fallback to copy and delete: %s", err.Error())
 	} else {
