@@ -35,7 +35,7 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 		}
 	}
 	if f.Subject != "" {
-		s = s.Joins("JOIN files ON photos.id = files.photo_id AND files.file_primary = 1")
+		s = s.Joins("CROSS JOIN files ON photos.id = files.photo_id AND files.file_primary = 1")
 		s = s.Where("files.file_uid in (select file_uid from markers m where m.subj_uid = ?)", f.Subject)
 	} else {
 		s = s.Joins("CROSS JOIN files ON photos.id = files.photo_id AND files.file_primary = 1")
@@ -50,11 +50,11 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 	}
 
 	if txt.NotEmpty(f.Country) {
-		s = s.Where("photos.photo_country IN (?)", strings.Split(strings.ToLower(f.Country), txt.Or))
+		s = s.Where("+photos.photo_country IN (?)", strings.Split(strings.ToLower(f.Country), txt.Or))
 	}
 
 	if txt.NotEmpty(f.State) {
-		s = s.Joins("JOIN places ON photos.place_id = place.id")
+		s = s.Joins("JOIN places ON photos.place_id = places.id")
 		s = s.Where("places.place_city IN (?)", strings.Split(f.State, txt.Or))
 	}
 

@@ -8,6 +8,7 @@ type SearchPhotosSlim struct {
 	Album   string    `form:"album"`
 	Path    string    `form:"path"`
 	Notes   string    `fotm:"notes"`
+	Public  bool      `form:"public"`
 	Before  time.Time `form:"before" time_format:"2006-01-02"` // Finds images taken before date
 	Country string    `form:"country"`                         // Moments
 	State   string    `form:"state"`                           // Moments
