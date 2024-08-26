@@ -20,6 +20,7 @@ import (
 	"github.com/photoprism/photoprism/internal/mutex"
 	"github.com/photoprism/photoprism/internal/thumb"
 	"github.com/photoprism/photoprism/pkg/fs"
+	"github.com/photoprism/photoprism/pkg/list"
 	"github.com/photoprism/photoprism/pkg/sanitize"
 )
 
@@ -43,7 +44,7 @@ func NewConvert(conf *config.Config) *Convert {
 }
 
 // Start converts all files in a directory to JPEG if possible.
-func (c *Convert) Start(path string) (err error) {
+func (c *Convert) Start(path string, ext []string, force bool) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("convert: %s (panic)\nstack: %s", r, debug.Stack())
@@ -104,6 +105,11 @@ func (c *Convert) Start(path string) (err error) {
 				return result
 			}
 
+			// Process only files with specified extensions?
+			if list.Excludes(ext, fs.NormalizeExt(fileName)) {
+				return nil
+			}
+
 			f, err := NewMediaFile(fileName)
 
 			if err != nil || !(f.IsRaw() || f.IsImageOther() || f.IsVideo()) {
@@ -113,6 +119,7 @@ func (c *Convert) Start(path string) (err error) {
 			done[fileName] = fs.Processed
 
 			jobs <- ConvertJob{
+				force:   force,
 				file:    f,
 				convert: c,
 			}
@@ -225,6 +232,10 @@ func (c *Convert) JpegConvertCommand(f *MediaFile, jpegName string, xmpName stri
 
 // ToJpeg converts a single image file to JPEG if possible.
 func (c *Convert) ToJpeg(f *MediaFile) (*MediaFile, error) {
+	return c.ToJpegAdvance(f, false)
+}
+
+func (c *Convert) ToJpegAdvance(f *MediaFile, force bool) (*MediaFile, error) {
 	if f == nil {
 		return nil, fmt.Errorf("convert: file is nil - you might have found a bug")
 	}
@@ -241,7 +252,7 @@ func (c *Convert) ToJpeg(f *MediaFile) (*MediaFile, error) {
 
 	mediaFile, err := NewMediaFile(jpegName)
 
-	if err == nil && mediaFile.IsJpeg() {
+	if err == nil && mediaFile.IsJpeg() && !force {
 		return mediaFile, nil
 	}
 
@@ -290,7 +301,7 @@ func (c *Convert) ToJpeg(f *MediaFile) (*MediaFile, error) {
 		defer c.cmdMutex.Unlock()
 	}
 
-	if fs.FileExists(jpegName) {
+	if !force && fs.FileExists(jpegName) {
 		return NewMediaFile(jpegName)
 	}
 

@@ -7,6 +7,7 @@ import (
 )
 
 type ConvertJob struct {
+	force   bool
 	file    *MediaFile
 	convert *Convert
 }
@@ -30,11 +31,11 @@ func ConvertWorker(jobs <-chan ConvertJob) {
 				log.Errorf("convert: %s in %s (read metadata)", sanitize.Log(err.Error()), sanitize.Log(job.file.BaseName()))
 			}
 
-			if _, err := job.convert.ToJpeg(job.file); err != nil {
+			if _, err := job.convert.ToJpegAdvance(job.file, job.force); err != nil {
 				logError(err, job)
 			}
 		default:
-			if _, err := job.convert.ToJpeg(job.file); err != nil {
+			if _, err := job.convert.ToJpegAdvance(job.file, job.force); err != nil {
 				logError(err, job)
 			}
 		}
