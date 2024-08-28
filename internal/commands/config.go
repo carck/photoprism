@@ -35,6 +35,7 @@ func configAction(ctx *cli.Context) error {
 	fmt.Printf("%-25s %t\n", "experimental", conf.Experimental())
 
 	// Config.
+	fmt.Printf("%-25s %s\n", "export-command", conf.ExportCommand())
 	fmt.Printf("%-25s %s\n", "config-file", conf.ConfigFile())
 	fmt.Printf("%-25s %s\n", "config-path", conf.ConfigPath())
 	fmt.Printf("%-25s %s\n", "settings-file", conf.SettingsFile())

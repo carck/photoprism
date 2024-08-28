@@ -356,6 +356,11 @@ func (c *Config) SiteAuthor() string {
 	return c.options.SiteAuthor
 }
 
+// ExportCommand returns command for sync
+func (c *Config) ExportCommand() string {
+	return c.options.ExportCommand
+}
+
 // SiteTitle returns the main site title (default is application name).
 func (c *Config) SiteTitle() string {
 	if c.options.SiteTitle == "" {

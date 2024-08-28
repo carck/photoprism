@@ -567,4 +567,9 @@ var GlobalFlags = []cli.Flag{
 		EnvVar: "PHOTOPRISM_LOG_FILENAME",
 		Value:  "",
 	},
+	cli.StringFlag{
+		Name:   "export-command",
+		Usage:  "export command for sync",
+		EnvVar: "PHOTOPRISM_EXPORT_COMMAND",
+	},
 }

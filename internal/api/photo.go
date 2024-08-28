@@ -2,6 +2,8 @@ package api
 
 import (
 	"net/http"
+	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
@@ -351,7 +353,15 @@ func PhotoSync(router *gin.RouterGroup) {
 			return
 		}
 
-		if !fs.FileExists("up.db") {
+		file := filepath.Join(os.TempDir(), "up.db")
+
+		cfg := service.Config()
+		cmd := exec.Command(cfg.ExportCommand(), file)
+		if err := cmd.Run(); err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		if !fs.FileExists(file) {
 			AbortEntityNotFound(c)
 			return
 		}
@@ -360,6 +370,6 @@ func PhotoSync(router *gin.RouterGroup) {
 
 		AddDownloadHeader(c, "photos.db")
 
-		c.File("up.db")
+		c.File(file)
 	})
 }
