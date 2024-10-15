@@ -10,8 +10,10 @@ type SearchPhotosSlim struct {
 	Notes   string    `fotm:"notes"`
 	Public  bool      `form:"public"`
 	Before  time.Time `form:"before" time_format:"2006-01-02"` // Finds images taken before date
-	Country string    `form:"country"`                         // Moments
-	State   string    `form:"state"`                           // Moments
+	After   time.Time `form:"after" time_format:"2006-01-02"`
+	Country string    `form:"country"` // Moments
+	State   string    `form:"state"`   // Moments
 	Count   int       `form:"count" binding:"required" serialize:"-"`
 	Offset  int       `form:"offset" serialize:"-"`
+	Order   string    `form:"order" serialize:"-"`
 }

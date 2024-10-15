@@ -23,8 +23,14 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 	s := UnscopedDb()
 	s = s.Table("photos").
 		Select(`photos.photo_uid, photos.taken_at, files.file_hash ,photos.photo_type, photos.photo_name, photos.photo_title`).
-		Where("+photos.deleted_at is NULL").
-		Order("photos.taken_at DESC, photos.photo_uid DESC")
+		Where("+photos.deleted_at is NULL")
+
+	switch f.Order {
+	case entity.SortOrderOldest:
+		s = s.Order("photos.taken_at, photos.photo_uid")
+	default:
+		s = s.Order("photos.taken_at desc, photos.photo_uid desc")
+	}
 
 	if f.Album != "" {
 		if f.Path != "" {
@@ -43,6 +49,10 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 
 	if !f.Before.IsZero() {
 		s = s.Where("photos.taken_at <= ?", f.Before.Format("2006-01-02"))
+	}
+
+	if !f.After.IsZero() {
+		s = s.Where("photos.taken_at > ?", f.After.Format("2006-01-02"))
 	}
 
 	if f.Notes != "" {
