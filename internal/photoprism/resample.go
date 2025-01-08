@@ -13,6 +13,7 @@ import (
 	"github.com/photoprism/photoprism/internal/event"
 	"github.com/photoprism/photoprism/internal/mutex"
 	"github.com/photoprism/photoprism/pkg/fs"
+	"github.com/photoprism/photoprism/pkg/list"
 )
 
 // Resample represents a thumbnail generator worker.
@@ -26,7 +27,7 @@ func NewResample(conf *config.Config) *Resample {
 }
 
 // Start creates default thumbnails for all files in originalsPath.
-func (w *Resample) Start(force bool) (err error) {
+func (w *Resample) Start(dir string, ext []string, force bool) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("resample: %s (panic)\nstack: %s", r, debug.Stack())
@@ -41,6 +42,11 @@ func (w *Resample) Start(force bool) (err error) {
 	defer mutex.MainWorker.Stop()
 
 	originalsPath := w.conf.OriginalsPath()
+	originalsDir := filepath.Join(originalsPath, dir)
+
+	sidecarPath := w.conf.SidecarPath()
+	sidecarDir := filepath.Join(sidecarPath, dir)
+
 	thumbnailsPath := w.conf.ThumbPath()
 
 	jobs := make(chan ResampleJob)
@@ -67,56 +73,74 @@ func (w *Resample) Start(force bool) (err error) {
 		log.Infof(`resample: ignored "%s"`, fs.RelName(fileName, originalsPath))
 	}
 
-	err = godirwalk.Walk(originalsPath, &godirwalk.Options{
-		ErrorCallback: func(fileName string, err error) godirwalk.ErrorAction {
-			log.Errorf("resample: %s", strings.Replace(err.Error(), originalsPath, "", 1))
-			return godirwalk.SkipNode
-		},
-		Callback: func(fileName string, info *godirwalk.Dirent) error {
-			defer func() {
-				if r := recover(); r != nil {
-					log.Errorf("resample: %s (panic)\nstack: %s", r, debug.Stack())
-				}
-			}()
-
-			if mutex.MainWorker.Canceled() {
-				return errors.New("resample: canceled")
+	handler := func(fileName string, info *godirwalk.Dirent) error {
+		defer func() {
+			if r := recover(); r != nil {
+				log.Errorf("resample: %s (panic)\nstack: %s", r, debug.Stack())
 			}
+		}()
 
-			isDir := info.IsDir()
-			isSymlink := info.IsSymlink()
+		if mutex.MainWorker.Canceled() {
+			return errors.New("resample: canceled")
+		}
 
-			if skip, result := fs.SkipWalk(fileName, isDir, isSymlink, done, ignore); skip {
-				return result
-			}
+		isDir := info.IsDir()
+		isSymlink := info.IsSymlink()
 
-			mf, err := NewMediaFile(fileName)
+		if skip, result := fs.SkipWalk(fileName, isDir, isSymlink, done, ignore); skip {
+			return result
+		}
 
-			if err != nil || !mf.NeedsThumb() {
-				return nil
-			}
-
-			done[fileName] = fs.Processed
-
-			relativeName := mf.RelName(originalsPath)
-
-			event.Publish("index.thumbnails", event.Data{
-				"fileName": relativeName,
-				"baseName": filepath.Base(relativeName),
-				"force":    force,
-			})
-
-			jobs <- ResampleJob{
-				mediaFile: mf,
-				path:      thumbnailsPath,
-				force:     force,
-			}
-
+		// Process only files with specified extensions?
+		if list.Excludes(ext, fs.NormalizeExt(fileName)) {
 			return nil
-		},
+		}
+
+		mf, err := NewMediaFile(fileName)
+
+		if err != nil || !mf.NeedsThumb() {
+			return nil
+		}
+
+		done[fileName] = fs.Processed
+
+		relativeName := mf.RelName(originalsPath)
+
+		event.Publish("index.thumbnails", event.Data{
+			"fileName": relativeName,
+			"baseName": filepath.Base(relativeName),
+			"force":    force,
+		})
+
+		jobs <- ResampleJob{
+			mediaFile: mf,
+			path:      thumbnailsPath,
+			force:     force,
+		}
+
+		return nil
+	}
+
+	errCallback := func(fileName string, err error) godirwalk.ErrorAction {
+		log.Errorf("resample: %s", strings.Replace(err.Error(), originalsPath, "", 1))
+		return godirwalk.SkipNode
+	}
+
+	err = godirwalk.Walk(originalsDir, &godirwalk.Options{
+		ErrorCallback:       errCallback,
+		Callback:            handler,
 		Unsorted:            true,
 		FollowSymbolicLinks: true,
 	})
+
+	if err == nil {
+		err = godirwalk.Walk(sidecarDir, &godirwalk.Options{
+			ErrorCallback:       errCallback,
+			Callback:            handler,
+			Unsorted:            true,
+			FollowSymbolicLinks: true,
+		})
+	}
 
 	close(jobs)
 	wg.Wait()
