@@ -608,6 +608,10 @@ func (m *MediaFile) Move(dest string) error {
 		return err
 	}
 
+	if !modTime.IsZero() {
+		_ = os.Chtimes(dest, time.Time{}, modTime)
+	}
+
 	if err := os.Remove(m.fileName); err != nil {
 		return err
 	}
@@ -646,6 +650,12 @@ func (m *MediaFile) Copy(dest string) error {
 	if err != nil {
 		log.Error(err.Error())
 		return err
+	}
+
+	// Set modtime on the destination file to match the source
+	modTime := m.ModTime()
+	if !modTime.IsZero() {
+		_ = os.Chtimes(dest, time.Time{}, modTime)
 	}
 
 	return nil
@@ -986,7 +996,7 @@ func (m *MediaFile) Thumbnail(path string, sizeName thumb.Name) (filename string
 	thumbnail, err := thumb.FromFile(m.FileName(), m.Hash(), path, size.Width, size.Height, m.Orientation(), size.Options...)
 
 	if err != nil {
-		err = fmt.Errorf("media: failed creating thumbnail for %s (%s)", sanitize.Log(m.BaseName()), err)
+		err = fmt.Errorf("media: failed creating thumbnail for %s (%s)", sanitize.Log(m.BasePrefix(false)), err)
 		log.Debug(err)
 		return "", err
 	}

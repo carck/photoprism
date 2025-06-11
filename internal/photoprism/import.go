@@ -49,6 +49,10 @@ func (imp *Import) thumbPath() string {
 	return imp.conf.ThumbPath()
 }
 
+func (imp *Import) importPath() string {
+	return imp.conf.ImportPath()
+}
+
 // Start imports media files from a directory and converts/indexes them as needed.
 func (imp *Import) Start(opt ImportOptions) fs.Done {
 	defer func() {
@@ -272,7 +276,6 @@ func (imp *Import) Cancel() {
 func (imp *Import) DestinationFilename(mainFile *MediaFile, mediaFile *MediaFile) (string, error) {
 	fileName := mainFile.CanonicalName()
 	fileExtension := mediaFile.Extension()
-	dateCreated := mainFile.DateCreated()
 
 	if !mediaFile.IsSidecar() {
 		if f, err := entity.FirstFileByHash(mediaFile.Hash()); err == nil {
@@ -285,12 +288,9 @@ func (imp *Import) DestinationFilename(mainFile *MediaFile, mediaFile *MediaFile
 		}
 	}
 
-	//	Mon Jan 2 15:04:05 -0700 MST 2006
-	pathName := filepath.Join(imp.originalsPath(), dateCreated.Format("2006/01"))
-
 	iteration := 0
 
-	result := filepath.Join(pathName, fileName+fileExtension)
+	result := filepath.Join(imp.originalsPath(), mediaFile.RelName(imp.importPath()))
 
 	for fs.FileExists(result) {
 		if mediaFile.Hash() == fs.Hash(result) {
@@ -299,7 +299,7 @@ func (imp *Import) DestinationFilename(mainFile *MediaFile, mediaFile *MediaFile
 
 		iteration++
 
-		result = filepath.Join(pathName, fileName+"."+fmt.Sprintf("%05d", iteration)+fileExtension)
+		result = filepath.Join(filepath.Dir(result), fileName+"."+fmt.Sprintf("%05d", iteration)+fileExtension)
 	}
 
 	return result, nil
