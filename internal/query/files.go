@@ -188,3 +188,18 @@ func OrphanFiles() (files entity.Files, err error) {
 
 	return files, err
 }
+
+// FileByRootAndName finds a file entity for the given file root and file name.
+func FileByRootAndName(fileRoot, fileName string) (file entity.File, err error) {
+	if fileRoot == "" || fileName == "" {
+		return file, fmt.Errorf("fileRoot and fileName must not be empty")
+	}
+
+	if err := Db().Where("file_root = ? AND file_name = ?", fileRoot, fileName).
+		Where("files.file_missing = 0").
+		First(&file).Error; err != nil {
+		return file, err
+	}
+
+	return file, nil
+}

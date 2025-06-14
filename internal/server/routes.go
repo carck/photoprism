@@ -90,6 +90,7 @@ func registerRoutes(router *gin.Engine, conf *config.Config) {
 		api.UpdatePhotoLabel(v1)
 		api.GetMomentsTime(v1)
 		api.GetFile(v1)
+		api.GetFileByRootAndNameQuery(v1)
 		api.DeleteFile(v1)
 		api.UpdateMarker(v1)
 		api.ClearMarkerSubject(v1)
