@@ -36,7 +36,8 @@ func GetFile(router *gin.RouterGroup) {
 }
 
 // GetFileByRootAndNameQuery returns file details as JSON
-//  by file root and file name via query params.
+//
+//	by file root and file name via query params.
 //
 // Route: GET /api/v1/files/by-path?root=/&name=filename.jpg
 func GetFileByRootAndNameQuery(router *gin.RouterGroup) {

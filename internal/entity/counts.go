@@ -50,10 +50,26 @@ func UpdatePlacesCounts() (err error) {
 
 	start := time.Now()
 
-	// Update places.
-	res := Db().Table("places").
-		UpdateColumn("photo_count", gorm.Expr("(SELECT COUNT(*) FROM photos p "+
-			"WHERE places.id = p.place_id)"))
+	var res *gorm.DB
+
+	switch DbDialect() {
+	case SQLite3:
+		// Use a CTE to update photo_count for all places in one statement.
+		res = Db().Exec(`
+            WITH place_counts AS (
+                SELECT p.place_id, COUNT(*) AS photo_count
+                FROM photos p
+                WHERE p.place_id IS NOT NULL
+                GROUP BY p.place_id
+            )
+            UPDATE places
+            SET photo_count = COALESCE((SELECT photo_count FROM place_counts WHERE place_counts.place_id = places.id), 0)
+        `)
+	default:
+		// Default: MySQL and others
+		res = Db().Table("places").
+			UpdateColumn("photo_count", gorm.Expr("(SELECT COUNT(*) FROM photos p WHERE places.id = p.place_id)"))
+	}
 
 	if res.Error != nil {
 		return res.Error
@@ -90,22 +106,24 @@ func UpdateSubjectCounts() (err error) {
 			subjects.photo_count = CASE WHEN b.subj_photos IS NULL THEN 0 ELSE b.subj_photos END
 		WHERE ?`, gorm.Expr(subjTable), gorm.Expr(filesTable), gorm.Expr(markerTable), condition)
 	case SQLite3:
-		// Update files count.
-		res = Db().Table(subjTable).
-			UpdateColumn("file_count", gorm.Expr("(SELECT COUNT(DISTINCT f.id) FROM files f "+
-				"JOIN markers m ON f.file_uid = m.file_uid"+
-				" WHERE m.subj_uid = subjects.subj_uid) WHERE ?", condition))
-
-		// Update photo count.
-		if res.Error != nil {
-			return res.Error
-		} else {
-			photosRes := Db().Table(subjTable).
-				UpdateColumn("photo_count", gorm.Expr("(SELECT COUNT(DISTINCT f.photo_id) FROM files f "+
-					"JOIN markers m ON f.file_uid = m.file_uid "+
-					" WHERE m.subj_uid = subjects.subj_uid) WHERE ?", condition))
-			res.RowsAffected += photosRes.RowsAffected
-		}
+		// Use a CTE to update both file_count and photo_count in one statement.
+		res = Db().Exec(`
+            WITH subj_counts AS (
+                SELECT 
+                    m.subj_uid, 
+                    COUNT(DISTINCT f.id) AS subj_files, 
+                    COUNT(DISTINCT f.photo_id) AS subj_photos
+                FROM files f
+                JOIN markers m ON f.file_uid = m.file_uid
+                WHERE m.subj_uid IS NOT NULL AND m.subj_uid <> ''
+                    AND m.marker_invalid = 0 AND f.deleted_at IS NULL
+                GROUP BY m.subj_uid
+            )
+            UPDATE subjects
+            SET file_count = COALESCE((SELECT subj_files FROM subj_counts WHERE subj_counts.subj_uid = subjects.subj_uid), 0),
+                photo_count = COALESCE((SELECT subj_photos FROM subj_counts WHERE subj_counts.subj_uid = subjects.subj_uid), 0)
+            WHERE subj_type = ?;
+        `, SubjPerson)
 	default:
 		return fmt.Errorf("sql: unsupported dialect %s", DbDialect())
 	}
@@ -141,18 +159,33 @@ func UpdateLabelCounts() (err error) {
 		) b ON b.label_id = labels.id
 		SET photo_count = CASE WHEN b.label_photos IS NULL THEN 0 ELSE b.label_photos END`)
 	} else if IsDialect(SQLite3) {
-		res = Db().
-			Table("labels").
-			UpdateColumn("photo_count",
-				gorm.Expr(`(SELECT SUM(photo_count) FROM (
-					SELECT COUNT(*) AS photo_count
-					FROM photos_labels pl WHERE pl.label_id = labels.id
-					UNION ALL
-					SELECT COUNT(*) AS photo_count
+		res = Db().Exec(`
+			WITH label_photo_counts AS (
+				SELECT
+					l.id AS label_id,
+					COALESCE(d.count, 0) + COALESCE(i.count, 0) AS total_photo_count
+				FROM labels l
+				LEFT JOIN (
+					SELECT pl.label_id, COUNT(*) AS count
+					FROM photos_labels pl
+					GROUP BY pl.label_id
+				) d ON d.label_id = l.id
+				LEFT JOIN (
+					SELECT c.category_id AS label_id, COUNT(*) AS count
 					FROM categories c
 					JOIN photos_labels pl ON pl.label_id = c.label_id
-                                        WHERE c.category_id = labels.id
-			 		))`))
+					GROUP BY c.category_id
+				) i ON i.label_id = l.id
+			)
+
+			UPDATE labels
+			SET photo_count = (
+				SELECT total_photo_count
+				FROM label_photo_counts
+				WHERE label_photo_counts.label_id = labels.id
+			)
+			WHERE id IN (SELECT label_id FROM label_photo_counts);`)
+
 	} else {
 		return fmt.Errorf("sql: unsupported dialect %s", DbDialect())
 	}
