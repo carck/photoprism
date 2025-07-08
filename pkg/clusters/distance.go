@@ -30,6 +30,8 @@ void EuclideanDistance512(float **d, float *res, int ai, int bi, int end) {
 }
 */
 // #cgo CFLAGS: -O3 -ffast-math
+// #cgo nocallback EuclideanDistance512
+// #cgo noescape EuclideanDistance512
 import "C"
 
 func EuclideanDistance512C(d [][]float32, ai, bi, end int) []float32 {
