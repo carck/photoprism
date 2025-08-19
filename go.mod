@@ -63,7 +63,6 @@ require (
 require (
 	github.com/carck/jpegli-go v1.0.3
 	github.com/carck/libheif-go v1.0.2
-	github.com/carck/vips-thumbnail-go v1.0.1
 	github.com/valyala/gozstd v1.20.1
 )
 
