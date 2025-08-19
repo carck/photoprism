@@ -46,7 +46,6 @@ func main() {
 		}
 	}()
 
-
 	app := cli.NewApp()
 	app.Name = "PhotoPrism"
 	app.HelpName = filepath.Base(os.Args[0])
