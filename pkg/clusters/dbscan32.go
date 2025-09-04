@@ -7,6 +7,7 @@ import (
 type batchDbscanClusterer struct {
 	minpts, workers int
 	eps             float32
+	epsq            float32
 
 	distance BatchDistanceFunc
 
@@ -66,6 +67,7 @@ func DBSCAN32(minpts int, eps float32, workers int, distance BatchDistanceFunc) 
 		minpts:   minpts,
 		workers:  workers,
 		eps:      eps,
+		epsq:     eps * eps,
 		distance: d,
 	}, nil
 }
@@ -213,7 +215,7 @@ func (c *batchDbscanClusterer) nearest(p int, l *int, r *[]int) {
 }
 
 func (c *batchDbscanClusterer) startNearestWorkers() {
-	c.j = make(chan *rangeJob, c.l)
+	c.j = make(chan *rangeJob, c.s*2)
 
 	c.m = &sync.Mutex{}
 	c.w = &sync.WaitGroup{}
@@ -234,10 +236,10 @@ func (c *batchDbscanClusterer) endNearestWorkers() {
 
 func (c *batchDbscanClusterer) nearestWorker() {
 	for j := range c.j {
-		dis := c.distance(c.d, c.p, j.a, j.b)
+		dis := c.distance(c.d, c.p, j.a, j.b, c.epsq)
 		nears := []int{}
 		for i, v := range dis {
-			if v < c.eps {
+			if v < c.epsq {
 				nears = append(nears, j.a+i)
 			}
 		}

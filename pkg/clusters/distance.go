@@ -6,27 +6,40 @@ import "unsafe"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-//#include <arm_neon.h>
+#include <arm_neon.h>
 
-void EuclideanDistance512(float **d, float *res, int ai, int bi, int end) {
-        float s,t;
-        float *left = d[ai];
-        int c = 0;
-        for (int j = bi; j < end; j++ ){
-                s = 0;
-                float *right = d[j];
-                //float32x4_t sum = vdupq_n_f32(0);
-                for (int i = 0; i < 512; i++) {
-                        //float32x4_t il = vld1q_f32(left+i);
-                        //float32x4_t ir = vld1q_f32(right+i);
-                        //float32x4_t sub = vsubq_f32(il, ir);
-                        //sum = vfmaq_f32(sum, sub, sub);
-                        t = left[i] - right[i];
-                        s += t * t;
-                }
-                //s = vaddvq_f32(sum);
-                res[c++] = (float)sqrt(s);
+// left_ptr: 当前点 ai 的指针
+// right_ptrs: [start:end] 向量指针数组
+// end_len: right_ptrs 的长度
+// res: 输出平方距离数组
+void EuclideanDistance512(
+    float *left_ptr, float **right_ptrs, float *res, int end_len, float eps_sq
+) {
+    for (int j = 0; j < end_len; j++) {
+        float *right = right_ptrs[j];
+        float dist_sq = 0.0f;
+
+        for (int i = 0; i < 512; i += 8) {
+            // load 8 floats at once
+            float32x4x2_t a_vec = vld1q_f32_x2(left_ptr + i);
+            float32x4x2_t b_vec = vld1q_f32_x2(right + i);
+
+            float32x4_t diff0 = vsubq_f32(a_vec.val[0], b_vec.val[0]);
+            float32x4_t diff1 = vsubq_f32(a_vec.val[1], b_vec.val[1]);
+
+            float32x4_t sq0 = vmulq_f32(diff0, diff0);
+            float32x4_t sq1 = vmulq_f32(diff1, diff1);
+
+            // horizontal add both
+            dist_sq += vaddvq_f32(sq0) + vaddvq_f32(sq1);
+
+            if (dist_sq > eps_sq) {
+                dist_sq = INFINITY;
+                break;
+            }
         }
+        res[j] = dist_sq;
+    }
 }
 */
 // #cgo CFLAGS: -O3 -ffast-math
@@ -34,24 +47,25 @@ void EuclideanDistance512(float **d, float *res, int ai, int bi, int end) {
 // #cgo noescape EuclideanDistance512
 import "C"
 
-func EuclideanDistance512C(d [][]float32, ai, bi, end int) []float32 {
-	res := make([]float32, end-bi)
+func EuclideanDistance512C(d [][]float32, ai, start, end int, eps_sq float32) []float32 {
+	length := end - start
+	res := make([]float32, length)
 
-	data := make([]uintptr, len(d))
-	keep := make([]unsafe.Pointer, len(d))
+	// 左向量 ai
+	aiPtr := unsafe.Pointer(&d[ai][0])
 
-	for i, v := range d {
-		p := unsafe.Pointer(&v[0])
-		keep[i] = p
-		data[i] = uintptr(p)
+	// 右向量 [start:end]
+	rightPtrs := make([]uintptr, length)
+	for i := start; i < end; i++ {
+		rightPtrs[i-start] = uintptr(unsafe.Pointer(&d[i][0]))
 	}
 
 	C.EuclideanDistance512(
-		(**C.float)(unsafe.Pointer(&data[0])),
+		(*C.float)(aiPtr),
+		(**C.float)(unsafe.Pointer(&rightPtrs[0])),
 		(*C.float)(unsafe.Pointer(&res[0])),
-		C.int(ai),
-		C.int(bi),
-		C.int(end),
+		C.int(length),
+		C.float(eps_sq),
 	)
 	return res
 }

@@ -9,7 +9,7 @@ import (
 // DistanceFunc represents a function for measuring distance
 // between n-dimensional vectors.
 type DistanceFunc func([]float64, []float64) float64
-type BatchDistanceFunc func(d [][]float32, ai, bi, end int) []float32
+type BatchDistanceFunc func(d [][]float32, ai, bi, end int, epsq float32) []float32
 
 // Online represents parameters important for online learning in
 // clustering algorithms.
@@ -146,7 +146,7 @@ var (
 		return s
 	}
 
-	BatchEuclideanDistance = func(d [][]float32, ai, bi, end int) []float32 {
+	BatchEuclideanDistance = func(d [][]float32, ai, bi, end int, espq float32) []float32 {
 		var (
 			s, t float32
 		)
