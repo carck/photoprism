@@ -73,6 +73,7 @@ type SearchPhotos struct {
 	Merged    bool      `form:"merged" serialize:"-"`                   // Merge FILES in response
 	Notes     string    `form:"notes"`
 	BeforeDay int       `form:"beforeday"`
+	Clip      string    `form:"clip"`
 }
 
 func (f *SearchPhotos) GetQuery() string {

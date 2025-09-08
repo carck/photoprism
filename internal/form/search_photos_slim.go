@@ -16,4 +16,5 @@ type SearchPhotosSlim struct {
 	Count   int       `form:"count" binding:"required" serialize:"-"`
 	Offset  int       `form:"offset" serialize:"-"`
 	Order   string    `form:"order" serialize:"-"`
+	Clip    string    `form:"clip"`
 }

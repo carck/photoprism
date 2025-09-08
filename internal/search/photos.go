@@ -68,6 +68,14 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 		s = s.Where("places.place_city IN (?)", strings.Split(f.State, txt.Or))
 	}
 
+	if txt.NotEmpty(f.Clip) {
+		if photo_ids, err := SearchClip(f.Clip, 200); err == nil {
+			s = s.Where("photos.id IN (?)", photo_ids)
+		} else {
+			log.Debugf("search: clip %s not found, %s", txt.LogParamLower(f.Clip), err)
+		}
+	}
+
 	if f.Count > 0 && f.Count <= MaxResults {
 		s = s.Limit(f.Count).Offset(f.Offset)
 	} else {
@@ -134,13 +142,15 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 	}
 
 	if f.Notes != "" {
-		var pids []uint
-		if err = UnscopedDb().
-			Raw("select rowid from photo_search where notes match jieba_query(?) order by rank limit 100", f.Notes).
-			Pluck("rowid", &pids).Error; err != nil {
-			return results, 0, err
+		s = s.Where("photos.id in (select rowid from photo_search where notes match jieba_query(?))", f.Notes)
+	}
+
+	if txt.NotEmpty(f.Clip) {
+		if photo_ids, err := SearchClip(f.Clip, 200); err == nil {
+			s = s.Where("photos.id IN (?)", photo_ids)
+		} else {
+			log.Debugf("search: clip %s not found, %s", txt.LogParamLower(f.Clip), err)
 		}
-		s = s.Where("photos.id in (?)", pids)
 	}
 
 	// Primary files only?

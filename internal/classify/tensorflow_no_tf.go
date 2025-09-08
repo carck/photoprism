@@ -6,7 +6,6 @@ package classify
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"runtime/debug"
@@ -57,13 +56,8 @@ func (t *TensorFlow) File(filename string) (result Labels, err error) {
 		return nil, fmt.Errorf("classify: server error %s", resp.Status)
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
 	// Server already returns exactly the Labels JSON
-	if err := json.Unmarshal(body, &result); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, err
 	}
 
