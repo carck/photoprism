@@ -56,7 +56,9 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 	}
 
 	if f.Notes != "" {
-		s = s.Where("photos.id in (select rowid from photo_search where notes match jieba_query(?))", f.Notes)
+		s = s.Joins("JOIN photo_search on photo_search.rowid = photos.id")
+		s = s.Where("photo_search.notes match jieba_query(?)", f.Notes)
+		s = s.Order("photo_search.rank desc")
 	}
 
 	if txt.NotEmpty(f.Country) {
@@ -71,6 +73,7 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 	if txt.NotEmpty(f.Clip) {
 		if photo_ids, err := SearchClip(f.Clip, 200); err == nil {
 			s = s.Where("photos.id IN (?)", photo_ids)
+			s = s.Order("photos.id", true)
 		} else {
 			log.Debugf("search: clip %s not found, %s", txt.LogParamLower(f.Clip), err)
 		}
@@ -142,12 +145,15 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 	}
 
 	if f.Notes != "" {
-		s = s.Where("photos.id in (select rowid from photo_search where notes match jieba_query(?))", f.Notes)
+		s = s.Joins("JOIN photo_search on photo_search.rowid = photos.id")
+		s = s.Where("photo_search.notes match jieba_query(?)", f.Notes)
+		s = s.Order("photo_search.rank desc")
 	}
 
 	if txt.NotEmpty(f.Clip) {
 		if photo_ids, err := SearchClip(f.Clip, 200); err == nil {
 			s = s.Where("photos.id IN (?)", photo_ids)
+			s = s.Order("photos.id", true)
 		} else {
 			log.Debugf("search: clip %s not found, %s", txt.LogParamLower(f.Clip), err)
 		}
