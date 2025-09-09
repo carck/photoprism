@@ -1,16 +1,32 @@
 package face
 
 import (
-	"bytes"
-	"encoding/json"
+	"encoding/binary"
+	"math"
 
 	"github.com/montanaflynn/stats"
 	"github.com/photoprism/photoprism/pkg/clusters"
-	"github.com/valyala/gozstd"
 )
 
 // Embeddings represents a face embedding cluster.
 type Embeddings []Embedding
+
+func BytesToFloats(b []byte) []float32 {
+	floats := make([]float32, len(b)/4)
+	for i := 0; i < len(floats); i++ {
+		bits := binary.LittleEndian.Uint32(b[i*4:])
+		floats[i] = math.Float32frombits(bits)
+	}
+	return floats
+}
+
+func FloatsToBytes(floats []float32) []byte {
+	byteSlice := make([]byte, 4*len(floats))
+	for i, f := range floats {
+		binary.LittleEndian.PutUint32(byteSlice[i*4:], math.Float32bits(f))
+	}
+	return byteSlice
+}
 
 // NewEmbeddings creates a new embeddings from inference results.
 func NewEmbeddings(inference [][]float32) Embeddings {
@@ -105,11 +121,7 @@ func (embeddings Embeddings) JSON() []byte {
 		return noResult
 	}
 
-	if result, err := json.Marshal(embeddings); err != nil {
-		return noResult
-	} else {
-		return gozstd.Compress(nil, result)
-	}
+	return FloatsToBytes(embeddings[0])
 }
 
 // EmbeddingsMidpoint returns the embeddings vector midpoint.
@@ -164,17 +176,7 @@ func EmbeddingsMidpoint(embeddings Embeddings) (result Embedding, radius float64
 
 // UnmarshalEmbeddings parses face embedding JSON.
 func UnmarshalEmbeddings(s []byte) (result Embeddings) {
-	if decompressed, err := gozstd.Decompress(nil, s); err != nil {
-		log.Errorf("faces: decompress %s", err)
-	} else {
-		if !bytes.HasPrefix(decompressed, []byte("[[")) {
-			return nil
-		}
+	decompressed := BytesToFloats(s)
 
-		if err := json.Unmarshal(decompressed, &result); err != nil {
-			log.Errorf("faces: %s", err)
-		}
-	}
-
-	return result
+	return NewEmbeddings([][]float32{decompressed})
 }
