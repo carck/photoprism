@@ -75,11 +75,7 @@ func (m *Face) SetEmbeddings(embeddings face.Embeddings) (err error) {
 		m.SampleRadius = 0.35
 	}
 
-	m.EmbeddingJSON, err = json.Marshal(m.embedding)
-
-	if err != nil {
-		return err
-	}
+	m.EmbeddingJSON = face.FloatsToBytes(m.embedding)
 
 	s := sha1.Sum(m.EmbeddingJSON)
 	m.ID = base32.StdEncoding.EncodeToString(s[:])
@@ -107,9 +103,9 @@ func (m *Face) Embedding() face.Embedding {
 		return face.Embedding{}
 	} else if len(m.embedding) > 0 {
 		return m.embedding
-	} else if err := json.Unmarshal(m.EmbeddingJSON, &m.embedding); err != nil {
-		log.Errorf("failed parsing face embedding json: %s", err)
 	}
+
+	m.embedding = face.BytesToFloats(m.EmbeddingJSON)
 
 	return m.embedding
 }
