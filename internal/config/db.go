@@ -32,6 +32,7 @@ func init() {
 		&sqlite3.SQLiteDriver{
 			Extensions: []string{
 				"libsimple/libsimple",
+				"libsimple/libusearch_sqlite",
 			},
 			ConnectHook: func(conn *sqlite3.SQLiteConn) error {
 				_, err := conn.Exec("PRAGMA mmap_size = 1073741824;", []driver.Value{})
