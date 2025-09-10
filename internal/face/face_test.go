@@ -63,26 +63,6 @@ func TestFace_Dim(t *testing.T) {
 	})
 }
 
-func TestFace_EmbeddingsJSON(t *testing.T) {
-	t.Run("no result", func(t *testing.T) {
-		f := Face{
-			Rows:  8,
-			Cols:  1,
-			Score: 200,
-			Area: Area{
-				Name:  "",
-				Row:   0,
-				Col:   0,
-				Scale: 8,
-			},
-			Eyes:       nil,
-			Landmarks:  nil,
-			Embeddings: nil,
-		}
-		assert.Equal(t, []byte(""), f.EmbeddingsJSON())
-	})
-}
-
 func TestFace_CropArea(t *testing.T) {
 	t.Run("Position", func(t *testing.T) {
 		f := Face{

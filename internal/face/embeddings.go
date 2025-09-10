@@ -1,32 +1,12 @@
 package face
 
 import (
-	"encoding/binary"
-	"math"
-
 	"github.com/montanaflynn/stats"
 	"github.com/photoprism/photoprism/pkg/clusters"
 )
 
 // Embeddings represents a face embedding cluster.
 type Embeddings []Embedding
-
-func BytesToFloats(b []byte) []float32 {
-	floats := make([]float32, len(b)/4)
-	for i := 0; i < len(floats); i++ {
-		bits := binary.LittleEndian.Uint32(b[i*4:])
-		floats[i] = math.Float32frombits(bits)
-	}
-	return floats
-}
-
-func FloatsToBytes(floats []float32) []byte {
-	byteSlice := make([]byte, 4*len(floats))
-	for i, f := range floats {
-		binary.LittleEndian.PutUint32(byteSlice[i*4:], math.Float32bits(f))
-	}
-	return byteSlice
-}
 
 // NewEmbeddings creates a new embeddings from inference results.
 func NewEmbeddings(inference [][]float32) Embeddings {
@@ -113,17 +93,6 @@ func (embeddings Embeddings) Distance(other Embedding) (dist float64) {
 	return dist
 }
 
-// JSON returns the embeddings as JSON bytes.
-func (embeddings Embeddings) JSON() []byte {
-	var noResult = []byte("")
-
-	if embeddings.Empty() {
-		return noResult
-	}
-
-	return FloatsToBytes(embeddings[0])
-}
-
 // EmbeddingsMidpoint returns the embeddings vector midpoint.
 func EmbeddingsMidpoint(embeddings Embeddings) (result Embedding, radius float64, count int) {
 	// Return if there are no embeddings.
@@ -172,11 +141,4 @@ func EmbeddingsMidpoint(embeddings Embeddings) (result Embedding, radius float64
 	}
 
 	return result, radius, count
-}
-
-// UnmarshalEmbeddings parses face embedding JSON.
-func UnmarshalEmbeddings(s []byte) (result Embeddings) {
-	decompressed := BytesToFloats(s)
-
-	return NewEmbeddings([][]float32{decompressed})
 }

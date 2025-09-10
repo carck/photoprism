@@ -19,19 +19,18 @@ var faceRefreshMap = map[string]int{}
 
 // Face represents the face of a Subject.
 type Face struct {
-	ID              string          `gorm:"type:VARBINARY(42);primary_key;auto_increment:false;" json:"ID" yaml:"ID"`
-	FaceSrc         string          `gorm:"type:VARBINARY(8);" json:"Src" yaml:"Src,omitempty"`
-	FaceHidden      bool            `json:"Hidden" yaml:"Hidden,omitempty"`
-	SubjUID         string          `gorm:"type:VARBINARY(42);index;default:'';" json:"SubjUID" yaml:"SubjUID,omitempty"`
-	Samples         int             `json:"Samples" yaml:"Samples,omitempty"`
-	SampleRadius    float64         `json:"SampleRadius" yaml:"SampleRadius,omitempty"`
-	Collisions      int             `json:"Collisions" yaml:"Collisions,omitempty"`
-	CollisionRadius float64         `json:"CollisionRadius" yaml:"CollisionRadius,omitempty"`
-	EmbeddingJSON   json.RawMessage `gorm:"type:MEDIUMBLOB;" json:"-" yaml:"EmbeddingJSON,omitempty"`
-	embedding       face.Embedding  `gorm:"-"`
-	MatchedAt       *time.Time      `json:"MatchedAt" yaml:"MatchedAt,omitempty"`
-	CreatedAt       time.Time       `json:"CreatedAt" yaml:"CreatedAt,omitempty"`
-	UpdatedAt       time.Time       `json:"UpdatedAt" yaml:"UpdatedAt,omitempty"`
+	ID              string         `gorm:"type:VARBINARY(42);primary_key;auto_increment:false;" json:"ID" yaml:"ID"`
+	FaceSrc         string         `gorm:"type:VARBINARY(8);" json:"Src" yaml:"Src,omitempty"`
+	FaceHidden      bool           `json:"Hidden" yaml:"Hidden,omitempty"`
+	SubjUID         string         `gorm:"type:VARBINARY(42);index;default:'';" json:"SubjUID" yaml:"SubjUID,omitempty"`
+	Samples         int            `json:"Samples" yaml:"Samples,omitempty"`
+	SampleRadius    float64        `json:"SampleRadius" yaml:"SampleRadius,omitempty"`
+	Collisions      int            `json:"Collisions" yaml:"Collisions,omitempty"`
+	CollisionRadius float64        `json:"CollisionRadius" yaml:"CollisionRadius,omitempty"`
+	EmbeddingJSON   face.Embedding `gorm:"type:MEDIUMBLOB;" json:"-" yaml:"EmbeddingJSON,omitempty"`
+	MatchedAt       *time.Time     `json:"MatchedAt" yaml:"MatchedAt,omitempty"`
+	CreatedAt       time.Time      `json:"CreatedAt" yaml:"CreatedAt,omitempty"`
+	UpdatedAt       time.Time      `json:"UpdatedAt" yaml:"UpdatedAt,omitempty"`
 }
 
 type MatchResult struct {
@@ -68,14 +67,12 @@ func (m *Face) Unsuitable() bool {
 
 // SetEmbeddings assigns face embeddings.
 func (m *Face) SetEmbeddings(embeddings face.Embeddings) (err error) {
-	m.embedding, m.SampleRadius, m.Samples = face.EmbeddingsMidpoint(embeddings)
+	m.EmbeddingJSON, m.SampleRadius, m.Samples = face.EmbeddingsMidpoint(embeddings)
 
 	// Limit sample radius to reduce false positives.
 	if m.SampleRadius > 0.35 {
 		m.SampleRadius = 0.35
 	}
-
-	m.EmbeddingJSON = face.FloatsToBytes(m.embedding)
 
 	s := sha1.Sum(m.EmbeddingJSON)
 	m.ID = base32.StdEncoding.EncodeToString(s[:])
@@ -99,15 +96,11 @@ func (m *Face) Matched() error {
 
 // Embedding returns parsed face embedding.
 func (m *Face) Embedding() face.Embedding {
-	if len(m.EmbeddingJSON) == 0 {
+	if m.EmbeddingJSON == nil {
 		return face.Embedding{}
-	} else if len(m.embedding) > 0 {
-		return m.embedding
 	}
 
-	m.embedding = face.BytesToFloats(m.EmbeddingJSON)
-
-	return m.embedding
+	return m.EmbeddingJSON
 }
 
 // Match tests if embeddings match this face.

@@ -96,26 +96,8 @@ func (f *Face) RelativeLandmarks() crop.Areas {
 }
 
 // RelativeLandmarksJSON returns relative face areas as JSON.
-func (f *Face) RelativeLandmarksJSON() (b []byte) {
-	var noResult = []byte("")
-
-	l := f.RelativeLandmarks()
-
-	if len(l) < 1 {
-		return noResult
-	}
-
-	if result, err := json.Marshal(l); err != nil {
-		log.Errorf("faces: %s", err)
-		return noResult
-	} else {
-		return result
-	}
-}
-
-// EmbeddingsJSON returns detected face embeddings as JSON array.
-func (f *Face) EmbeddingsJSON() (b []byte) {
-	return f.Embeddings.JSON()
+func (f *Face) RelativeLandmarksJSON() (result crop.Areas) {
+	return f.RelativeLandmarks()
 }
 
 // HasEmbedding tests if the face has at least one embedding.

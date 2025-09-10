@@ -79,7 +79,7 @@ func FaceMarkers(limit, offset int) (result entity.Markers, err error) {
 
 // Embeddings returns existing face embeddings.
 func Embeddings(single, unclustered bool, size, score int) (result face.Embeddings, err error) {
-	var col [][]byte
+	var col []face.Embedding
 
 	stmt := Db().
 		Model(&entity.Marker{}).
@@ -104,19 +104,7 @@ func Embeddings(single, unclustered bool, size, score int) (result face.Embeddin
 		return result, err
 	}
 
-	for _, embeddingsJson := range col {
-		if embeddings := face.UnmarshalEmbeddings(embeddingsJson); !embeddings.Empty() {
-			if single {
-				// Single embedding per face detected.
-				result = append(result, embeddings[0])
-			} else {
-				// Return all embedding otherwise.
-				result = append(result, embeddings...)
-			}
-		}
-	}
-
-	return result, nil
+	return col, nil
 }
 
 // RemoveInvalidMarkerReferences removes face and subject references from invalid markers.

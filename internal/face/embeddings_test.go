@@ -82,18 +82,3 @@ func TestEmbeddingsMidpoint(t *testing.T) {
 		assert.Equal(t, 4, count)
 	})
 }
-
-func TestUnmarshalEmbeddings(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
-		r := UnmarshalEmbeddings("[[-0.013,-0.031]]")
-		assert.Equal(t, Embeddings{{-0.013, -0.031}}, r)
-	})
-	t.Run("no prefix", func(t *testing.T) {
-		r := UnmarshalEmbeddings("-0.013,-0.031]")
-		assert.Nil(t, r)
-	})
-	t.Run("invalid json", func(t *testing.T) {
-		r := UnmarshalEmbeddings("[[true, false]]")
-		assert.Equal(t, Embeddings{{0, 0}}, r)
-	})
-}

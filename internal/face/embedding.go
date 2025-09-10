@@ -46,31 +46,3 @@ func (m Embedding) Magnitude() float64 {
 func (m Embedding) NotBlacklisted() bool {
 	return !m.Blacklisted()
 }
-
-// JSON returns the face embedding as JSON bytes.
-func (m Embedding) JSON() []byte {
-	var noResult = []byte("")
-
-	if len(m) < 1 {
-		return noResult
-	}
-
-	if result, err := json.Marshal(m); err != nil {
-		return noResult
-	} else {
-		return result
-	}
-}
-
-// UnmarshalEmbedding parses a single face embedding JSON.
-func UnmarshalEmbedding(s string) (result Embedding) {
-	if !strings.HasPrefix(s, "[") {
-		return nil
-	}
-
-	if err := json.Unmarshal([]byte(s), &result); err != nil {
-		log.Errorf("faces: %s", err)
-	}
-
-	return result
-}

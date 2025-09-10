@@ -1,6 +1,7 @@
 package face
 
 import (
+	"encoding/binary"
 	"math"
 )
 
@@ -41,4 +42,21 @@ func Max64(a float64, b float64) float64 {
 		return a
 	}
 	return b
+}
+
+func BytesToFloats(b []byte) []float32 {
+	floats := make([]float32, len(b)/4)
+	for i := 0; i < len(floats); i++ {
+		bits := binary.LittleEndian.Uint32(b[i*4:])
+		floats[i] = math.Float32frombits(bits)
+	}
+	return floats
+}
+
+func FloatsToBytes(floats []float32) []byte {
+	byteSlice := make([]byte, 4*len(floats))
+	for i, f := range floats {
+		binary.LittleEndian.PutUint32(byteSlice[i*4:], math.Float32bits(f))
+	}
+	return byteSlice
 }
