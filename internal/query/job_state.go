@@ -17,7 +17,7 @@ func (q *Query) GetJobState(name string, defaultValue string) string {
 
 // SetJobState sets or updates the value of a job state by its name.
 func (q *Query) SetJobState(name, value string) error {
-	var state JobState
+	var state entity.JobState
 
 	if err := q.db.Where("name = ?", name).First(&state).Error; err != nil {
 		state.Name = name

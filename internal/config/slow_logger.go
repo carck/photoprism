@@ -1,14 +1,15 @@
 package config
 
 import (
-	"log"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 // SlowLogger is a custom GORM logger that logs slow SQL queries.
 type SlowLogger struct {
 	threshold time.Duration
-	logger    *log.Logger
+	logger    *logrus.Logger
 }
 
 func (l *SlowLogger) Print(values ...interface{}) {
