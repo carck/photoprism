@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"encoding/json"
 	"fmt"
 	"math"
 	"strings"

@@ -1,9 +1,6 @@
 package face
 
 import (
-	"encoding/json"
-	"strings"
-
 	"github.com/photoprism/photoprism/pkg/clusters"
 )
 

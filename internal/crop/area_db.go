@@ -6,6 +6,12 @@ import (
 	"fmt"
 )
 
+func ParseAreas(s []byte) Areas {
+	var areas Areas
+	json.Unmarshal(s, &areas)
+	return areas
+}
+
 func (e Areas) Value() (driver.Value, error) {
 	if e == nil || len(e) == 0 {
 		return nil, nil
@@ -15,7 +21,7 @@ func (e Areas) Value() (driver.Value, error) {
 
 func (e *Areas) Scan(value interface{}) error {
 	if value == nil {
-		*e = crop.Areas{}
+		*e = Areas{}
 		return nil
 	}
 
@@ -30,7 +36,7 @@ func (e *Areas) Scan(value interface{}) error {
 	}
 
 	if len(data) == 0 {
-		*e = crop.Areas{}
+		*e = Areas{}
 		return nil
 	}
 

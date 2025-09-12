@@ -3,7 +3,6 @@ package entity
 import (
 	"crypto/sha1"
 	"encoding/base32"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"sync"
@@ -74,7 +73,7 @@ func (m *Face) SetEmbeddings(embeddings face.Embeddings) (err error) {
 		m.SampleRadius = 0.35
 	}
 
-	s := sha1.Sum(m.EmbeddingJSON)
+	s := sha1.Sum(face.FloatsToBytes(m.EmbeddingJSON))
 	m.ID = base32.StdEncoding.EncodeToString(s[:])
 	m.UpdatedAt = TimeStamp()
 

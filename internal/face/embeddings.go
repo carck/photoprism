@@ -8,6 +8,10 @@ import (
 // Embeddings represents a face embedding cluster.
 type Embeddings []Embedding
 
+func ParseEmbeddings(inference []float32) Embeddings {
+	return Embeddings{NewEmbedding(inference)}
+}
+
 // NewEmbeddings creates a new embeddings from inference results.
 func NewEmbeddings(inference [][]float32) Embeddings {
 	result := make(Embeddings, len(inference))

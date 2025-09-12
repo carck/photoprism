@@ -1,8 +1,7 @@
 package face
 
 import (
-	"encoding/binary"
-	"math"
+	"fmt"
 
 	"database/sql/driver"
 )
@@ -11,12 +10,12 @@ func (e Embeddings) Value() (driver.Value, error) {
 	if e == nil || len(e) == 0 {
 		return nil, nil
 	}
-	return Floats32ToBytes(e[0]), nil
+	return FloatsToBytes(e[0]), nil
 }
 
 func (e *Embeddings) Scan(value interface{}) error {
 	if value == nil {
-		*e = face.Embeddings{}
+		*e = Embeddings{}
 		return nil
 	}
 
@@ -29,10 +28,10 @@ func (e *Embeddings) Scan(value interface{}) error {
 	}
 
 	if len(data) == 0 {
-		*e = face.Embeddings{}
+		*e = Embeddings{}
 		return nil
 	}
 
-	*e = NewEmbeddings([][]float32{BytesToFloats32(data)})
+	*e = ParseEmbeddings(BytesToFloats(data))
 	return nil
 }

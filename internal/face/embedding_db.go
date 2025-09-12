@@ -2,18 +2,19 @@ package face
 
 import (
 	"database/sql/driver"
+	"fmt"
 )
 
 func (e Embedding) Value() (driver.Value, error) {
 	if e == nil || len(e) == 0 {
 		return nil, nil
 	}
-	return Floats32ToBytes(e), nil
+	return FloatsToBytes(e), nil
 }
 
 func (e *Embedding) Scan(value interface{}) error {
 	if value == nil {
-		*e = face.Embedding{}
+		*e = Embedding{}
 		return nil
 	}
 
@@ -26,10 +27,10 @@ func (e *Embedding) Scan(value interface{}) error {
 	}
 
 	if len(data) == 0 {
-		*e = face.Embedding{}
+		*e = Embedding{}
 		return nil
 	}
 
-	*e = NewEmbedding(BytesToFloats32(data))
+	*e = NewEmbedding(BytesToFloats(data))
 	return nil
 }
