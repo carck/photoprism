@@ -320,8 +320,11 @@ func (c *Config) connectDb() error {
 		}
 	}
 
-	db.LogMode(false)
-	db.SetLogger(log)
+	db.LogMode(true)
+	db.SetLogger(&SlowLogger{
+		threshold: 5 * time.Second,
+		logger:    log,
+	})
 
 	db.DB().SetMaxOpenConns(c.DatabaseConns())
 	db.DB().SetMaxIdleConns(c.DatabaseConnsIdle())
