@@ -119,11 +119,11 @@ func UpdateAlbumFolderCovers() (err error) {
 			FROM chosen_files cf
 			JOIN files f ON f.id = cf.file_id
 		)
-		UPDATE albums a
+		UPDATE albums
 		SET thumb = (
 			SELECT ch.file_hash 
 			FROM chosen_hashes ch
-			WHERE ch.photo_path = a.album_path
+			WHERE ch.photo_path = albums.album_path
 		)
 		WHERE ?;
 		`, condition)
@@ -182,12 +182,12 @@ func UpdateAlbumMonthCovers() (err error) {
 				FROM chosen_files cf
 				JOIN files f ON f.id = cf.file_id
 			)
-			UPDATE albums a
+			UPDATE albums
 			SET thumb = (
 				SELECT ch.file_hash 
 				FROM chosen_hashes ch
-				WHERE ch.photo_year = a.album_year
-				AND ch.photo_month = a.album_month
+				WHERE ch.photo_year = albums.album_year
+				AND ch.photo_month = albums.album_month
 			)
 			WHERE ?;
 			`, condition)
@@ -376,11 +376,11 @@ func UpdateSubjectCovers() (err error) {
 				FROM ranked_markers rm
 				JOIN markers m ON m.id = rm.marker_id
 			)
-			UPDATE subjects s
+			UPDATE subjects
 			SET thumb = (
 				SELECT ct.thumb
 				FROM chosen_thumbs ct
-				WHERE ct.subj_uid = s.subj_uid
+				WHERE ct.subj_uid = subjects.subj_uid
 			)
 			WHERE ?;
 			`, condition)
