@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -15,7 +16,7 @@ type SlowLogger struct {
 func (l *SlowLogger) Print(values ...interface{}) {
 	if len(values) > 0 && values[0] == "sql" {
 		if duration, ok := values[2].(time.Duration); ok && duration > l.threshold {
-			l.logger.Print(values...)
+			l.logger.Print(fmt.Sprint(values...))
 		}
 	}
 }
