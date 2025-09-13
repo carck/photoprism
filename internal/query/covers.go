@@ -290,23 +290,22 @@ func UpdateLabelCovers() (err error) {
 			catRes := Db().Exec(`
 				WITH category_files AS (
 					SELECT c.category_id AS label_id,
-							MAX(f.rowid) AS file_rowid
+							MAX(pl.photo_id) AS photo_id
 					FROM categories c
 					JOIN photos_labels pl ON pl.label_id = c.label_id
-					JOIN files f ON f.photo_id = pl.photo_id
 					WHERE pl.uncertainty < 21
-						AND f.deleted_at IS NULL
-						AND f.file_hash <> ''
-						AND f.file_missing = 0
-						AND f.file_primary = 1
-						AND f.file_type IN ('jpg','heif')
 					GROUP BY c.category_id
 					),
 					category_hashes AS (
 					SELECT cf.label_id, f.file_hash
 					FROM category_files cf
-					JOIN files f ON f.rowid = cf.file_rowid
+					JOIN files f ON f.photo_id = cf.photo_id
 					WHERE f.file_hash <> ''
+						AND f.deleted_at IS NULL
+						AND f.file_hash <> ''
+						AND f.file_missing = 0
+						AND f.file_primary = 1
+						AND f.file_type IN ('jpg','heif')
 					)
 					UPDATE labels
 					SET thumb = (
