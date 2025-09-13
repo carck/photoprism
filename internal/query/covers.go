@@ -366,7 +366,7 @@ func UpdateSubjectCovers() (err error) {
 	case SQLite3:
 		res = Db().Exec(`
 			WITH ranked_markers AS (
-				SELECT m.subj_uid, MAX(m.id) AS marker_id
+				SELECT m.subj_uid, MAX(m.rowid) AS marker_id
 				FROM markers m
 				WHERE m.thumb <> ''
 				GROUP BY m.subj_uid
@@ -374,7 +374,7 @@ func UpdateSubjectCovers() (err error) {
 			chosen_thumbs AS (
 				SELECT rm.subj_uid, m.thumb
 				FROM ranked_markers rm
-				JOIN markers m ON m.id = rm.marker_id
+				JOIN markers m ON m.rowid = rm.marker_id
 			)
 			UPDATE subjects
 			SET thumb = (
