@@ -286,6 +286,7 @@ func UpdateLabelCovers() (err error) {
 			WHERE thumb_src = ?;
 		`, entity.SrcAuto)
 
+		/**
 		if res.Error == nil {
 			catRes := Db().Exec(`
 				WITH category_files AS (
@@ -316,8 +317,8 @@ func UpdateLabelCovers() (err error) {
 					WHERE thumb IS NULL OR thumb = '';
 			`)
 
-			res.RowsAffected += catRes.RowsAffected
-		}
+			res.RowsAffected += catRes.RowsAffected 
+		}*/
 	default:
 		log.Warnf("sql: unsupported dialect %s", DbDialect())
 		return nil
