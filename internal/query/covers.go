@@ -317,7 +317,7 @@ func UpdateLabelCovers() (err error) {
 					WHERE thumb IS NULL OR thumb = '';
 			`)
 
-			res.RowsAffected += catRes.RowsAffected 
+			res.RowsAffected += catRes.RowsAffected
 		}*/
 	default:
 		log.Warnf("sql: unsupported dialect %s", DbDialect())

@@ -22,7 +22,7 @@ import (
 func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, err error) {
 	s := UnscopedDb()
 	s = s.Table("photos").
-		Select(`photos.photo_uid, photos.taken_at, files.file_hash ,photos.photo_type, photos.photo_name, photos.photo_title`).
+		Select(`photos.id, photos.photo_uid, photos.taken_at, files.file_hash ,photos.photo_type, photos.photo_name, photos.photo_title`).
 		Where("+photos.deleted_at is NULL")
 
 	switch f.Order {
@@ -73,7 +73,7 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 	if txt.NotEmpty(f.Clip) {
 		if photo_ids, err := SearchClip(f.Clip, 200); err == nil {
 			s = s.Where("photos.id IN (?)", photo_ids)
-			s = s.Order("photos.id", true)
+			s = s.Order(fmt.Sprintf("INSTR(',%v,', ','||photos.id||',')", txt.JoinUint(photo_ids)), true)
 		} else {
 			log.Debugf("search: clip %s not found, %s", txt.LogParamLower(f.Clip), err)
 		}
@@ -153,7 +153,7 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 	if txt.NotEmpty(f.Clip) {
 		if photo_ids, err := SearchClip(f.Clip, 200); err == nil {
 			s = s.Where("photos.id IN (?)", photo_ids)
-			s = s.Order("photos.id", true)
+			s = s.Order(fmt.Sprintf("INSTR(',%v,', ','||photos.id||',')", txt.JoinUint(photo_ids)), true)
 		} else {
 			log.Debugf("search: clip %s not found, %s", txt.LogParamLower(f.Clip), err)
 		}

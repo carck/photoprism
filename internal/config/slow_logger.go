@@ -18,5 +18,7 @@ func (l *SlowLogger) Print(values ...interface{}) {
 		if duration, ok := values[2].(time.Duration); ok && duration > l.threshold {
 			l.logger.Print(fmt.Sprint(values...))
 		}
+	} else {
+		l.logger.Print(values...)
 	}
 }

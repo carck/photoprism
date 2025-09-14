@@ -91,3 +91,14 @@ func IsPosInt(s string) bool {
 
 	return true
 }
+
+func JoinUint(s []uint) string {
+	if s == nil {
+		return ""
+	}
+	r := make([]string, len(s))
+	for i, v := range s {
+		r[i] = strconv.FormatUint(uint64(v), 10)
+	}
+	return strings.Join(r, ",")
+}

@@ -173,3 +173,23 @@ func (photos PhotoResults) Merge() (merged PhotoResults, count int, err error) {
 
 	return merged, count, nil
 }
+
+func (photos *PhotoResults) SortByIDs(ids []uint) {
+	if len(ids) == 0 || len(*photos) == 0 {
+		return
+	}
+
+	photoMap := make(map[uint]Photo, len(*photos))
+	for _, p := range *photos {
+		photoMap[p.ID] = p
+	}
+
+	sorted := make(PhotoResults, 0, len(*photos))
+	for _, id := range ids {
+		if p, ok := photoMap[id]; ok {
+			sorted = append(sorted, p)
+		}
+	}
+
+	*photos = sorted
+}
