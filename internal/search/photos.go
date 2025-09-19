@@ -71,9 +71,9 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 	}
 
 	if txt.NotEmpty(f.Clip) {
-		if photo_ids, err := SearchClip(f.Clip, 200); err == nil {
-			s = s.Where("photos.id IN (?)", photo_ids)
-			s = s.Order(fmt.Sprintf("INSTR(',%v,', ','||photos.id||',')", txt.JoinUint(photo_ids)), true)
+		if photo_ids, err := SearchClip(f.Clip, 500); err == nil {
+			s = s.Joins("JOIN id_table(?) AS clip_ids ON photos.id = clip_ids.id", txt.JoinUint(photo_ids))
+			s = s.Order("clip_ids.rowid", true)
 		} else {
 			log.Debugf("search: clip %s not found, %s", txt.LogParamLower(f.Clip), err)
 		}
@@ -151,9 +151,9 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 	}
 
 	if txt.NotEmpty(f.Clip) {
-		if photo_ids, err := SearchClip(f.Clip, 200); err == nil {
-			s = s.Where("photos.id IN (?)", photo_ids)
-			s = s.Order(fmt.Sprintf("INSTR(',%v,', ','||photos.id||',')", txt.JoinUint(photo_ids)), true)
+		if photo_ids, err := SearchClip(f.Clip, 500); err == nil {
+			s = s.Joins("JOIN id_table(?) AS clip_ids ON photos.id = clip_ids.id", txt.JoinUint(photo_ids))
+			s = s.Order("clip_ids.rowid", true)
 		} else {
 			log.Debugf("search: clip %s not found, %s", txt.LogParamLower(f.Clip), err)
 		}

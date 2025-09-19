@@ -40,6 +40,109 @@ func ManuallyAddedFaces(hidden bool) (result entity.Faces, err error) {
 	return result, err
 }
 
+func MatchFaces(force bool) (recoginized, unknowned int, err error) {
+	sqlKnownFace := `
+WITH ranked AS (
+SELECT t.mid, t.face_id, t.subj_uid, t.dist,
+		ROW_NUMBER() OVER (PARTITION BY t.mid ORDER BY t.dist ASC) AS rn
+FROM (
+	SELECT m.rowid AS mid,
+			f.id AS face_id,
+			f.subj_uid,
+			f.sample_radius,
+			distance_sqeuclidean_f32(m.embeddings_json, f.embedding_json) AS dist
+	FROM markers m
+	CROSS JOIN faces f
+	WHERE m.subj_uid = ''
+		AND f.subj_uid <> ''
+		AND (m.matched_at IS NULL OR m.matched_at < f.created_at)
+) AS t
+WHERE t.dist < power(t.sample_radius + ?, 2)
+)
+UPDATE markers
+SET subj_uid = ranked.subj_uid,
+    face_id = ranked.face_id,
+    face_dist = sqrt(ranked.dist),
+	marker_review = 0,
+    matched_at =  CURRENT_TIMESTAMP
+FROM ranked
+WHERE markers.rowid = ranked.mid
+  AND ranked.rn = 1
+RETURNING markers.marker_uid;`
+
+	sqlUnknownFace := `
+WITH ranked AS (
+    SELECT t.mid, t.face_id, t.subj_uid, t.dist,
+           ROW_NUMBER() OVER (PARTITION BY t.mid ORDER BY t.dist ASC) AS rn
+    FROM (
+        SELECT m.rowid AS mid,
+               f.id AS face_id,
+               f.subj_uid,
+               f.sample_radius,
+               distance_sqeuclidean_f32(m.embeddings_json, f.embedding_json) AS dist
+        FROM markers m
+        CROSS JOIN faces f
+        WHERE m.face_id = ''
+          AND m.subj_uid = ''
+          AND f.subj_uid = ''
+		  AND (m.matched_at IS NULL OR m.matched_at < f.created_at)
+    ) AS t
+    WHERE t.dist < power(t.sample_radius + ?, 2)
+)
+UPDATE markers
+SET subj_uid = ranked.subj_uid,
+    face_id = ranked.face_id,
+    face_dist = sqrt(ranked.dist),
+	marker_review = 0,
+    matched_at =  CURRENT_TIMESTAMP
+FROM ranked
+WHERE markers.rowid = ranked.mid
+  AND ranked.rn = 1
+RETURNING markers.marker_uid;
+`
+
+	sqlUpdateMatchedAt := `
+UPDATE markers
+SET matched_at = CURRENT_TIMESTAMP
+WHERE markers.marker_type = 'face' 
+AND markers.face_id = ''
+  AND (
+      markers.matched_at IS NULL
+	  or markers.matched_at < ?
+  )
+RETURNING rowid;
+`
+	var known []string
+	var unknown []string
+	var matched_ats []int64
+
+	if force {
+		if res := Db().Exec(`UPDATE markers SET matched_at = NULL, subj_uid = '', face_id = '' WHERE marker_type = ?`, entity.MarkerFace); res.Error != nil {
+			log.Errorf("faces: %s (reset matched_at)", res.Error)
+			return 0, 0, res.Error
+		}
+	}
+	if res := Db().Raw(sqlKnownFace, face.MatchDist).Scan(&known); res.Error != nil {
+		return 0, 0, res.Error
+	}
+
+	if res := Db().Raw(sqlUnknownFace, face.MatchDist).Scan(&unknown); res.Error != nil {
+		return 0, 0, res.Error
+	}
+
+	var maxCreateAt time.Time
+	if err := Db().Model(&entity.Face{}).Select("MAX(created_at)").Scan(&maxCreateAt).Error; err != nil {
+		return 0, 0, err
+	}
+
+	if res := Db().Raw(sqlUpdateMatchedAt, maxCreateAt).Scan(&matched_ats); res.Error != nil {
+		return 0, 0, res.Error
+	}
+	log.Infof("faces: matched %d known and %d unknown faces, updated %d matched_at timestamps", len(known), len(unknown), len(matched_ats))
+
+	return len(known), len(unknown), nil
+}
+
 // MatchFaceMarkers matches markers with known faces.
 func MatchFaceMarkers() (affected int64, err error) {
 	faces, err := Faces(true, false, false)

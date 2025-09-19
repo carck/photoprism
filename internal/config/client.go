@@ -424,7 +424,7 @@ func (c *Config) UserConfigFull(counterless bool) ClientConfig {
 	c.Db().
 		Table("albums").
 		Select("SUM(album_type = ?) AS albums, SUM(album_type = ?) AS moments, SUM(album_type = ?) AS months, SUM(album_type = ?) AS states, SUM(album_type = ?) AS folders", entity.AlbumDefault, entity.AlbumMoment, entity.AlbumMonth, entity.AlbumState, entity.AlbumFolder).
-		Where("deleted_at IS NULL AND (albums.album_type <> 'folder'").
+		Where("deleted_at IS NULL AND (albums.album_type <> 'folder')").
 		Take(&result.Count)
 
 	c.Db().

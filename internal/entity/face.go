@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	"github.com/photoprism/photoprism/internal/face"
 	"github.com/photoprism/photoprism/pkg/rnd"
 )
@@ -218,48 +219,54 @@ func (m *Face) ReviseMatches() (revised Markers, err error) {
 
 // MatchMarkers finds and references matching markers.
 func (m *Face) MatchMarkers(faceIds []string) error {
-	var markers Markers
+	sql := `
+WITH ranked AS (
+SELECT t.mid, t.face_id, t.subj_uid, t.dist,
+		ROW_NUMBER() OVER (PARTITION BY t.mid ORDER BY t.dist ASC) AS rn
+FROM (
+	SELECT m.rowid AS mid,
+			f.id AS face_id,
+			f.subj_uid,
+			f.sample_radius,
+			distance_sqeuclidean_f32(m.embeddings_json, f.embedding_json) AS dist
+	FROM markers m
+	CROSS JOIN faces f
+	WHERE %s
+		AND f.subj_uid <> ''
+		AND f.id = ?
+	) AS t
+	WHERE t.dist < power(t.sample_radius + ?, 2)
+)
+UPDATE markers
+SET subj_uid = ranked.subj_uid,
+	face_id = ranked.face_id,
+	face_dist = sqrt(ranked.dist),
+	marker_review = 0,
+	matched_at =  CURRENT_TIMESTAMP
+FROM ranked
+WHERE markers.rowid = ranked.mid
+AND ranked.rn = 1
+RETURNING markers.marker_uid;`
 
-	stmt := Db().Where("marker_invalid = 0 AND marker_type = ?", MarkerFace)
+	var filter string
+	var uids []string
 	if len(faceIds) == 1 && faceIds[0] == "" {
-		stmt = stmt.Where("subj_uid =''")
-	} else {
-		stmt = stmt.Where("face_id IN (?)", faceIds)
-	}
-	err := stmt.Find(&markers).Error
-
-	if err != nil {
-		log.Debugf("faces: %s (match markers)", err)
-		return err
-	}
-
-	wg := new(sync.WaitGroup)
-	c := make(chan MatchResult)
-	wg.Add(len(markers))
-
-	for i := range markers {
-		go func(idx int) {
-			defer wg.Done()
-			marker := &markers[idx]
-			if ok, dist := m.Match(marker.Embeddings()); ok {
-				c <- MatchResult{idx, dist}
-			}
-		}(i)
-	}
-
-	go func() {
-		for v := range c {
-			dist := v.Dist
-			idx := v.Idx
-			marker := &markers[idx]
-			if _, err = marker.SetFace(m, dist); err != nil {
-				log.Errorf("failed set face: %s", err)
-			}
+		filter = "m.subj_uid ='' AND m.marker_invalid = 0 AND m.marker_type = 'face'"
+		if res := Db().Raw(fmt.Sprintf(sql, filter), m.ID, face.MatchDist).Scan(&uids); res.Error != nil {
+			return res.Error
 		}
-	}()
+		log.Infof("faces: matched %d markers to face %s", len(uids), m.ID)
+	} else {
+		filter = "m.face_id IN (?) AND m.marker_invalid = 0 AND m.marker_type = 'face'"
+		if res := Db().Exec(fmt.Sprintf(sql, filter), faceIds, m.ID, face.MatchDist); res.Error != nil {
+			return res.Error
+		}
+		log.Infof("faces: matched %d markers to face %s", len(uids), m.ID)
+	}
 
-	wg.Wait()
-	close(c)
+	for _, uid := range uids {
+		SetPhotoToRefresh(uid, 3)
+	}
 
 	return nil
 }
@@ -324,17 +331,26 @@ func DoRefreshPhotos() error {
 		update3 = "UPDATE photos p inner join files f on f.photo_id = p.id  inner join markers m on m.file_uid = f.file_uid SET checked_at = NULL WHERE m.marker_uid = ?)"
 
 	}
-	for k, v := range target {
-		if v == 1 {
-			UnscopedDb().Exec(update, k)
+	Db().Transaction(func(tx *gorm.DB) error {
+		for k, v := range target {
+			if v == 1 {
+				if res := tx.Exec(update, k); res.Error != nil {
+					return res.Error
+				}
+			}
+			if v == 2 {
+				if res := tx.Exec(update2, k); res.Error != nil {
+					return res.Error
+				}
+			}
+			if v == 3 {
+				if res := tx.Exec(update3, k); res.Error != nil {
+					return res.Error
+				}
+			}
 		}
-		if v == 2 {
-			UnscopedDb().Exec(update2, k)
-		}
-		if v == 3 {
-			UnscopedDb().Exec(update3, k)
-		}
-	}
+		return nil
+	})
 	return nil
 }
 

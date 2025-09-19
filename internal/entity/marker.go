@@ -330,7 +330,7 @@ func (m *Marker) SyncSubject(updateRelated bool) (err error) {
 	}
 
 	// Create known face for subject?
-	if m.FaceID != "" {
+	if m.FaceID != "" && m.Face().SubjUID != "" {
 		// Do nothing.
 	} else if f := m.Face(); f != nil {
 		m.FaceID = f.ID
@@ -343,8 +343,7 @@ func (m *Marker) SyncSubject(updateRelated bool) (err error) {
 		return fmt.Errorf("%s (update known face)", err)
 	} else if !updateRelated {
 		return nil
-	} else if err := Db().Exec(`update markers set subj_uid=?,marker_review=0
-					where marker_uid<>? and face_id=? and subj_src=? and subj_uid<>?`,
+	} else if err := Db().Exec(`update markers set subj_uid=?,marker_review=0 where marker_uid<>? and face_id=? and subj_src=? and subj_uid<>?`,
 		m.SubjUID, m.MarkerUID, m.FaceID, SrcAuto, m.SubjUID).Error; err != nil {
 		return fmt.Errorf("%s (update related markers)", err)
 	} else if res.RowsAffected > 0 && m.face != nil {
