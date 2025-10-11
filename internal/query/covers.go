@@ -368,7 +368,7 @@ func UpdateSubjectCovers() (err error) {
 			WITH ranked_markers AS (
 				SELECT m.subj_uid, MAX(m.rowid) AS marker_id
 				FROM markers m
-				WHERE m.thumb <> ''
+				WHERE m.subj_uid <> '' and m.thumb <> '' and m.size > 80
 				GROUP BY m.subj_uid
 			),
 			chosen_thumbs AS (
