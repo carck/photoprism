@@ -20,6 +20,8 @@ func (photo Photo) ViewerResult(contentUri, apiUri, previewToken, downloadToken 
 		DownloadUrl:  viewer.DownloadUrl(photo.FileHash, apiUri, downloadToken),
 		Width:        photo.FileWidth,
 		Height:       photo.FileHeight,
+		Hash:         photo.FileHash,
+		Type:         photo.PhotoType,
 		Thumbs: viewer.Thumbs{
 			Fit1280: viewer.NewThumb(photo.FileWidth, photo.FileHeight, photo.FileHash, thumb.Sizes[thumb.Fit1280], contentUri, previewToken),
 			Fit1920: viewer.NewThumb(photo.FileWidth, photo.FileHeight, photo.FileHash, thumb.Sizes[thumb.Fit1920], contentUri, previewToken),
@@ -55,6 +57,8 @@ func (photo GeoResult) ViewerResult(contentUri, apiUri, previewToken, downloadTo
 		DownloadUrl:  viewer.DownloadUrl(photo.FileHash, apiUri, downloadToken),
 		Width:        photo.FileWidth,
 		Height:       photo.FileHeight,
+		Hash:         photo.FileHash,
+		Type:         photo.PhotoType,
 		Thumbs: viewer.Thumbs{
 			Fit1280: viewer.NewThumb(photo.FileWidth, photo.FileHeight, photo.FileHash, thumb.Sizes[thumb.Fit1280], contentUri, previewToken),
 			Fit1920: viewer.NewThumb(photo.FileWidth, photo.FileHeight, photo.FileHash, thumb.Sizes[thumb.Fit1920], contentUri, previewToken),
