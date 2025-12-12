@@ -7,7 +7,7 @@ type SearchPhotosSlim struct {
 	Subject string    `form:"subject"`
 	Album   string    `form:"album"`
 	Path    string    `form:"path"`
-	Notes   string    `fotm:"notes"`
+	Notes   string    `form:"notes"`
 	Public  bool      `form:"public"`
 	Before  time.Time `form:"before" time_format:"2006-01-02"` // Finds images taken before date
 	After   time.Time `form:"after" time_format:"2006-01-02"`
