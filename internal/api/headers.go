@@ -70,3 +70,7 @@ func AddTokenHeaders(c *gin.Context) {
 	c.Header("X-Preview-Token", service.Config().PreviewToken())
 	c.Header("X-Download-Token", service.Config().DownloadToken())
 }
+
+func AddEtagHeader(c *gin.Context, etag string) {
+	c.Header("ETag", etag)
+}

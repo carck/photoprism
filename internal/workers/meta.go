@@ -156,5 +156,10 @@ func (m *Meta) Start(delay, interval time.Duration, force bool) (err error) {
 	// Run garbage collection.
 	runtime.GC()
 
+	// Export db for sync
+	if err, _ := photoprism.ExportDB(true); err != nil {
+		log.Warnf("index: %s (export db)", err.Error())
+	}
+
 	return nil
 }

@@ -2,8 +2,6 @@ package api
 
 import (
 	"net/http"
-	"os"
-	"os/exec"
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
@@ -353,23 +351,27 @@ func PhotoSync(router *gin.RouterGroup) {
 			return
 		}
 
-		file := filepath.Join(os.TempDir(), "up.db")
-
-		cfg := service.Config()
-		cmd := exec.Command(cfg.ExportCommand(), file)
-		if err := cmd.Run(); err != nil {
+		if err, file := photoprism.ExportDB(false); err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
+		} else {
+			if !fs.FileExists(file) {
+				AbortEntityNotFound(c)
+				return
+			}
+
+			if etag, changed := Etag(file, c.GetHeader("If-None-Match")); changed {
+
+				AddEtagHeader(c, etag)
+
+				AddContentTypeHeader(c, ContentTypeBinary)
+
+				AddDownloadHeader(c, "photos.db")
+
+				c.File(file)
+			} else {
+				c.Status(http.StatusNotModified)
+			}
 		}
-		if !fs.FileExists(file) {
-			AbortEntityNotFound(c)
-			return
-		}
-
-		AddContentTypeHeader(c, ContentTypeBinary)
-
-		AddDownloadHeader(c, "photos.db")
-
-		c.File(file)
 	})
 }
