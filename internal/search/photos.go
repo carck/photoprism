@@ -57,7 +57,7 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 
 	if f.Notes != "" {
 		s = s.Joins("JOIN photo_search on photo_search.rowid = photos.id")
-		s = s.Where("photo_search.notes match jieba_query(?)", f.Notes)
+		s = s.Where("photo_search match jieba_query(?)", f.Notes)
 		s = s.Order("photo_search.rank desc")
 	}
 
@@ -268,9 +268,8 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 		if err := Db().Where(AnySlug("custom_slug", f.Query, " ")).Find(&labels).Error; len(labels) == 0 || err != nil {
 			log.Debugf("search: label %s not found, using fuzzy search", txt.LogParamLower(f.Query))
 
-			for _, where := range LikeAnyKeyword("k.keyword", f.Query) {
-				s = s.Where("files.photo_id IN (SELECT pk.photo_id FROM keywords k JOIN photos_keywords pk ON k.id = pk.keyword_id WHERE (?))", gorm.Expr(where))
-			}
+			s = s.Joins("JOIN photo_search on photo_search.rowid = photos.id")
+			s = s.Where("photo_search match jieba_query(?)", f.Query)
 		} else {
 			for _, l := range labels {
 				labelIds = append(labelIds, l.ID)
