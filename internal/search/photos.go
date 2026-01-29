@@ -55,9 +55,13 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 		s = s.Where("photos.taken_at > ?", f.After.Format("2006-01-02"))
 	}
 
-	if f.Notes != "" {
+	if f.Notes != "" || f.Query != "" {
 		s = s.Joins("JOIN photo_search on photo_search.rowid = photos.id")
-		s = s.Where("photo_search match jieba_query(?)", f.Notes)
+		if f.Query != "" {
+			s = s.Where("photo_search match jieba_query(?)", f.Query)
+		} else {
+			s = s.Where("photo_search match jieba_query(?)", f.Notes)
+		}
 		s = s.Order("photo_search.rank desc")
 	}
 
