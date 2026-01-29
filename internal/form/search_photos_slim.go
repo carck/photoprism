@@ -4,6 +4,7 @@ import "time"
 
 // SearchPhotosSlim represents search form fields for "/api/v1/photos/slim".
 type SearchPhotosSlim struct {
+	Query   string    `form:"q"`
 	Subject string    `form:"subject"`
 	Album   string    `form:"album"`
 	Path    string    `form:"path"`
