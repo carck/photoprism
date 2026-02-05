@@ -22,6 +22,7 @@ import (
 func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, err error) {
 	s := UnscopedDb()
 	s = s.Table("photos").
+        Joins("JOIN files ON photos.id = files.photo_id AND files.file_primary = 1").
 		Select(`photos.id, photos.photo_uid, photos.taken_at, files.file_hash ,photos.photo_type, photos.photo_name, photos.photo_title`).
 		Where("+photos.deleted_at is NULL")
 
@@ -41,10 +42,8 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 		}
 	}
 	if f.Subject != "" {
-		s = s.Joins("CROSS JOIN files ON photos.id = files.photo_id AND files.file_primary = 1")
-		s = s.Where("files.file_uid in (select file_uid from markers m where m.subj_uid = ?)", f.Subject)
-	} else {
-		s = s.Joins("CROSS JOIN files ON photos.id = files.photo_id AND files.file_primary = 1")
+		s = s.Joins("JOIN markers m on m.file_uid = files.file_uid")
+		s = s.Where("m.subj_uid = ?", f.Subject)
 	}
 
 	if !f.Before.IsZero() {
