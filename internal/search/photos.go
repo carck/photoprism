@@ -22,7 +22,7 @@ import (
 func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, err error) {
 	s := UnscopedDb()
 	s = s.Table("photos").
-        Joins("JOIN files ON photos.id = files.photo_id AND files.file_primary = 1").
+		Joins("JOIN files ON photos.id = files.photo_id AND files.file_primary = 1").
 		Select(`photos.id, photos.photo_uid, photos.taken_at, files.file_hash ,photos.photo_type, photos.photo_name, photos.photo_title`).
 		Where("+photos.deleted_at is NULL")
 
@@ -42,8 +42,7 @@ func PhotosSlim(f form.SearchPhotosSlim) (results PhotoResultsSlim, count int, e
 		}
 	}
 	if f.Subject != "" {
-		s = s.Joins("JOIN markers m on m.file_uid = files.file_uid")
-		s = s.Where("m.subj_uid = ?", f.Subject)
+		s = s.Where("files.file_uid IN (select file_uid from markers m where m.subj_uid = ?)", f.Subject)
 	}
 
 	if !f.Before.IsZero() {
@@ -109,6 +108,28 @@ func PhotosViewerResults(f form.SearchPhotos, contentUri, apiUri, previewToken, 
 	} else {
 		return results.ViewerResults(contentUri, apiUri, previewToken, downloadToken), count, err
 	}
+}
+
+func resolveSubjectUIDsBySlug(expr string) ([]string, error) {
+	var uids []string
+
+	parts := strings.Split(expr, txt.Or)
+
+	q := Db().Table(entity.Subject{}.TableName())
+	for i, p := range parts {
+		cond := AnySlug("subj_slug", p, txt.Or)
+		if i == 0 {
+			q = q.Where(cond)
+		} else {
+			q = q.Or(cond)
+		}
+	}
+
+	if err := q.Pluck("subj_uid", &uids).Error; err != nil {
+		return nil, err
+	}
+
+	return uids, nil
 }
 
 // photos searches for photos based on a Form and returns PhotoResults ([]Photo).
@@ -336,18 +357,43 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 	// Filter for one or more subjects?
 	if txt.NotEmpty(f.Subject) {
 		for _, subj := range strings.Split(strings.ToLower(f.Subject), txt.And) {
+			var subjUIDs []string
 			if subjects := strings.Split(subj, txt.Or); rnd.ContainsUIDs(subjects, 'j') {
-				s = s.Where(fmt.Sprintf("files.photo_id IN (SELECT photo_id FROM files f JOIN %s m ON f.file_uid = m.file_uid AND m.marker_invalid = 0 WHERE subj_uid IN (?))",
-					entity.Marker{}.TableName()), subjects)
+				subjUIDs = subjects
 			} else {
-				s = s.Where(fmt.Sprintf("files.photo_id IN (SELECT photo_id FROM files f JOIN %s m ON f.file_uid = m.file_uid AND m.marker_invalid = 0 JOIN %s s ON s.subj_uid = m.subj_uid WHERE (?))",
-					entity.Marker{}.TableName(), entity.Subject{}.TableName()), gorm.Expr(AnySlug("s.subj_slug", subj, txt.Or)))
+				var err error
+				subjUIDs, err = resolveSubjectUIDsBySlug(subj)
+				if err != nil || len(subjUIDs) == 0 {
+					s = s.Where("1 = 0")
+					break
+				}
 			}
+			s = s.Where(`
+			EXISTS (
+				SELECT 1
+				FROM markers m
+				WHERE m.file_uid = files.file_uid
+				  AND m.marker_invalid = 0
+				  AND m.subj_uid IN (?)
+			)`, subjUIDs)
 		}
 	} else if txt.NotEmpty(f.Subjects) {
 		for _, where := range LikeAllNames(Cols{"subj_name", "subj_alias"}, f.Subjects) {
-			s = s.Where(fmt.Sprintf("files.photo_id IN (SELECT photo_id FROM files f JOIN %s m ON f.file_uid = m.file_uid AND m.marker_invalid = 0 JOIN %s s ON s.subj_uid = m.subj_uid WHERE (?))",
-				entity.Marker{}.TableName(), entity.Subject{}.TableName()), gorm.Expr(where))
+			var subjUIDs []string
+
+			if err := Db().
+				Table(entity.Subject{}.TableName()).
+				Where(where).
+				Pluck("subj_uid", &subjUIDs).Error; err != nil || len(subjUIDs) == 0 {
+				s = s.Where("1 = 0")
+				break
+			}
+			s = s.Where(`
+			EXISTS (SELECT 1 FROM markers m
+				WHERE m.file_uid = files.file_uid
+				  AND m.marker_invalid = 0
+				  AND m.subj_uid IN (?)
+			)`, subjUIDs)
 		}
 	}
 
