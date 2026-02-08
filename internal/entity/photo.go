@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
-	"github.com/ulule/deepcopier"
+	"github.com/photoprism/photoprism/pkg/deepcopier"
 
 	"github.com/photoprism/photoprism/internal/classify"
 	"github.com/photoprism/photoprism/internal/event"

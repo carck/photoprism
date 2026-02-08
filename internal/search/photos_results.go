@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/gosimple/slug"
-	"github.com/ulule/deepcopier"
+	"github.com/photoprism/photoprism/pkg/deepcopier"
 
 	"github.com/photoprism/photoprism/internal/entity"
 )

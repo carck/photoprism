@@ -46,7 +46,6 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/studio-b12/gowebdav v0.0.0-20211106090535-29e74efa701f
 	github.com/tidwall/gjson v1.17.1
-	github.com/ulule/deepcopier v0.0.0-20200430083143-45decc6639b6
 	github.com/urfave/cli v1.22.14
 	golang.org/x/crypto v0.22.0
 	golang.org/x/image v0.14.0

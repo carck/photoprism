@@ -9,10 +9,10 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/photoprism/photoprism/internal/form"
+	"github.com/photoprism/photoprism/pkg/deepcopier"
 	"github.com/photoprism/photoprism/pkg/rnd"
 	"github.com/photoprism/photoprism/pkg/sanitize"
 	"github.com/photoprism/photoprism/pkg/txt"
-	"github.com/ulule/deepcopier"
 )
 
 var folderMutex = sync.Mutex{}

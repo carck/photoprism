@@ -1,6 +1,6 @@
 package form
 
-import "github.com/ulule/deepcopier"
+import "github.com/photoprism/photoprism/pkg/deepcopier"
 
 // Marker represents an image marker edit form.
 type Marker struct {

@@ -1,6 +1,6 @@
 package form
 
-import "github.com/ulule/deepcopier"
+import "github.com/photoprism/photoprism/pkg/deepcopier"
 
 // Subject represents an image subject edit form.
 type Subject struct {

@@ -6,7 +6,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/ulule/deepcopier"
+	"github.com/photoprism/photoprism/pkg/deepcopier"
 
 	"github.com/photoprism/photoprism/internal/form"
 	"github.com/photoprism/photoprism/internal/remote"

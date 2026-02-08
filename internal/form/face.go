@@ -1,6 +1,6 @@
 package form
 
-import "github.com/ulule/deepcopier"
+import "github.com/photoprism/photoprism/pkg/deepcopier"
 
 // Face represents a face edit form.
 type Face struct {

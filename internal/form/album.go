@@ -1,6 +1,6 @@
 package form
 
-import "github.com/ulule/deepcopier"
+import "github.com/photoprism/photoprism/pkg/deepcopier"
 
 // Album represents an album edit form.
 type Album struct {

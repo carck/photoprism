@@ -3,7 +3,7 @@ package form
 import (
 	"time"
 
-	"github.com/ulule/deepcopier"
+	"github.com/photoprism/photoprism/pkg/deepcopier"
 )
 
 // Details contains detailed photo information

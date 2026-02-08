@@ -1,6 +1,6 @@
 package form
 
-import "github.com/ulule/deepcopier"
+import "github.com/photoprism/photoprism/pkg/deepcopier"
 
 // Folder represents a file system directory edit form.
 type Folder struct {
