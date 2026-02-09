@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/gosimple/slug"
-	"github.com/photoprism/photoprism/pkg/deepcopier"
 
 	"github.com/photoprism/photoprism/internal/entity"
 )
@@ -118,6 +117,39 @@ func (photo *Photo) ShareBase(seq int) string {
 	return fmt.Sprintf("%s-%s.%s", taken, name, photo.FileType)
 }
 
+func (p *Photo) AsFile() entity.File {
+	return entity.File{
+		ID:              p.FileID,
+		PhotoID:         p.ID,
+		PhotoUID:        p.PhotoUID,
+		InstanceID:      p.InstanceID,
+		FileUID:         p.FileUID,
+		FileName:        p.FileName,
+		FileRoot:        p.FileRoot,
+		FileHash:        p.FileHash,
+		FileType:        p.FileType,
+		FileMime:        p.FileMime,
+		FileSize:        p.FileSize,
+		FileWidth:       p.FileWidth,
+		FileHeight:      p.FileHeight,
+		FilePortrait:    p.FilePortrait,
+		FilePrimary:     p.FilePrimary,
+		FileSidecar:     p.FileSidecar,
+		FileMissing:     p.FileMissing,
+		FileVideo:       p.FileVideo,
+		FileDuration:    p.FileDuration,
+		FileCodec:       p.FileCodec,
+		FileAspectRatio: p.FileAspectRatio,
+		FileOrientation: p.FileOrientation,
+		FileProjection:  p.FileProjection,
+		FileColors:      p.FileColors,
+		FileLuminance:   p.FileLuminance,
+		FileDiff:        p.FileDiff,
+		FileChroma:      p.FileChroma,
+		NoMarkers:       true,
+	}
+}
+
 type PhotoResults []Photo
 
 // UIDs returns a slice of photo UIDs.
@@ -148,14 +180,7 @@ func (photos PhotoResults) Merge() (merged PhotoResults, count int, err error) {
 	var photoId uint
 
 	for _, photo := range photos {
-		file := entity.File{}
-
-		if err = deepcopier.Copy(&file).From(photo); err != nil {
-			return merged, count, err
-		}
-
-		file.NoMarkers = true
-		file.ID = photo.FileID
+		file := photo.AsFile()
 
 		if photoId == photo.ID && i > 0 {
 			merged[i-1].Files = append(merged[i-1].Files, file)
