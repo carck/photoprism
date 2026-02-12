@@ -68,7 +68,7 @@ func AlbumCover(router *gin.RouterGroup) {
 			if c.Query("download") != "" {
 				c.FileAttachment(cached.FileName, cached.ShareName)
 			} else {
-				c.File(cached.FileName)
+				SendFile(c, cached.FileName)
 			}
 
 			return
@@ -99,7 +99,7 @@ func AlbumCover(router *gin.RouterGroup) {
 		if size.ExceedsLimit() && c.Query("download") == "" {
 			log.Debugf("%s: using original, size exceeds limit (width %d, height %d)", albumCover, size.Width, size.Height)
 			AddCoverCacheHeader(c)
-			c.File(fileName)
+			SendFile(c, fileName)
 			return
 		}
 
@@ -129,7 +129,7 @@ func AlbumCover(router *gin.RouterGroup) {
 		if c.Query("download") != "" {
 			c.FileAttachment(thumbnail, f.DownloadName(DownloadName(c), 0))
 		} else {
-			c.File(thumbnail)
+			SendFile(c, thumbnail)
 		}
 	})
 }
@@ -182,7 +182,7 @@ func LabelCover(router *gin.RouterGroup) {
 			if c.Query("download") != "" {
 				c.FileAttachment(cached.FileName, cached.ShareName)
 			} else {
-				c.File(cached.FileName)
+				SendFile(c, cached.FileName)
 			}
 
 			return
@@ -214,7 +214,7 @@ func LabelCover(router *gin.RouterGroup) {
 			log.Debugf("%s: using original, size exceeds limit (width %d, height %d)", labelCover, size.Width, size.Height)
 
 			AddCoverCacheHeader(c)
-			c.File(fileName)
+			SendFile(c, fileName)
 
 			return
 		}
@@ -245,7 +245,7 @@ func LabelCover(router *gin.RouterGroup) {
 		if c.Query("download") != "" {
 			c.FileAttachment(thumbnail, f.DownloadName(DownloadName(c), 0))
 		} else {
-			c.File(thumbnail)
+			SendFile(c, thumbnail)
 		}
 	})
 }

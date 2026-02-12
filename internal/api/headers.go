@@ -2,9 +2,9 @@ package api
 
 import (
 	"fmt"
-	"strconv"
-
 	"github.com/photoprism/photoprism/internal/service"
+	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -73,4 +73,25 @@ func AddTokenHeaders(c *gin.Context) {
 
 func AddEtagHeader(c *gin.Context, etag string) {
 	c.Header("ETag", etag)
+}
+
+func SendFile(c *gin.Context, filepath string) {
+	if c.GetHeader("X-Send-File") != "" {
+		prefix := service.Config().ThumbPath()
+		if strings.HasPrefix(filepath, prefix) {
+			redirectPath := "/ithumbs" + strings.Replace(filepath, prefix, "", 1)
+			c.Header("X-Accel-Redirect", redirectPath)
+			c.Status(200)
+			return
+		}
+		prefix = service.Config().OriginalsPath()
+		if strings.HasPrefix(filepath, prefix) {
+			redirectPath := "/ioriginals" + strings.Replace(filepath, prefix, "", 1)
+			c.Header("X-Accel-Redirect", redirectPath)
+			c.Status(200)
+			return
+		}
+
+	}
+	c.File(filepath)
 }

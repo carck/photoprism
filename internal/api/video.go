@@ -99,7 +99,7 @@ func GetVideo(router *gin.RouterGroup) {
 		if c.Query("download") != "" {
 			c.FileAttachment(fileName, f.DownloadName(DownloadName(c), 0))
 		} else {
-			c.File(fileName)
+			SendFile(c, fileName)
 		}
 
 		return

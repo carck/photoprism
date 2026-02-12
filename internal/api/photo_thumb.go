@@ -112,7 +112,7 @@ func GetThumb(router *gin.RouterGroup) {
 				c.FileAttachment(cached.FileName, cached.ShareName)
 			} else {
 				AddThumbCacheHeader(c)
-				c.File(cached.FileName)
+				SendFile(c, cached.FileName)
 			}
 
 			return
@@ -122,7 +122,7 @@ func GetThumb(router *gin.RouterGroup) {
 		if !download {
 			if fileName, err := thumb.FileName(fileHash, conf.ThumbPath(), size.Width, size.Height, size.Options...); err == nil && fs.FileExists(fileName) {
 				AddThumbCacheHeader(c)
-				c.File(fileName)
+				SendFile(c, fileName)
 				return
 			}
 		}
