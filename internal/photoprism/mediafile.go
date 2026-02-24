@@ -1032,44 +1032,11 @@ func (m *MediaFile) ResampleDefault(thumbPath string, force bool) (err error) {
 	hash := m.Hash()
 
 	originalImg := m.FileName()
-	sourceImg := ""
-	var sourceName thumb.Name
 
-	for _, name := range thumb.DefaultSizes {
-		size := thumb.Sizes[name]
-
-		if size.Uncached() {
-			// Skip, exceeds pre-cached size limit.
-			continue
-		}
-
-		if fileName, err := thumb.FileName(hash, thumbPath, size.Width, size.Height, size.Options...); err != nil {
-			log.Errorf("media: failed creating %s (%s)", sanitize.Log(string(name)), err)
-
-			return err
-		} else {
-			if !force && fs.FileExists(fileName) {
-				continue
-			}
-
-			if size.Source != "" {
-				if size.Source == sourceName && sourceImg != "" {
-					_, err = thumb.CreateVips(sourceImg, fileName, size.Width, size.Height, size.Options...)
-				} else {
-					_, err = thumb.CreateVips(originalImg, fileName, size.Width, size.Height, size.Options...)
-				}
-			} else {
-				sourceImg, err = thumb.CreateVips(originalImg, fileName, size.Width, size.Height, size.Options...)
-				sourceName = name
-			}
-
-			if err != nil {
-				log.Errorf("media: failed creating %s (%s)", sanitize.Log(string(name)), err)
-				return err
-			}
-
-			count++
-		}
+	err = thumb.ResampleVipsDefault(originalImg, thumbPath, hash, force)
+	if err != nil {
+		log.Errorf("media: failed creating %s (%s)", sanitize.Log(string(originalImg)), err)
+		return err
 	}
 
 	return nil
