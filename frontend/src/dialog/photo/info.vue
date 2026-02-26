@@ -12,6 +12,15 @@
           <td>{{ model.DocumentID | uppercase }}</td>
         </tr>
         <tr>
+          <td>Actions</td>
+          <td>
+            <v-btn small depressed dark color="primary-button" class="ma-0 action-download"
+                    @click.stop.prevent="thumb()">
+                    Thumb
+            </v-btn>
+          </td>
+        </tr>
+        <tr>
           <td :title="model.TypeSrc">
             <translate>Type</translate>
             <v-icon v-if="model.TypeSrc === 'manual'" class="src">check</v-icon>
@@ -313,6 +322,9 @@ export default {
     },
     close() {
       this.$emit('close');
+    },
+    thumb() {
+      this.model.resample();
     },
     openPhoto() {
       this.$viewer.show(Thumb.fromFiles([this.model]), 0);

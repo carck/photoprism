@@ -885,6 +885,12 @@ export class Photo extends RestModel {
     return Api.put(this.getEntityResource(), { Private: this.Private });
   }
 
+  resample() {
+    return Api.post(this.getEntityResource() + "/thumb").then((r) =>
+      Promise.resolve(this.setValues(r.data))
+    );
+  }
+
   primaryFile(fileUID) {
     return Api.post(`${this.getEntityResource()}/files/${fileUID}/primary`).then((r) =>
       Promise.resolve(this.setValues(r.data))

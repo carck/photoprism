@@ -95,6 +95,7 @@ func registerRoutes(router *gin.Engine, conf *config.Config) {
 		api.UpdateMarker(v1)
 		api.ClearMarkerSubject(v1)
 		api.PhotoPrimary(v1)
+		api.PhotoResampleDefault(v1)
 		api.PhotoUnstack(v1)
 		api.PhotoSync(v1)
 

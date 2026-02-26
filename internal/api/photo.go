@@ -342,6 +342,53 @@ func PhotoPrimary(router *gin.RouterGroup) {
 	})
 }
 
+// POST /api/v1/photos/:uid/thumb
+//
+// Parameters:
+//
+//	uid: string PhotoUID as returned by the API
+func PhotoResampleDefault(router *gin.RouterGroup) {
+	router.POST("/photos/:uid/thumb", func(c *gin.Context) {
+		s := Auth(SessionID(c), acl.ResourcePhotos, acl.ActionUpdate)
+
+		if s.Invalid() {
+			AbortUnauthorized(c)
+			return
+		}
+
+		uid := sanitize.IdString(c.Param("uid"))
+
+		// Find primary file for photo
+		f, err := query.FileByPhotoUID(uid)
+
+		if err != nil {
+			AbortEntityNotFound(c)
+			return
+		}
+
+		// Build mediafile and call ResampleDefault via service.Resample
+		fileName := photoprism.FileName(f.FileRoot, f.FileName)
+
+		mf, err := photoprism.NewMediaFile(fileName)
+
+		if err != nil {
+			log.Errorf("photo: %s", err)
+			AbortSaveFailed(c)
+			return
+		}
+
+		thumbPath := service.Config().ThumbPath()
+
+		if err := mf.ResampleDefault(thumbPath, true); err != nil {
+			log.Errorf("photo: resample default failed: %s", err)
+			AbortSaveFailed(c)
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+}
+
 func PhotoSync(router *gin.RouterGroup) {
 	router.GET("/database/sync.db", func(c *gin.Context) {
 		s := Auth(SessionID(c), acl.ResourcePhotos, acl.ActionUpdate)
