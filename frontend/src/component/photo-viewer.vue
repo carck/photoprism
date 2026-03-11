@@ -176,12 +176,11 @@ export default {
       const g = this.$viewer.gallery;
 
       if (g) {
+        setTimeout(() => {
+          this.$router.push({name: 'browse', query: {q: 'clip:' + this.item.UID.toLowerCase()}});
+        }, 500);
         g.close();
       }
-
-      this.$nextTick(() => {
-        this.$router.push({name: 'browse', query: {q: 'clip:' + this.item.UID.toLowerCase()}});
-      });
     },
     onSelect() {
       this.$clipboard.toggle(this.item);
