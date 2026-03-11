@@ -62,11 +62,17 @@ func SearchClip(query string, size int) ([]uint, error) {
 }
 
 func lookupPhotoID(uid string) (uint, error) {
-	var id uint
+	var ids []uint
 	err := UnscopedDb().
 		Table("photos").
-		Select("id").
 		Where("photo_uid = ?", uid).
-		Take(&id).Error
-	return id, err
+		Pluck("id", &ids).Error
+
+	if err != nil {
+		return 0, err
+	}
+	if len(ids) == 0 {
+		return 0, fmt.Errorf("photo UID not found: %s", uid)
+	}
+	return ids[0], err
 }
