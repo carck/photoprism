@@ -39,6 +39,11 @@
             <v-icon v-else size="16" color="white">favorite_border</v-icon>
           </button>
 
+          <button class="pswp__button action-clip-search" style="background: none;"
+                  :title="$gettext('Find Similar')" @click.exact="onClipSearch">
+            <v-icon size="16" color="white">image_search</v-icon>
+          </button>
+
           <button class="pswp__button pswp__button--fs action-toggle-fullscreen"
                   :title="$gettext('Fullscreen')"></button>
 
@@ -166,6 +171,17 @@ export default {
     },
     onLike() {
       this.item.toggleLike();
+    },
+    onClipSearch() {
+      const g = this.$viewer.gallery;
+
+      if (g) {
+        g.close();
+      }
+
+      this.$nextTick(() => {
+        this.$router.push({name: 'browse', query: {q: 'clip:' + this.item.UID.toLowerCase()}});
+      });
     },
     onSelect() {
       this.$clipboard.toggle(this.item);
