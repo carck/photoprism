@@ -3,6 +3,7 @@ package txt
 import (
 	"strconv"
 	"strings"
+	"unsafe"
 )
 
 // Int converts a string to a signed integer or 0 if invalid.
@@ -107,4 +108,8 @@ func JoinUint(s []uint) string {
 	}
 
 	return sb.String()
+}
+
+func UnitToBytes(ids []uint) []byte {
+	return unsafe.Slice((*byte)(unsafe.Pointer(unsafe.SliceData(ids))), len(ids)*8)
 }
