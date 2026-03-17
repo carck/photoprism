@@ -574,6 +574,10 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 		s = s.Where("photos.photo_f_number <= ?", f.Fmax)
 	}
 
+	if f.Size > 0 {
+		s = s.Where("files.file_size >= ?", int64(f.Size*1024*1024))
+	}
+
 	if f.Dist == 0 {
 		f.Dist = 20
 	} else if f.Dist > 5000 {
