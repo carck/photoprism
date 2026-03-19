@@ -51,6 +51,7 @@ type ClientConfig struct {
 	Countries       entity.Countries    `json:"countries"`
 	People          entity.People       `json:"people"`
 	Thumbs          ThumbSizes          `json:"thumbs"`
+	ThumbMax        int                 `json:"thumbMax"`
 	Status          string              `json:"status"`
 	MapKey          string              `json:"mapKey"`
 	DownloadToken   string              `json:"downloadToken"`
@@ -239,6 +240,7 @@ func (c *Config) PublicConfig() ClientConfig {
 		Clip:            txt.ClipDefault,
 		PreviewToken:    "public",
 		DownloadToken:   "public",
+		ThumbMax:        c.ThumbSizeMax(),
 	}
 
 	return result
@@ -311,6 +313,7 @@ func (c *Config) GuestConfig() ClientConfig {
 		PreviewToken:    c.PreviewToken(),
 		ManifestUri:     c.ClientManifestUri(),
 		Clip:            txt.ClipDefault,
+		ThumbMax:        c.ThumbSizeMax(),
 	}
 
 	return result
@@ -381,6 +384,7 @@ func (c *Config) UserConfigFull(counterless bool) ClientConfig {
 		ManifestUri:     c.ClientManifestUri(),
 		Clip:            txt.ClipDefault,
 		Server:          NewRuntimeInfo(),
+		ThumbMax:        c.ThumbSizeMax(),
 	}
 
 	if counterless {

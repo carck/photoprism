@@ -86,7 +86,7 @@ export class Photo extends RestModel {
     this.DownloadUrl = this.getDownloadUrl();
   }
 
-  generateThumbs() {
+  generateThumb(s) {
     let sourceWidth = this.Width;
     let sourceHeight = this.Height;
     if (this.Files) {
@@ -98,26 +98,16 @@ export class Photo extends RestModel {
     }
 
     if (!this.Hash) {
-      this.Thumbs= {};
       return;
     }
 
-    const result = {};
-    const sizes = {'fit_1280': true};
-    for (let i = 0; i < thumbs.length; i++) {
-      let t = thumbs[i];
-      if (!sizes[t.size])
-          continue;
-      let size = this.calculateSizeFromProps(t.w, t.h, sourceWidth, sourceHeight);
+    let size = this.calculateSizeFromProps(s.w, s.h, sourceWidth, sourceHeight);
 
-      result[t.size] = {
-        src: this.thumbnailUrl(t.size),
-        w: size.width,
-        h: size.height,
-      };
-    }
-
-    this.Thumbs = result;
+    return  {
+      src: this.thumbnailUrl(s.size),
+      w: size.width,
+      h: size.height,
+    };
   }
 
   getDefaults() {

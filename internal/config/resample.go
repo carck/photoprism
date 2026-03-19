@@ -87,3 +87,10 @@ func (c *Config) ThumbSizeUncached() int {
 
 	return limit
 }
+
+func (c *Config) ThumbSizeMax() int {
+	if c.options.ThumbUncached {
+		return -1
+	}
+	return c.ThumbSizePrecached()
+}

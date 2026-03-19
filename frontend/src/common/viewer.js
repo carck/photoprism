@@ -28,12 +28,17 @@ import PhotoSwipeUI_Default from "photoswipe/dist/photoswipe-ui-default.js";
 import Event from "pubsub-js";
 import Util from "util.js";
 
-const thumbs = window.__CONFIG__.thumbs;
+const THUMBS = window.__CONFIG__.thumbs;
+const THUMB_MAX = window.__CONFIG__.thumbMax;
 
 class Viewer {
   constructor() {
     this.el = null;
     this.gallery = null;
+    this.thumbMap = {};
+    for (let t of THUMBS) {
+      this.thumbMap[t.size] = t;
+    }
   }
 
   getEl() {
@@ -196,13 +201,13 @@ class Viewer {
       photoSrcWillChange = false;
     });
 
+    const thumbMap = this.thumbMap;
     gallery.listen("gettingData", function (index, item) {
-      if (!item.Thumbs) {
-	item.generateThumbs()
-      }
-      item.src = item.Thumbs[nextSize].src;
-      item.w = item.Thumbs[nextSize].w;
-      item.h = item.Thumbs[nextSize].h;
+      const size = thumbMap[nextSize];
+      const t = item.generateThumb(size);
+      item.src = t.src;
+      item.w = t.w;
+      item.h = t.h;
       previousSize = nextSize;
     });
 
@@ -210,15 +215,18 @@ class Viewer {
   }
 
   static mapViewportToImageSize(viewportWidth, viewportHeight) {
-    for (let i = 0; i < thumbs.length; i++) {
-      let t = thumbs[i];
+    for (let i = 0; i < THUMBS.length; i++) {
+      let t = THUMBS[i];
+
+      if (THUMB_MAX > 0 && (t.w > THUMB_MAX || t.h > THUMB_MAX))
+        continue;
 
       if (t.w >= viewportWidth || t.h >= viewportHeight) {
         return t.size;
       }
     }
 
-    return "fit_7680";
+    return "fit_1280";
   }
 
 }
