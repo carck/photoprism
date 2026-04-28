@@ -27,6 +27,11 @@ func Copy(src, dest string) (err error) {
 
 	defer thisFile.Close()
 
+	srcInfo, err := thisFile.Stat()
+	if err != nil {
+		return err
+	}
+
 	destFile, err := os.OpenFile(dest, os.O_RDWR|os.O_CREATE, os.ModePerm)
 
 	if err != nil {
@@ -41,5 +46,5 @@ func Copy(src, dest string) (err error) {
 		return err
 	}
 
-	return nil
+	return os.Chtimes(dest, srcInfo.ModTime(), srcInfo.ModTime())
 }
