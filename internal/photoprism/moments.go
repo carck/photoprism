@@ -231,6 +231,10 @@ func (w *Moments) Start() (err error) {
 				Public:  true,
 			}
 
+			if mom.Title() == "" {
+				continue
+			}
+
 			if a := entity.FindAlbumByAttr(S{mom.Slug(), mom.TitleSlug()}, S{f.Serialize()}, entity.AlbumMoment); a != nil {
 				if err := a.UpdateSlug(mom.Title(), mom.Slug()); err != nil {
 					log.Errorf("moments: %s (update slug)", err.Error())

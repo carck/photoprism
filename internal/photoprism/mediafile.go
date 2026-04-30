@@ -605,7 +605,13 @@ func (m *MediaFile) Move(dest string) error {
 	}
 
 	if err := m.Copy(dest); err != nil {
+		log.Warnf("Move: remove partial file %s removed=%v", dest, os.Remove(dest) == nil)
 		return err
+	}
+
+	if size, _ := fs.FileSize(dest); size != m.FileSize() {
+		log.Warnf("Move: remove mismatched file %s removed=%v", dest, os.Remove(dest) == nil)
+		return fmt.Errorf("File size mismatch!!")
 	}
 
 	if !modTime.IsZero() {
@@ -648,6 +654,7 @@ func (m *MediaFile) Copy(dest string) error {
 	_, err = io.Copy(destFile, thisFile)
 
 	if err != nil {
+		log.Warnf("Copy: remove partial file %s removed=%v", dest, os.Remove(dest) == nil)
 		log.Error(err.Error())
 		return err
 	}

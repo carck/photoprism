@@ -45,6 +45,14 @@ const PathSeparator = string(filepath.Separator)
 const Home = "~"
 const HomePath = Home + PathSeparator
 
+func FileSize(path string) (int64, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return 0, err
+	}
+	return info.Size(), nil
+}
+
 // FileExists returns true if file exists and is not a directory.
 func FileExists(fileName string) bool {
 	if fileName == "" {
