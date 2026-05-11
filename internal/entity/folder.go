@@ -159,6 +159,17 @@ func (m *Folder) Create() error {
 	folderMutex.Lock()
 	defer folderMutex.Unlock()
 
+	var count int64
+
+	Db().
+		Model(&Folder{}).
+		Where("path = ? AND root = ?", m.Path, m.Root).
+		Count(&count)
+
+	if count > 0 {
+		return nil
+	}
+
 	if err := Db().Create(m).Error; err != nil {
 		return err
 	} else if m.Root != RootOriginals || m.Path == "" {
