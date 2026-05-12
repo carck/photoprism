@@ -128,6 +128,10 @@ func WebDAV(path string, router *gin.RouterGroup, conf *config.Config) {
 		w := c.Writer
 		r := c.Request
 
+		if strings.Contains(r.URL.Path, "..") {
+			c.AbortWithStatus(http.StatusForbidden)
+			return
+		}
 		srv.ServeHTTP(w, r)
 	}
 
