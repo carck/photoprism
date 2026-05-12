@@ -77,9 +77,20 @@ func WebDAV(path string, router *gin.RouterGroup, conf *config.Config) {
 		FileSystem: f,
 		LockSystem: webdav.NewMemLS(),
 		Logger: func(r *http.Request, err error) {
+			var fileName string
+			if router.BasePath() == WebDAVOriginals {
+				fileName = filepath.Join(conf.OriginalsPath(), strings.TrimPrefix(r.URL.Path, router.BasePath()))
+			} else if router.BasePath() == WebDAVImport {
+				fileName = filepath.Join(conf.ImportPath(), strings.TrimPrefix(r.URL.Path, router.BasePath()))
+			} else if router.BasePath() == WebDAVCargo {
+				fileName = filepath.Join(conf.CargoPath(), strings.TrimPrefix(r.URL.Path, router.BasePath()))
+			}
 			if err != nil {
 				switch r.Method {
 				case MethodPut, MethodPost, MethodPatch, MethodDelete, MethodCopy, MethodMove:
+					if r.Method == MethodPut && fs.FileExists(fileName) {
+						log.Warnf("Remove partial file %s, removed=%v", fileName, os.Remove(fileName) == nil)
+					}
 					log.Errorf("webdav: %s in %s %s", sanitize.Log(err.Error()), sanitize.Log(r.Method), sanitize.Log(r.URL.String()))
 				case MethodPropfind:
 					log.Tracef("webdav: %s in %s %s", sanitize.Log(err.Error()), sanitize.Log(r.Method), sanitize.Log(r.URL.String()))
@@ -88,15 +99,6 @@ func WebDAV(path string, router *gin.RouterGroup, conf *config.Config) {
 				}
 
 			} else {
-				var fileName string
-				if router.BasePath() == WebDAVOriginals {
-					fileName = filepath.Join(conf.OriginalsPath(), strings.TrimPrefix(r.URL.Path, router.BasePath()))
-				} else if router.BasePath() == WebDAVImport {
-					fileName = filepath.Join(conf.ImportPath(), strings.TrimPrefix(r.URL.Path, router.BasePath()))
-				} else if router.BasePath() == WebDAVCargo {
-					fileName = filepath.Join(conf.CargoPath(), strings.TrimPrefix(r.URL.Path, router.BasePath()))
-				}
-
 				// Mark uploaded files as favorite if X-Favorite HTTP header is "1".
 				if r.Method == MethodPut && r.Header.Get("X-Favorite") == "1" {
 					MarkUploadAsFavorite(fileName)
