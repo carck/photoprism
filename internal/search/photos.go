@@ -16,6 +16,7 @@ import (
 
 	"github.com/photoprism/photoprism/pkg/fs"
 	"github.com/photoprism/photoprism/pkg/rnd"
+	"github.com/photoprism/photoprism/pkg/s2"
 	"github.com/photoprism/photoprism/pkg/txt"
 )
 
@@ -139,6 +140,25 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 	// Parse query string into fields.
 	if err := f.ParseQueryString(); err != nil {
 		return PhotoResults{}, 0, err
+	}
+	if txt.NotEmpty(f.Near) {
+		photo := Photo{}
+
+		// Find a nearby picture using the UID or return an empty result otherwise.
+		if err = Db().First(&photo, "photo_uid = ?", f.Near).Error; err != nil {
+			log.Debugf("search: %s (find nearby)", err)
+			return PhotoResults{}, 0, fmt.Errorf("Bad parameter 'near'")
+		}
+
+		// Set the S2 Cell ID to search for.
+		f.S2 = photo.CellID
+	}
+
+	// Set default search distance.
+	if f.Dist == 0 {
+		f.Dist = 2
+	} else if f.Dist > 5000 {
+		f.Dist = 5000
 	}
 
 	s := UnscopedDb()
@@ -554,6 +574,13 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 		s = s.Where("files.file_hash IN (?)", strings.Split(strings.ToLower(f.Hash), txt.Or))
 	}
 
+	// Filter by location code.
+	if txt.NotEmpty(f.S2) {
+		// S2 Cell ID.
+		s2Min, s2Max := s2.PrefixedRange(f.S2, s2.LevelUp(float64(f.Dist)))
+		s = s.Where("photos.cell_id BETWEEN ? AND ?", s2Min, s2Max)
+	}
+
 	if f.Mono {
 		s = s.Where("files.file_chroma = 0 OR file_colors = '111111111'")
 	} else if f.Chroma > 9 {
@@ -578,12 +605,6 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 		s = s.Where("files.file_size >= ?", int64(f.Size*1024*1024))
 	}
 
-	if f.Dist == 0 {
-		f.Dist = 20
-	} else if f.Dist > 5000 {
-		f.Dist = 5000
-	}
-
 	// Filter by approx distance to co-ordinates:
 	if f.Lat != 0 {
 		latMin := f.Lat - Radius*float32(f.Dist)
@@ -594,6 +615,11 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 		lngMin := f.Lng - Radius*float32(f.Dist)
 		lngMax := f.Lng + Radius*float32(f.Dist)
 		s = s.Where("photos.photo_lng BETWEEN ? AND ?", lngMin, lngMax)
+	}
+
+	if !f.Taken.IsZero() {
+		f.After = f.Taken
+		f.Before = f.Taken.AddDate(0, 0, 1)
 	}
 
 	if !f.Before.IsZero() {

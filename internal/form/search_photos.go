@@ -34,9 +34,11 @@ type SearchPhotos struct {
 	Private   bool      `form:"private"`
 	Favorite  bool      `form:"favorite"`
 	Unsorted  bool      `form:"unsorted"`
+	Near      string    `form:"near" example:"near:pqbcf5j446s0futy" notes:"Finds nearby pictures (UID)"`
+	S2        string    `form:"s2" example:"s2:4799e370ca54c8b9"  notes:"Position, specified as S2 Cell ID"`
 	Lat       float32   `form:"lat"`
 	Lng       float32   `form:"lng"`
-	Dist      uint      `form:"dist"`
+	Dist      float32   `form:"dist"`
 	Fmin      float32   `form:"fmin"`
 	Fmax      float32   `form:"fmax"`
 	Size      uint      `form:"size"`
@@ -45,27 +47,28 @@ type SearchPhotos struct {
 	Mono      bool      `form:"mono"`
 	Portrait  bool      `form:"portrait"`
 	Geo       bool      `form:"geo"`
-	Keywords  string    `form:"keywords"`                               // Filter by keyword(s)
-	Label     string    `form:"label"`                                  // Label name
-	Category  string    `form:"category"`                               // Moments
-	Country   string    `form:"country"`                                // Moments
-	State     string    `form:"state"`                                  // Moments
-	Year      string    `form:"year"`                                   // Moments
-	Month     string    `form:"month"`                                  // Moments
-	Day       string    `form:"day"`                                    // Moments
-	Face      string    `form:"face"`                                   // UIDs
-	Subject   string    `form:"subject"`                                // UIDs
-	Person    string    `form:"person"`                                 // Alias for Subject
-	Subjects  string    `form:"subjects"`                               // People names
-	People    string    `form:"people"`                                 // Alias for Subjects
-	Album     string    `form:"album"`                                  // Album UIDs or name
-	Albums    string    `form:"albums"`                                 // Multi search with and/or
-	Color     string    `form:"color"`                                  // Main color
-	Faces     string    `form:"faces"`                                  // Find or exclude faces if detected.
-	Quality   int       `form:"quality"`                                // Photo quality score
-	Review    bool      `form:"review"`                                 // Find photos in review
-	Camera    string    `form:"camera"`                                 // Camera UID or name
-	Lens      string    `form:"lens"`                                   // Lens UID or name
+	Keywords  string    `form:"keywords"` // Filter by keyword(s)
+	Label     string    `form:"label"`    // Label name
+	Category  string    `form:"category"` // Moments
+	Country   string    `form:"country"`  // Moments
+	State     string    `form:"state"`    // Moments
+	Year      string    `form:"year"`     // Moments
+	Month     string    `form:"month"`    // Moments
+	Day       string    `form:"day"`      // Moments
+	Face      string    `form:"face"`     // UIDs
+	Subject   string    `form:"subject"`  // UIDs
+	Person    string    `form:"person"`   // Alias for Subject
+	Subjects  string    `form:"subjects"` // People names
+	People    string    `form:"people"`   // Alias for Subjects
+	Album     string    `form:"album"`    // Album UIDs or name
+	Albums    string    `form:"albums"`   // Multi search with and/or
+	Color     string    `form:"color"`    // Main color
+	Faces     string    `form:"faces"`    // Find or exclude faces if detected.
+	Quality   int       `form:"quality"`  // Photo quality score
+	Review    bool      `form:"review"`   // Find photos in review
+	Camera    string    `form:"camera"`   // Camera UID or name
+	Lens      string    `form:"lens"`     // Lens UID or name
+	Taken     time.Time `form:"taken" time_format:"2006-01-02" notes:"Finds content created on the specified date"`
 	Before    time.Time `form:"before" time_format:"2006-01-02"`        // Finds images taken before date
 	After     time.Time `form:"after" time_format:"2006-01-02"`         // Finds images taken after date
 	Count     int       `form:"count" binding:"required" serialize:"-"` // Result FILE limit
