@@ -605,7 +605,6 @@ func (m *MediaFile) Move(dest string) error {
 	}
 
 	if err := m.Copy(dest); err != nil {
-		log.Warnf("Move: remove partial file %s removed=%v", dest, os.Remove(dest) == nil)
 		return err
 	}
 
