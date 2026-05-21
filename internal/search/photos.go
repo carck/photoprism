@@ -603,6 +603,7 @@ func searchPhotos(f form.SearchPhotos, resultCols string) (results PhotoResults,
 
 	if f.Size > 0 {
 		s = s.Where("files.file_size >= ?", int64(f.Size*1024*1024))
+		s = s.Order("files.file_size desc", true)
 	}
 
 	// Filter by approx distance to co-ordinates:

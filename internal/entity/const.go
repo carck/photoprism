@@ -79,4 +79,5 @@ const (
 	SortOrderSlug      = "slug"
 	SortOrderCategory  = "category"
 	SortOrderSimilar   = "similar"
+	SortOrderSize      = "size"
 )
