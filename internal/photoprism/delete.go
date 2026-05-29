@@ -20,6 +20,7 @@ func Delete(p entity.Photo) error {
 		return err
 	}
 
+	go func(){
 	// Delete related files.
 	for _, file := range files {
 		fileName := FileName(file.FileRoot, file.FileName)
@@ -45,6 +46,7 @@ func Delete(p entity.Photo) error {
 		log.Debugf("delete: removing yaml sidecar %s", sanitize.Log(filepath.Base(yamlFileName)))
 		logWarn("delete", os.Remove(yamlFileName))
 	}
+	}()
 
 	return nil
 }
