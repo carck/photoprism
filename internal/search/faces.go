@@ -26,21 +26,21 @@ func Faces(f form.SearchFaces) (results FaceResults, err error) {
 
 		if txt.Yes(f.Unknown) {
 			s = s.Joins(`JOIN (
-	        SELECT face_id, MIN(marker_uid) AS marker_uid FROM markers
+	        SELECT face_id, marker_uid, MAX(size) AS Size FROM markers
 	        WHERE face_id <> '' AND subj_uid = '' AND marker_type = 'face' AND marker_src = 'image'
 	          AND marker_invalid = 0
 	        GROUP BY face_id) fm
 	        ON faces.id = fm.face_id`)
 		} else if txt.No(f.Unknown) {
 			s = s.Joins(`JOIN (
-	        SELECT face_id, MIN(marker_uid) AS marker_uid FROM markers
+	        SELECT face_id, marker_uid, MAX(size) AS Size FROM markers
 	        WHERE face_id <> '' AND subj_uid <> '' AND marker_type = 'face' AND marker_src = 'image'
 	          AND marker_invalid = 0
 	        GROUP BY face_id) fm
 	        ON faces.id = fm.face_id`)
 		} else {
 			s = s.Joins(`JOIN (
-	        SELECT face_id, MIN(marker_uid) AS marker_uid FROM markers
+	        SELECT face_id, marker_uid, MAX(size) AS Size FROM markers
 	        WHERE face_id <> '' AND marker_type = 'face' AND marker_src = 'image'
 	          AND marker_invalid = 0
 	        GROUP BY face_id) fm
