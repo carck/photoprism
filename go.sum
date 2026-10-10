@@ -13,6 +13,8 @@ github.com/carck/jpegli-go v1.0.3 h1:grZeAWfkQ+2/hsl4mUKihuo62wtVw6W/v65yx/HkzUM
 github.com/carck/jpegli-go v1.0.3/go.mod h1:5xHrd8yL2MdcAnosfK5w6Fu74LYeOxxWYrcn6X4AEp0=
 github.com/carck/libheif-go v1.0.2 h1:w/SjXiNw5JBqKAGDvasmcxq9PqSulmF2SaTb5n8N2GQ=
 github.com/carck/libheif-go v1.0.2/go.mod h1:HgGqAiWT4FL7z7TjXpF1+Yd1kqBe6zwexq0qrFEiAOQ=
+github.com/carck/libheif-go v1.23.4 h1:K9HnhtxJyKkI1vYx7JIYgFnQNJJ5g5KoXy6p5tutOc0=
+github.com/carck/libheif-go v1.23.4/go.mod h1:HgGqAiWT4FL7z7TjXpF1+Yd1kqBe6zwexq0qrFEiAOQ=
 github.com/chenzhuoyu/base64x v0.0.0-20211019084208-fb5309c8db06/go.mod h1:DH46F32mSOjUmXrMHnKwZdA8wcEefY7UVqBKYGjpdQY=
 github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311/go.mod h1:b583jCggY9gE99b6G5LEC39OIiVsWj+R97kbl5odCEk=
 github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d h1:77cEq6EriyTZ0g/qfRdp61a3Uu/AWrgIq2s0ClJV1g0=
@@ -166,6 +168,8 @@ github.com/mattn/go-runewidth v0.0.10/go.mod h1:RAqKPSqVFrSLVXbA8x7dzmKdmGzieGRC
 github.com/mattn/go-sqlite3 v1.14.0/go.mod h1:JIl7NbARA7phWnGvh0LKTyg7S9BA+6gx71ShQilpsus=
 github.com/mattn/go-sqlite3 v1.14.34 h1:3NtcvcUnFBPsuRcno8pUtupspG/GM+9nZ88zgJcp6Zk=
 github.com/mattn/go-sqlite3 v1.14.34/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
+github.com/mattn/go-sqlite3 v1.14.52 h1:wVbm2Qnf4OXkqhBTSPuCRZDRnxfbVrrmiCEroVdog8U=
+github.com/mattn/go-sqlite3 v1.14.52/go.mod h1:6JTjA44L93a0QCyJef5YvlPoKXntQPjzWv5gtm9sB6w=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd h1:TRLaZ9cD/w8PVh93nsPXa1VrQ6jlwL5oN8l14QlcNfg=
 github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=
