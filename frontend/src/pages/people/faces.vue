@@ -45,94 +45,87 @@
           </p>
         </v-alert>
         <v-layout row wrap class="search-results face-results cards-view" :class="{'select-results': selection.length > 0}">
-          <div
-              v-for="(model, index) in results"
-              ref="items"
+          <v-flex
+              v-for="model in results"
               :key="model.ID"
-              :data-index="index"
-              class="flex xs6 sm4 md3 lg2 xxl1 d-flex"
+              xs6 sm4 md3 lg2 xxl1 d-flex
           >
+            <in-view :tag="'section'" :rootMargin="'0px 0px 200px 0px'" v-slot="{visible}">
             <v-card :data-id="model.ID"
                     tile style="user-select: none;"
                     :class="model.classes()"
                     class="result accent lighten-3">
               <div class="card-background accent lighten-3"></div>
-              <template v-if="index < firstVisibleElementIndex || index > lastVisibileElementIndex">
-                <div class="accent lighten-2 image"></div>
-                <v-card-actions class="card-details pa-0">
-                  <v-layout row wrap align-center>
-                    <v-flex xs12 class="text-xs-left pa-0">
-                      <div class="input-name pa-0 ma-0 input-holder"></div>
-                    </v-flex>
-                  </v-layout>
-                </v-card-actions>
-              </template>
-              <template v-else>
-                <v-img :src="model.thumbnailUrl('tile_320')"
-                       :transition="false"
-                       aspect-ratio="1"
-                       class="accent lighten-2 clickable"
-                       @click.stop.prevent="onView(model)">
-                  <v-btn :ripple="false" :depressed="false" class="input-hidden"
-                         icon flat small absolute
-                         @click.stop.prevent="toggleHidden(model)">
-                    <v-icon color="white" class="select-on" :title="$gettext('Show')">visibility_off</v-icon>
-                    <v-icon color="white" class="select-off" :title="$gettext('Hide')">clear</v-icon>
-                  </v-btn>
-                </v-img>
+              <div v-if="!visible" class="accent lighten-2 image"></div>
+              <v-img v-else :src="model.thumbnailUrl('tile_320')"
+                     :transition="false"
+                     aspect-ratio="1"
+                     class="accent lighten-2 clickable"
+                     @click.stop.prevent="onView(model)">
+                <v-btn :ripple="false" :depressed="false" class="input-hidden"
+                       icon flat small absolute
+                       @click.stop.prevent="toggleHidden(model)">
+                  <v-icon color="white" class="select-on" :title="$gettext('Show')">visibility_off</v-icon>
+                  <v-icon color="white" class="select-off" :title="$gettext('Hide')">clear</v-icon>
+                </v-btn>
+              </v-img>
 
-                <v-card-actions class="card-details pa-0">
-                  <v-layout v-if="model.SubjUID" row wrap align-center>
-                    <v-flex xs12 class="text-xs-left pa-0">
-                      <v-text-field
-                          v-model="model.Name"
-                          :rules="[textRule]"
-                          :readonly="readonly"
-                          browser-autocomplete="off"
-                          class="input-name pa-0 ma-0"
-                          hide-details
-                          single-line
-                          solo-inverted
-                          clearable
-                          clear-icon="eject"
-                          @click:clear="onClearSubject(model)"
-                          @change="onRename(model)"
-                          @keyup.enter.native="onRename(model)"
-                      ></v-text-field>
-                    </v-flex>
-                  </v-layout>
-                  <v-layout v-else row wrap align-center>
-                    <v-flex xs12 class="text-xs-left pa-0">
-                      <v-combobox
-                          v-model="model.Name"
-                          style="z-index: 250"
-                          :items="$config.values.people"
-                          item-value="Name"
-                          item-text="Name"
-                          :readonly="readonly"
-                          :return-object="false"
-                          :menu-props="menuProps"
-                          :allow-overflow="false"
-                          :hint="$gettext('Name')"
-                          hide-details
-                          single-line
-                          solo-inverted
-                          open-on-clear
-                          hide-no-data
-                          append-icon=""
-                          prepend-inner-icon="person_add"
-                          browser-autocomplete="off"
-                          class="input-name pa-0 ma-0"
-                          @change="onRename(model)"
-                          @keyup.enter.native="onRename(model)"
-                      >
-                      </v-combobox>
-                    </v-flex>
-                  </v-layout>
-                </v-card-actions>
-              </template>
+              <v-card-actions class="card-details pa-0">
+                <v-layout v-if="model.SubjUID" row wrap align-center>
+                  <v-flex xs12 class="text-xs-left pa-0">
+                    <div v-if="!visible" class="input-name pa-0 ma-0 input-holder"></div>
+                    <v-text-field
+                        v-else
+                        v-model="model.Name"
+                        :rules="[textRule]"
+                        :readonly="readonly"
+                        browser-autocomplete="off"
+                        class="input-name pa-0 ma-0"
+                        hide-details
+                        single-line
+                        solo-inverted
+                        clearable
+                        clear-icon="eject"
+                        @click:clear="onClearSubject(model)"
+                        @change="onRename(model)"
+                        @keyup.enter.native="onRename(model)"
+                    ></v-text-field>
+                  </v-flex>
+                </v-layout>
+                <v-layout v-else row wrap align-center>
+                  <v-flex xs12 class="text-xs-left pa-0">
+                    <div v-if="!visible" class="input-name pa-0 ma-0 input-holder"></div>
+                    <v-combobox
+                        v-else
+                        v-model="model.Name"
+                        style="z-index: 250"
+                        :items="$config.values.people"
+                        item-value="Name"
+                        item-text="Name"
+                        :readonly="readonly"
+                        :return-object="false"
+                        :menu-props="menuProps"
+                        :allow-overflow="false"
+                        :hint="$gettext('Name')"
+                        hide-details
+                        single-line
+                        solo-inverted
+                        open-on-clear
+                        hide-no-data
+                        append-icon=""
+                        prepend-inner-icon="person_add"
+                        browser-autocomplete="off"
+                        class="input-name pa-0 ma-0"
+                        @change="onRename(model)"
+                        @keyup.enter.native="onRename(model)"
+                    >
+                    </v-combobox>
+                  </v-flex>
+                </v-layout>
+              </v-card-actions>
             </v-card>
-          </div>
+            </in-view>
+          </v-flex>
         </v-layout>
         <div class="text-xs-center mt-3 mb-2">
           <v-btn
@@ -153,7 +146,6 @@ import Event from "pubsub-js";
 import RestModel from "model/rest";
 import {MaxItems} from "common/clipboard";
 import Notify from "common/notify";
-import {virtualizationTools} from "common/virtualization-tools";
 import {ClickLong, ClickShort, Input, InputInvalid} from "common/input";
 
 export default {
@@ -191,9 +183,6 @@ export default {
       page: 0,
       faceCount: 0,
       selection: [],
-      firstVisibleElementIndex: 0,
-      lastVisibileElementIndex: 11,
-      visibleElementIndices: new Set(),
       settings: settings,
       filter: filter,
       lastFilter: {},
@@ -217,21 +206,6 @@ export default {
     },
   },
   watch: {
-    results: {
-      handler() {
-        if (!this.loading) {
-          this.resetVirtualization();
-          this.$nextTick(() => this.observeItems());
-        }
-      },
-    },
-    loading(value) {
-      if (value) {
-        this.resetVirtualization();
-      } else {
-        this.$nextTick(() => this.observeItems());
-      }
-    },
     '$route'() {
       // Tab inactive?
       if (!this.active) {
@@ -257,54 +231,12 @@ export default {
 
     this.subscriptions.push(Event.subscribe("touchmove.top", () => this.refresh()));
   },
-  beforeCreate() {
-    this.intersectionObserver = new IntersectionObserver((entries) => {
-      this.visibilitiesChanged(entries);
-    }, {
-      rootMargin: "100% 0px",
-    });
-  },
-  beforeDestroy() {
-    this.intersectionObserver.disconnect();
-  },
   destroyed() {
     for (let i = 0; i < this.subscriptions.length; i++) {
       Event.unsubscribe(this.subscriptions[i]);
     }
   },
   methods: {
-    resetVirtualization() {
-      this.intersectionObserver.disconnect();
-      this.visibleElementIndices.clear();
-      this.firstVisibleElementIndex = 0;
-      this.lastVisibileElementIndex = 11;
-    },
-    observeItems() {
-      if (!this.$refs.items) {
-        return;
-      }
-
-      for (let i = 0; i < this.$refs.items.length; i += 3) {
-        this.intersectionObserver.observe(this.$refs.items[i]);
-      }
-    },
-    elementIndexFromIntersectionObserverEntry(entry) {
-      return parseInt(entry.target.getAttribute('data-index'));
-    },
-    visibilitiesChanged(entries) {
-      const [smallestIndex, largestIndex] = virtualizationTools.updateVisibleElementIndices(
-        this.visibleElementIndices,
-        entries,
-        this.elementIndexFromIntersectionObserverEntry,
-      );
-
-      if (smallestIndex === undefined || largestIndex === undefined) {
-        return;
-      }
-
-      this.firstVisibleElementIndex = smallestIndex - 5;
-      this.lastVisibileElementIndex = largestIndex + 5;
-    },
     searchCount() {
       return this.batchSize;
     },
